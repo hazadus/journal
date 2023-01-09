@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Local
     "users.apps.UsersConfig",
+    "journal.apps.JournalConfig",
 ]
 
 MIDDLEWARE = [
