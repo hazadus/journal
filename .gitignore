@@ -1,0 +1,12 @@
+.venv/
+.idea/
+media/
+data/
+__pycache__/
+staticfiles/
+.DS_Store
+.env
+*.pyc
+*.sqlite3
+docker-compose.yml
+*.rdb
