@@ -32,71 +32,29 @@
 
   <!-- The timeline items timeline -->
   <div class="timeline__items">
-    <!-- Each timeline item -->
-    <div class="timeline__item">
-      <!-- The circle and title -->
-      <div class="timeline__top">
-        <!-- The circle -->
-        <div class="timeline__circle"></div>
 
-        <!-- The title -->
-        <div class="timeline__title">Диспетчер добавил комментарий</div>
-      </div>
+    {% for comment in task.comments.all %}
+      <!-- Each timeline item -->
+      <div class="timeline__item">
+        <!-- The circle and title -->
+        <div class="timeline__top">
+          <!-- The circle -->
+          <div class="timeline__circle"></div>
 
-      <!-- The description -->
-      <div class="timeline__desc">
-        <div class="card">
-          <div class="card-body">
-            Здесь идёт сообщение или заметки о проведенной по данной задаче работе.
+          <!-- The title -->
+          <div class="timeline__title"><i class="fa-solid fa-user"></i> {{ comment.author.username }} добавил комментарий {{ comment.created }}:</div>
+        </div>
+
+        <!-- The description -->
+        <div class="timeline__desc">
+          <div class="card">
+            <div class="card-body">
+              {{ comment.body }}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Repeat other items -->
-    <!-- Each timeline item -->
-    <div class="timeline__item">
-      <!-- The circle and title -->
-      <div class="timeline__top">
-        <!-- The circle -->
-        <div class="timeline__circle"></div>
-
-        <!-- The title -->
-        <div class="timeline__title">Действие 1</div>
-      </div>
-
-      <!-- The description -->
-      <div class="timeline__desc">Description of action 1...</div>
-    </div>
-    <!-- Each timeline item -->
-    <div class="timeline__item">
-      <!-- The circle and title -->
-      <div class="timeline__top">
-        <!-- The circle -->
-        <div class="timeline__circle"></div>
-
-        <!-- The title -->
-        <div class="timeline__title">Действие 2</div>
-      </div>
-
-      <!-- The description -->
-      <div class="timeline__desc">Description of action 1...</div>
-    </div>
-    <!-- Each timeline item -->
-    <div class="timeline__item">
-      <!-- The circle and title -->
-      <div class="timeline__top">
-        <!-- The circle -->
-        <div class="timeline__circle"></div>
-
-        <!-- The title -->
-        <div class="timeline__title">Действие 3</div>
-      </div>
-
-      <!-- The description -->
-      <div class="timeline__desc">Description of action 1...</div>
-    </div>
-
+    {% endfor %}
   </div>
 </div>
 {% endblock content %}

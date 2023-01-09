@@ -11,6 +11,6 @@
     <p class="card-text">{{ task.body }}</p>
   </div>
   <div class="card-footer text-muted">
-    <i class="fa-regular fa-calendar"></i> Создана {{ task.created }} &middot; <i class="fa-solid fa-user"></i> {{ task.author.username }} &middot; <i class="fa-solid fa-comments"></i> Комментарии: 5, новых - 1 &middot; <i class="fa-solid fa-user-check"></i> Ознакомлены: {{ task.users_acquainted.count }}
+    <i class="fa-regular fa-calendar"></i> Создана {{ task.created }} &middot; <i class="fa-solid fa-user"></i> {{ task.author.username }} &middot; <i class="fa-solid fa-comments"></i> Комментарии: {{ task.comments.count }}, новых - 0 &middot; <i class="fa-solid fa-user-check"></i> Ознакомлены: {{ task.users_acquainted.count }}
   </div>
 </div>

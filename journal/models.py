@@ -55,3 +55,26 @@ class Task(models.Model):
 
     def get_absolute_url(self):
         return reverse("journal:task_detail", args=[self.pk])
+
+
+class Comment(models.Model):
+    task = models.ForeignKey(verbose_name="Задача", to=Task, on_delete=models.CASCADE,
+                             related_name="comments")
+    author = models.ForeignKey(verbose_name="Автор", to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                               related_name="comments_created")
+    body = models.TextField(verbose_name="Комментарий", null=False, blank=False)
+    is_archived = models.BooleanField(verbose_name="Архивирован", default=False)
+    parent_comment = models.ForeignKey(verbose_name="Родительский комментарий", to="Comment", null=True, blank=True,
+                                       on_delete=models.CASCADE)
+    users_acquainted = models.ManyToManyField(verbose_name="Ознакомлены", to=settings.AUTH_USER_MODEL,
+                                              related_name="comments_acquainted", blank=True)
+    created = models.DateTimeField(verbose_name="Создан", auto_now_add=True)
+    updated = models.DateTimeField(verbose_name="Обновлен", auto_now=True)
+
+    class Meta:
+        verbose_name = "Комментарий"
+        verbose_name_plural = "Комментарии"
+        ordering = ["task", "-created"]
+
+    def __str__(self):
+        return self.body
