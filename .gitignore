@@ -10,3 +10,4 @@ staticfiles/
 *.sqlite3
 docker-compose.yml
 *.rdb
+*.log
