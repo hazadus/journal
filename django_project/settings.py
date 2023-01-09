@@ -24,6 +24,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "whitenoise.runserver_nostatic",  # Must be above "django.contrib.staticfiles"
     "django.contrib.staticfiles",
+    # 3rd party apps
+    "crispy_forms",
+    "crispy_bootstrap5",
     # Local
     "users.apps.UsersConfig",
     "journal.apps.JournalConfig",
@@ -124,3 +127,6 @@ LOGIN_REDIRECT_URL = "journal:task_list"
 LOGOUT_REDIRECT_URL = "login"
 SESSION_COOKIE_AGE = 60 * 60 * 16
 
+# Crispy stuff
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
