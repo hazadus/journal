@@ -12,7 +12,17 @@ DEBUG = env.bool("DEBUG", False)
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "0.0.0.0",
+    "45.95.234.132",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://*.127.0.0.1",
+    "45.95.234.132",
+]
 
 # Application definition
 
