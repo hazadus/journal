@@ -1,0 +1,25 @@
+{% extends "base_dashboard.html" %}
+
+{% block title %}Список задач{% endblock title %}
+
+{% block dashboard_page_header %}
+  <h1 class="h2">Задачи</h1>
+  <div class="btn-toolbar mb-2 mb-md-0">
+    <div class="btn-group me-2">
+      <button type="button" class="btn btn-sm btn-outline-secondary">Кнопка 1</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary">Кнопка 2</button>
+    </div>
+    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle me-2">
+      <i class="fa-solid fa-calendar-week"></i> За неделю
+    </button>
+    <button type="button" class="btn btn-sm btn-success">
+      <i class="fa-solid fa-file-circle-plus"></i> Добавить задачу
+    </button>
+  </div>
+{% endblock dashboard_page_header %}
+
+{% block content %}
+  {% for task in task_list %}
+    {% include "snippets/task_list_item.html" with task=task %}
+  {% endfor %}
+{% endblock content %}

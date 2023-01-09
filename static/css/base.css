@@ -1,0 +1,159 @@
+:root {
+  --color-text: black;
+}
+
+body {
+  font-size: .875rem;
+}
+
+.feather {
+  width: 16px;
+  height: 16px;
+}
+
+/*
+ * Sidebar
+ */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100; /* Behind the navbar */
+  padding: 48px 0 0; /* Height of navbar */
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+}
+
+@media (max-width: 767.98px) {
+  .sidebar {
+    top: 5rem;
+  }
+}
+
+.sidebar-sticky {
+  height: calc(100vh - 48px);
+  overflow-x: hidden;
+  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+}
+
+.sidebar .nav-link {
+  font-weight: 500;
+  color: #333;
+}
+
+.sidebar .nav-link .feather {
+  margin-right: 4px;
+  color: #727272;
+}
+
+.sidebar .nav-link.active {
+  color: #2470dc;
+}
+
+.sidebar .nav-link:hover .feather,
+.sidebar .nav-link.active .feather {
+  color: inherit;
+}
+
+.sidebar-heading {
+  font-size: .75rem;
+}
+
+/*
+ * Navbar
+ */
+
+.navbar-brand {
+  padding-top: .75rem;
+  padding-bottom: .75rem;
+  background-color: rgba(0, 0, 0, .25);
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
+}
+
+.navbar .navbar-toggler {
+  top: .25rem;
+  right: 1rem;
+}
+
+.navbar .form-control {
+  padding: .75rem 1rem;
+}
+
+.form-control-dark {
+  color: #fff;
+  background-color: rgba(255, 255, 255, .1);
+  border-color: rgba(255, 255, 255, .1);
+}
+
+.form-control-dark:focus {
+  border-color: transparent;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
+}
+
+/* Timeline CSS https://csslayout.io/timeline/ */
+.timeline {
+  /* Used to position the left vertical line */
+  position: relative;
+}
+
+.timeline__line {
+  /* Border */
+  border-right: 2px solid #d1d5db;
+
+  /* Positioned at the left */
+  left: 0.75rem;
+  position: absolute;
+  top: 0px;
+
+  /* Take full height */
+  height: 100%;
+}
+
+.timeline__items {
+  /* Reset styles */
+  list-style-type: none;
+  margin: 0px;
+  padding: 0px;
+}
+
+.timeline__item {
+  margin-bottom: 8px;
+}
+
+.timeline__top {
+  /* Center the content horizontally */
+  align-items: center;
+  display: flex;
+}
+
+.timeline__circle {
+  /* Rounded border */
+  background-color: #d1d5db;
+  border-radius: 9999px;
+
+  /* Size */
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+.timeline__title {
+  /* Take available width */
+  flex: 1;
+  margin-left: 0.5rem;
+}
+
+.timeline__desc {
+  /* Make it align with the title */
+  margin-left: 2rem;
+}
+
+/* For like <h1><a class="title-link">...</a></h1> stuff */
+.title-link {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.title-link:hover {
+  text-decoration: underline;
+}
