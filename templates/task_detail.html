@@ -14,7 +14,14 @@
       <i class="fa-regular fa-calendar"></i> Создана {{ task.created }} &middot; <i class="fa-solid fa-user"></i> {{ task.author.username }} &middot;  <i class="fa-solid fa-user-check"></i> Ознакомлены: {{ task.users_acquainted.count }}
     </div>
     <div class="card-body">
-      {{ task.body }}
+      {{ task.body|linebreaks }}
+      {% if task.attachment %}
+        <p>
+          <i class="fa-solid fa-paperclip"></i> Файл: <a href="{{ task.attachment.url }}">
+            {{ task.attachment.name }}</a>
+          ({{ task.attachment.size|filesizeformat }})
+        </p>
+      {% endif %}
     </div>
   </div>
 

@@ -1,0 +1,17 @@
+{% extends "base_dashboard.html" %}
+
+{% block title %}
+  Создать новую задачу
+{% endblock title %}
+
+{% block dashboard_page_header %}
+  <h1 class="h2">Создать новую задачу</h1>
+{% endblock dashboard_page_header %}
+
+{% block content %}
+  <form class="form-control" method="post" action="" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-success" type="submit">Создать</button>
+  </form>
+{% endblock %}

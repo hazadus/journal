@@ -12,9 +12,9 @@
     <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle me-2">
       <i class="fa-solid fa-calendar-week"></i> За неделю
     </button>
-    <button type="button" class="btn btn-sm btn-success">
+    <a class="btn btn-sm btn-success" href="{% url 'journal:task_create' %}">
       <i class="fa-solid fa-file-circle-plus"></i> Добавить задачу
-    </button>
+    </a>
   </div>
 {% endblock dashboard_page_header %}
 
