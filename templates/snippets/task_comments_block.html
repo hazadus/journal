@@ -1,0 +1,53 @@
+<div id="comments">
+  <!-- Timeline demo -->
+  <div class="timeline">
+    <!-- Left vertical line -->
+    <div class="timeline__line"></div>
+
+    <!-- The timeline items timeline -->
+    <div class="timeline__items">
+      {% for comment in task.comments.all %}
+        <!-- Each timeline item -->
+        <div class="timeline__item">
+          <!-- The circle and title -->
+          <div class="timeline__top">
+            <!-- The circle -->
+            <div class="timeline__circle"></div>
+
+            <!-- The title -->
+            <div class="timeline__title"><i class="fa-solid fa-user"></i> {{ comment.author.short_name }} добавил комментарий {{ comment.created }}:</div>
+          </div>
+
+          <!-- The description -->
+          <div class="timeline__desc">
+            <div class="card">
+              <div class="card-body">
+                {{ comment.body|linebreaks }}
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+  </div>
+
+  <form hx-post="{% url 'journal:task_comment_add' task.pk %}" hx-target="#comments" hx-swap="outerHTML">
+    <div class="mb-3">
+      <label for="comment_text" class="form-label">Добавить комментарий:</label>
+      <textarea class="form-control" id="comment_text" name="comment_text" rows="3"></textarea>
+    </div>
+
+    <div class="btn-toolbar mb-2 mb-md-0 justify-content-end">
+      <a class="btn btn-sm btn-secondary me-2" href="#">
+        <i class="fa-solid fa-circle-check"></i> Завершить
+      </a>
+      <a class="btn btn-sm btn-primary me-2" href="#">
+        <i class="fa-solid fa-file-signature"></i> Ознакомлен
+      </a>
+      <button class="btn btn-sm btn-success" type="submit">
+        <i class="fa-solid fa-comment"></i> Комментировать
+      </button>
+    </div>
+  </form>
+</div>
