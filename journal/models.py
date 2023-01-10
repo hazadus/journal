@@ -74,7 +74,7 @@ class Comment(models.Model):
     class Meta:
         verbose_name = "Комментарий"
         verbose_name_plural = "Комментарии"
-        ordering = ["task", "-created"]
+        ordering = ["created"]
 
     def __str__(self):
         return self.body

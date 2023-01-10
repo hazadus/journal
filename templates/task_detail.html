@@ -6,6 +6,11 @@
 
 {% block dashboard_page_header %}
   <h1 class="h2">{{ task.title }}</h1>
+  <div class="btn-toolbar mb-2 mb-md-0">
+    <a class="btn btn-sm btn-success" href="{% url 'journal:task_create' %}">
+      <i class="fa-solid fa-file-circle-plus"></i> Добавить задачу
+    </a>
+  </div>
 {% endblock dashboard_page_header %}
 
 {% block content %}
@@ -25,36 +30,51 @@
     </div>
   </div>
 
-<!-- Timeline demo -->
-<div class="timeline">
-  <!-- Left vertical line -->
-  <div class="timeline__line"></div>
+    <!-- Timeline demo -->
+    <div class="timeline">
+      <!-- Left vertical line -->
+      <div class="timeline__line"></div>
 
-  <!-- The timeline items timeline -->
-  <div class="timeline__items">
+      <!-- The timeline items timeline -->
+      <div class="timeline__items">
 
-    {% for comment in task.comments.all %}
-      <!-- Each timeline item -->
-      <div class="timeline__item">
-        <!-- The circle and title -->
-        <div class="timeline__top">
-          <!-- The circle -->
-          <div class="timeline__circle"></div>
+        {% for comment in task.comments.all %}
+          <!-- Each timeline item -->
+          <div class="timeline__item">
+            <!-- The circle and title -->
+            <div class="timeline__top">
+              <!-- The circle -->
+              <div class="timeline__circle"></div>
 
-          <!-- The title -->
-          <div class="timeline__title"><i class="fa-solid fa-user"></i> {{ comment.author.username }} добавил комментарий {{ comment.created }}:</div>
-        </div>
+              <!-- The title -->
+              <div class="timeline__title"><i class="fa-solid fa-user"></i> {{ comment.author.username }} добавил комментарий {{ comment.created }}:</div>
+            </div>
 
-        <!-- The description -->
-        <div class="timeline__desc">
-          <div class="card">
-            <div class="card-body">
-              {{ comment.body }}
+            <!-- The description -->
+            <div class="timeline__desc">
+              <div class="card">
+                <div class="card-body">
+                  {{ comment.body }}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        {% endfor %}
       </div>
-    {% endfor %}
+    </div>
+
+  <div class="mb-3">
+    <label for="comment_textarea" class="form-label">Добавить комментарий:</label>
+    <textarea class="form-control" id="comment_textarea" rows="3"></textarea>
   </div>
-</div>
+
+  <div class="btn-toolbar mb-2 mb-md-0 justify-content-end">
+    <a class="btn btn-sm btn-secondary me-2" href="#">
+      <i class="fa-solid fa-circle-check"></i> Завершить задачу
+    </a>
+    <a class="btn btn-sm btn-success" href="#">
+      <i class="fa-solid fa-comment"></i> Комментировать
+    </a>
+  </div>
+
 {% endblock content %}
