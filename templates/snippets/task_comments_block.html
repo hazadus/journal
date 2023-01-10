@@ -22,7 +22,7 @@
           <!-- The description -->
           <div class="timeline__desc">
             <!-- Comment card -->
-            <div class="card" hx-confirm="Are you sure you want to delete this comment?"
+            <div class="card" hx-confirm="Вы уверены, что хотите удалить этот комментарий?"
                 hx-target="#comments"
                 hx-swap="outerHTML">
               <div class="card-header d-flex text-muted">
@@ -57,10 +57,10 @@
     </div>
 
     <div class="btn-toolbar mb-2 mb-md-0 justify-content-end">
-      <a class="btn btn-sm btn-secondary me-2" href="#">
+      <a class="btn btn-sm btn-secondary me-2" onclick="placeholderButton();" style="cursor: not-allowed;">
         <i class="fa-solid fa-circle-check"></i> Завершить
       </a>
-      <a class="btn btn-sm btn-primary me-2" href="#">
+      <a class="btn btn-sm btn-primary me-2" onclick="placeholderButton();" style="cursor: not-allowed;">
         <i class="fa-solid fa-file-signature"></i> Ознакомлен
       </a>
       <button class="btn btn-sm btn-success" type="submit">

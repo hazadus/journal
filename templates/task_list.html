@@ -5,6 +5,7 @@
 {% block dashboard_page_header %}
   <h1 class="h2">Задачи</h1>
   <div class="btn-toolbar mb-2 mb-md-0">
+  <!--
     <div class="btn-group me-2">
       <button type="button" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-download"></i> <i class="fa-solid fa-file-csv"></i></button>
       <button type="button" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-download"></i> <i class="fa-solid fa-file-pdf"></i></button>
@@ -12,6 +13,7 @@
     <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle me-2">
       <i class="fa-solid fa-calendar-week"></i> За неделю
     </button>
+    -->
     <a class="btn btn-sm btn-success" href="{% url 'journal:task_create' %}">
       <i class="fa-solid fa-file-circle-plus"></i> Добавить задачу
     </a>
