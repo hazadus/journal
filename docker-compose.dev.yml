@@ -10,6 +10,7 @@ services:
       - "SECRET_KEY="
       - "DEBUG=True"
       - "STATIC_ROOT=staticfiles"
+      - "ROLLBAR_ACCESS_TOKEN="
   # Nginx config inspired by: https://saasitive.com/tutorial/django-celery-redis-postgres-docker-compose/
   nginx:
     container_name: "journal-nginx"
