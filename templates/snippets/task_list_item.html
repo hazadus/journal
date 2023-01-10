@@ -1,6 +1,6 @@
 <div class="card mb-3">
   <div class="card-header">
-    <i class="fa-solid fa-tag"></i> {{ task.category }}
+    <i class="fa-solid fa-tag"></i> <span class="text-muted">{{ task.category }}</span>
   </div>
   <div class="card-body">
     <h5 class="card-title">
@@ -11,6 +11,6 @@
     <p class="card-text">{{ task.body }}</p>
   </div>
   <div class="card-footer text-muted">
-    <i class="fa-regular fa-calendar"></i> Создана {{ task.created }} &middot; <i class="fa-solid fa-user"></i> {{ task.author.username }} &middot; <i class="fa-solid fa-comments"></i> Комментарии: {{ task.comments.count }}, новых - 0 &middot; <i class="fa-solid fa-user-check"></i> Ознакомлены: {{ task.users_acquainted.count }}
+    <i class="fa-regular fa-calendar"></i> {{ task.created }} &middot; <i class="fa-solid fa-user"></i> {{ task.author.short_name }} &middot; <i class="fa-solid fa-comments"></i> {{ task.comments.count }} &middot; <i class="fa-solid fa-user-check"></i> {{ task.users_acquainted.count }} {% if task.due_date %}&middot; <i class="fa-solid fa-calendar-day"></i> {{ task.due_date }}{% endif %}
   </div>
 </div>

@@ -16,7 +16,16 @@
 {% block content %}
   <div class="card mb-2">
     <div class="card-header text-muted">
-      <i class="fa-regular fa-calendar"></i> Создана {{ task.created }} &middot; <i class="fa-solid fa-user"></i> {{ task.author.username }} &middot;  <i class="fa-solid fa-user-check"></i> Ознакомлены: {{ task.users_acquainted.count }}
+      <div class="d-flex flex-wrap flex-md-nowrap align-items-center">
+        <div class="flex-grow-1">
+          <i class="fa-regular fa-calendar"></i> {{ task.created }} &middot; <i class="fa-solid fa-user"></i> {{ task.author.short_name }} &middot;  <i class="fa-solid fa-user-check"></i> {{ task.users_acquainted.count }} {% if task.due_date %}&middot; <i class="fa-solid fa-calendar-day"></i> {{ task.due_date }}{% endif %}
+        </div>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <a class="btn btn-sm btn-secondary" href="#">
+            <i class="fa-solid fa-pen-to-square"></i> Изменить
+          </a>
+        </div>
+      </div>
     </div>
     <div class="card-body">
       {{ task.body|linebreaks }}
@@ -47,14 +56,14 @@
               <div class="timeline__circle"></div>
 
               <!-- The title -->
-              <div class="timeline__title"><i class="fa-solid fa-user"></i> {{ comment.author.username }} добавил комментарий {{ comment.created }}:</div>
+              <div class="timeline__title"><i class="fa-solid fa-user"></i> {{ comment.author.short_name }} добавил комментарий {{ comment.created }}:</div>
             </div>
 
             <!-- The description -->
             <div class="timeline__desc">
               <div class="card">
                 <div class="card-body">
-                  {{ comment.body }}
+                  {{ comment.body|linebreaks }}
                 </div>
               </div>
             </div>
@@ -70,7 +79,10 @@
 
   <div class="btn-toolbar mb-2 mb-md-0 justify-content-end">
     <a class="btn btn-sm btn-secondary me-2" href="#">
-      <i class="fa-solid fa-circle-check"></i> Завершить задачу
+      <i class="fa-solid fa-circle-check"></i> Завершить
+    </a>
+    <a class="btn btn-sm btn-primary me-2" href="#">
+      <i class="fa-solid fa-file-signature"></i> Ознакомлен
     </a>
     <a class="btn btn-sm btn-success" href="#">
       <i class="fa-solid fa-comment"></i> Комментировать

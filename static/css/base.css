@@ -157,3 +157,8 @@ body {
 .title-link:hover {
   text-decoration: underline;
 }
+
+.nav-link:hover {
+  text-decoration: underline;
+  text-decoration-style: dashed;
+}

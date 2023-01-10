@@ -10,3 +10,11 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
+
+    @property
+    def short_name(self):
+        return "{surname} {name_letter}{second_name_letter}".format(
+            surname=self.last_name,
+            name_letter=self.first_name[:1] + "." if self.first_name else "",
+            second_name_letter=self.second_name[:1] + "." if self.second_name else ""
+        )
