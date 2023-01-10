@@ -10,17 +10,36 @@
         <!-- Each timeline item -->
         <div class="timeline__item">
           <!-- The circle and title -->
-          <div class="timeline__top">
+          <div class="timeline__top mb-2">
             <!-- The circle -->
             <div class="timeline__circle"></div>
 
             <!-- The title -->
-            <div class="timeline__title"><i class="fa-solid fa-user"></i> {{ comment.author.short_name }} добавил комментарий {{ comment.created }}:</div>
+            <div class="timeline__title">
+              Добавлен комментарий:
+            </div>
           </div>
-
           <!-- The description -->
           <div class="timeline__desc">
-            <div class="card">
+            <!-- Comment card -->
+            <div class="card" hx-confirm="Are you sure you want to delete this comment?"
+                hx-target="#comments"
+                hx-swap="outerHTML">
+              <div class="card-header d-flex text-muted">
+                <!-- Comment info -->
+                <div class="flex-grow-1">
+                  <i class="fa-solid fa-user"></i> {{ comment.author.short_name }}, {{ comment.created }}
+                </div>
+                <!-- Buttons -->
+                <div>
+                    <!-- DELETE -->
+                    {% if user.is_superuser or comment.author == user %}
+                      <a class="toolbar-link-danger" hx-delete="{% url 'journal:task_comment_delete' task.pk comment.pk %}">
+                        <i class="fa-solid fa-trash"></i>
+                      </a>
+                    {% endif %}
+                </div>
+              </div>
               <div class="card-body">
                 {{ comment.body|linebreaks }}
               </div>
@@ -29,7 +48,6 @@
         </div>
       {% endfor %}
     </div>
-
   </div>
 
   <form hx-post="{% url 'journal:task_comment_add' task.pk %}" hx-target="#comments" hx-swap="outerHTML">

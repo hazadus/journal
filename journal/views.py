@@ -38,7 +38,7 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
 
 @login_required
 @require_POST
-def comment_add(request: HttpRequest, pk=int) -> HttpResponse:
+def comment_add(request: HttpRequest, pk: int) -> HttpResponse:
     """
     Add a comment to the task with id == pk.
     HTMX view, adds a comment, then returns part of a page with comments block.
@@ -48,6 +48,20 @@ def comment_add(request: HttpRequest, pk=int) -> HttpResponse:
 
     if new_comment:
         Comment.objects.create(task=task, author=request.user, body=new_comment)
+
+    return render(request, "snippets/task_comments_block.html", {
+        "task": task,
+    })
+
+
+@login_required
+def comment_delete(request: HttpRequest, task_pk: int, comment_pk: int) -> HttpResponse:
+    task = get_object_or_404(Task, pk=task_pk)
+    comment = get_object_or_404(Comment, pk=comment_pk)
+
+    # Only allow superuser or author to delete comments:
+    if request.user.is_superuser or comment.author == request.user:
+        comment.delete()
 
     return render(request, "snippets/task_comments_block.html", {
         "task": task,
