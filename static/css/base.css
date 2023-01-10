@@ -1,5 +1,6 @@
 :root {
   --color-text: black;
+  --color-danger: red;
 }
 
 body {
@@ -161,4 +162,13 @@ body {
 .nav-link:hover {
   text-decoration: underline;
   text-decoration-style: dashed;
+}
+
+.toolbar-link-danger {
+  color: gray;
+  cursor: pointer;
+}
+
+.toolbar-link-danger:hover {
+  color: var(--color-danger);
 }

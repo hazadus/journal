@@ -21,7 +21,7 @@
           <i class="fa-regular fa-calendar"></i> {{ task.created }} &middot; <i class="fa-solid fa-user"></i> {{ task.author.short_name }} &middot;  <i class="fa-solid fa-user-check"></i> {{ task.users_acquainted.count }} {% if task.due_date %}&middot; <i class="fa-solid fa-calendar-day"></i> {{ task.due_date }}{% endif %}
         </div>
         <div class="btn-toolbar mb-2 mb-md-0">
-          <a class="btn btn-sm btn-secondary" href="#">
+          <a class="btn btn-sm btn-secondary" onclick="placeholderButton();" style="cursor: not-allowed;">
             <i class="fa-solid fa-pen-to-square"></i> Изменить
           </a>
         </div>
@@ -39,54 +39,5 @@
     </div>
   </div>
 
-    <!-- Timeline demo -->
-    <div class="timeline">
-      <!-- Left vertical line -->
-      <div class="timeline__line"></div>
-
-      <!-- The timeline items timeline -->
-      <div class="timeline__items">
-
-        {% for comment in task.comments.all %}
-          <!-- Each timeline item -->
-          <div class="timeline__item">
-            <!-- The circle and title -->
-            <div class="timeline__top">
-              <!-- The circle -->
-              <div class="timeline__circle"></div>
-
-              <!-- The title -->
-              <div class="timeline__title"><i class="fa-solid fa-user"></i> {{ comment.author.short_name }} добавил комментарий {{ comment.created }}:</div>
-            </div>
-
-            <!-- The description -->
-            <div class="timeline__desc">
-              <div class="card">
-                <div class="card-body">
-                  {{ comment.body|linebreaks }}
-                </div>
-              </div>
-            </div>
-          </div>
-        {% endfor %}
-      </div>
-    </div>
-
-  <div class="mb-3">
-    <label for="comment_textarea" class="form-label">Добавить комментарий:</label>
-    <textarea class="form-control" id="comment_textarea" rows="3"></textarea>
-  </div>
-
-  <div class="btn-toolbar mb-2 mb-md-0 justify-content-end">
-    <a class="btn btn-sm btn-secondary me-2" href="#">
-      <i class="fa-solid fa-circle-check"></i> Завершить
-    </a>
-    <a class="btn btn-sm btn-primary me-2" href="#">
-      <i class="fa-solid fa-file-signature"></i> Ознакомлен
-    </a>
-    <a class="btn btn-sm btn-success" href="#">
-      <i class="fa-solid fa-comment"></i> Комментировать
-    </a>
-  </div>
-
+  {% include 'snippets/task_comments_block.html' with task=task %}
 {% endblock content %}
