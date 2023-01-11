@@ -1,0 +1,34 @@
+<div id="task_with_comments">
+  <div class="card {% if not user in task.users_acquainted.all %}card-new border-success{% endif %} mb-2">
+    <div class="card-header text-muted">
+      <div class="d-flex flex-wrap flex-md-nowrap align-items-center">
+        <div class="flex-grow-1">
+          {% if task.is_private %}
+            <i class="fa-solid fa-lock me-1"></i>
+          {% endif %}
+          <i class="fa-regular fa-calendar"></i> {{ task.created }} &middot; <i class="fa-solid fa-user"></i> {{ task.author.short_name }} &middot;  <i class="fa-solid fa-user-check"></i> {{ task.users_acquainted.count }} {% if task.due_date %}&middot; <i class="fa-solid fa-calendar-day"></i> {{ task.due_date }}{% endif %}
+        </div>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          {% if not task.is_completed %}
+            <!-- EDIT button only for open tasks -->
+            <a class="btn btn-sm btn-secondary" onclick="placeholderButton();" style="cursor: not-allowed;">
+              <i class="fa-solid fa-pen-to-square"></i> Изменить
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      {{ task.body|linebreaks }}
+      {% if task.attachment %}
+        <p>
+          <i class="fa-solid fa-paperclip"></i> Файл: <a href="{{ task.attachment.url }}">
+            {{ task.attachment.name }}</a>
+          ({{ task.attachment.size|filesizeformat }})
+        </p>
+      {% endif %}
+    </div>
+  </div>
+
+  {% include 'snippets/task_comments_block.html' with task=task %}
+</div>

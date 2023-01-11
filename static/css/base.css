@@ -178,3 +178,21 @@ body {
 .toolbar-link-danger:hover {
   color: var(--color-danger);
 }
+
+.card-new .card {
+  border-color: var(--bs-success);
+}
+
+.card-new .card-header,
+.card-new .card-footer {
+  background-color: var(--bs-success-bg-subtle);
+}
+
+.list-card {
+    transition: 0.5s;
+}
+
+.list-card:hover {
+    box-shadow: 0 0 10px rgb(0, 0, 0, 0.5);
+    transform: scale(1.001);
+}
