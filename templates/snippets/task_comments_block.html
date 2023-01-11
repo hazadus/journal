@@ -6,7 +6,7 @@
 
     <!-- The timeline items timeline -->
     <div class="timeline__items">
-      {% for comment in task.comments.all %}
+      {% for comment in task.active_comments.all %}
         <!-- Each timeline item -->
         <div class="timeline__item">
           <!-- The circle and title -->
@@ -32,10 +32,16 @@
                 </div>
                 <!-- Buttons -->
                 <div>
-                    <!-- DELETE -->
+                    <!-- ARCHIVE -->
                     {% if user.is_superuser or comment.author == user %}
-                      <a class="toolbar-link-danger" hx-delete="{% url 'journal:task_comment_delete' task.pk comment.pk %}">
+                      <a class="toolbar-link toolbar-link-danger" hx-delete="{% url 'journal:task_comment_archive' task.pk comment.pk %}">
                         <i class="fa-solid fa-trash"></i>
+                      </a>
+                    {% endif %}
+                    <!-- DELETE -->
+                    {% if user.is_superuser %}
+                      <a class="toolbar-link toolbar-link-danger" hx-delete="{% url 'journal:task_comment_delete' task.pk comment.pk %}">
+                        <i class="fa-solid fa-trash-can-arrow-up"></i>
                       </a>
                     {% endif %}
                 </div>

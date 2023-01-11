@@ -56,12 +56,35 @@ def comment_add(request: HttpRequest, pk: int) -> HttpResponse:
 
 @login_required
 def comment_delete(request: HttpRequest, task_pk: int, comment_pk: int) -> HttpResponse:
+    """
+    Only admin can actually DELETE the comment from DB.
+    HTMX view, deletes a comment, then returns part of a page with comments block.
+    """
     task = get_object_or_404(Task, pk=task_pk)
     comment = get_object_or_404(Comment, pk=comment_pk)
 
-    # Only allow superuser or author to delete comments:
-    if request.user.is_superuser or comment.author == request.user:
+    # Only allow superuser to actually DELETE comments:
+    if request.user.is_superuser:
         comment.delete()
+
+    return render(request, "snippets/task_comments_block.html", {
+        "task": task,
+    })
+
+
+@login_required
+def comment_archive(request: HttpRequest, task_pk: int, comment_pk: int) -> HttpResponse:
+    """
+    Archive comment.
+    HTMX view, archives a comment, then returns part of a page with comments block.
+    """
+    task = get_object_or_404(Task, pk=task_pk)
+    comment = get_object_or_404(Comment, pk=comment_pk)
+
+    # Only allow superusers or authors to archive comments:
+    if request.user.is_superuser or request.user == comment.author:
+        comment.is_archived = True
+        comment.save()
 
     return render(request, "snippets/task_comments_block.html", {
         "task": task,

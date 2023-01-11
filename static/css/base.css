@@ -164,9 +164,15 @@ body {
   text-decoration-style: dashed;
 }
 
-.toolbar-link-danger {
+.toolbar-link {
+  margin-right: 3px;
   color: gray;
+  text-decoration: none;
   cursor: pointer;
+}
+
+.toolbar-link:last-child {
+  margin-right: 0;
 }
 
 .toolbar-link-danger:hover {

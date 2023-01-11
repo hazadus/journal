@@ -11,6 +11,14 @@ class ActiveTaskManager(models.Manager):
         return super().get_queryset().filter(is_private=False, is_archived=False, is_completed=False)
 
 
+class ActiveCommentManager(models.Manager):
+    """
+    Used to retrieve only not archived comment.
+    """
+    def get_queryset(self):
+        return super().get_queryset().filter(is_archived=False)
+
+
 class TaskCategory(models.Model):
     title = models.CharField(verbose_name="Название", max_length=128)
     description = models.TextField(verbose_name="Описание", null=True, blank=True)
@@ -56,6 +64,13 @@ class Task(models.Model):
     def get_absolute_url(self):
         return reverse("journal:task_detail", args=[self.pk])
 
+    @property
+    def active_comments(self):
+        """
+        Returns only `active`, i.e. not archived, comments.
+        """
+        return self.comments.filter(is_archived=False)
+
 
 class Comment(models.Model):
     task = models.ForeignKey(verbose_name="Задача", to=Task, on_delete=models.CASCADE,
@@ -70,6 +85,10 @@ class Comment(models.Model):
                                               related_name="comments_acquainted", blank=True)
     created = models.DateTimeField(verbose_name="Создан", auto_now_add=True)
     updated = models.DateTimeField(verbose_name="Обновлен", auto_now=True)
+
+    # Model Managers
+    objects = models.Manager()
+    active = ActiveCommentManager()
 
     class Meta:
         verbose_name = "Комментарий"

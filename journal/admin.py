@@ -15,14 +15,14 @@ class TaskCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ["body", "task", "author", "created"]
+    list_display = ["body", "task", "author", "created", "is_archived"]
     list_filter = ["is_archived"]
     ordering = ["task", "-created"]
 
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ["title", "author", "category", "created"]
+    list_display = ["title", "author", "category", "created", "is_completed"]
     list_filter = ["is_completed", "is_private", "is_archived", "created"]
     ordering = ["is_completed", "-created"]
     inlines = [CommentInline]
