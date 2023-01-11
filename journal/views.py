@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.http import HttpRequest, HttpResponse
 from django.views.decorators.http import require_POST
 from django.shortcuts import render, get_object_or_404
@@ -9,11 +10,33 @@ from .models import Task, Comment
 
 
 class TaskListView(LoginRequiredMixin, ListView):
-    """ "Задачи" view in Dashboard  """
+    """ "Задачи" view in Dashboard (all active - without completed and private - tasks) """
     model = Task
     template_name = "task_list.html"
     queryset = Task.active.all()
     context_object_name = "task_list"
+
+
+class CompletedTaskListView(LoginRequiredMixin, ListView):
+    """
+    "Задачи" - "Завершенные" view in Dashboard (completed: public tasks, private tasks for this user, archived tasks
+    excluded).
+    """
+    model = Task
+    template_name = "task_list_completed.html"
+    queryset = Task.objects.filter(is_completed=True, is_archived=False)
+    context_object_name = "completed_task_list"
+
+    def get_context_data(self, ** kwargs):
+        """
+        Exclude private tasks of other users
+        """
+        context = super().get_context_data(**kwargs)
+        completed_task_list = context["completed_task_list"]
+        context["completed_task_list"] = completed_task_list.exclude(
+            ~Q(author=self.request.user) & Q(is_private=True)
+        )
+        return context
 
 
 class TaskDetailView(LoginRequiredMixin, DetailView):

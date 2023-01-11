@@ -1,9 +1,9 @@
 {% extends "base_dashboard_task_list.html" %}
 
-{% block title %}Все задачи{% endblock title %}
+{% block title %}Завершенные задачи{% endblock title %}
 
 {% block content %}
-  {% for task in task_list %}
+  {% for task in completed_task_list %}
     {% include "snippets/task_list_item.html" with task=task %}
   {% endfor %}
 {% endblock content %}

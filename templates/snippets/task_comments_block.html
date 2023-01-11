@@ -56,22 +56,28 @@
     </div>
   </div>
 
-  <form hx-post="{% url 'journal:task_comment_add' task.pk %}" hx-target="#comments" hx-swap="outerHTML">
-    <div class="mb-3">
-      <label for="comment_text" class="form-label">Добавить комментарий:</label>
-      <textarea class="form-control" id="comment_text" name="comment_text" rows="3"></textarea>
+  {% if task.is_completed %}
+    <div class="alert alert-success">
+      <i class="fa-solid fa-file-circle-check"></i> Задача завершена.
     </div>
+  {% else %}
+    <form hx-post="{% url 'journal:task_comment_add' task.pk %}" hx-target="#comments" hx-swap="outerHTML">
+      <div class="mb-3">
+        <label for="comment_text" class="form-label">Добавить комментарий:</label>
+        <textarea class="form-control" id="comment_text" name="comment_text" rows="3"></textarea>
+      </div>
 
-    <div class="btn-toolbar mb-2 mb-md-0 justify-content-end">
-      <a class="btn btn-sm btn-secondary me-2" onclick="placeholderButton();" style="cursor: not-allowed;">
-        <i class="fa-solid fa-circle-check"></i> Завершить
-      </a>
-      <a class="btn btn-sm btn-primary me-2" onclick="placeholderButton();" style="cursor: not-allowed;">
-        <i class="fa-solid fa-file-signature"></i> Ознакомлен
-      </a>
-      <button class="btn btn-sm btn-success" type="submit">
-        <i class="fa-solid fa-comment"></i> Комментировать
-      </button>
-    </div>
-  </form>
+      <div class="btn-toolbar mb-2 mb-md-0 justify-content-end">
+        <a class="btn btn-sm btn-secondary me-2" onclick="placeholderButton();" style="cursor: not-allowed;">
+          <i class="fa-solid fa-circle-check"></i> Завершить
+        </a>
+        <a class="btn btn-sm btn-primary me-2" onclick="placeholderButton();" style="cursor: not-allowed;">
+          <i class="fa-solid fa-file-signature"></i> Ознакомлен
+        </a>
+        <button class="btn btn-sm btn-success" type="submit">
+          <i class="fa-solid fa-comment"></i> Комментировать
+        </button>
+      </div>
+    </form>
+  {% endif %}
 </div>
