@@ -10,11 +10,22 @@ from .models import Task, Comment
 
 
 class TaskListView(LoginRequiredMixin, ListView):
-    """ "Задачи" view in Dashboard (all active - without completed and private - tasks) """
+    """ "Задачи" view in Dashboard (all active - without completed - tasks) """
     model = Task
     template_name = "task_list.html"
-    queryset = Task.active.all()
+    queryset = Task.objects.filter(is_completed=False, is_archived=False)
     context_object_name = "task_list"
+
+    def get_context_data(self, ** kwargs):
+        """
+        Exclude private tasks of other users
+        """
+        context = super().get_context_data(**kwargs)
+        task_list = context["task_list"]
+        context["task_list"] = task_list.exclude(
+            ~Q(author=self.request.user) & Q(is_private=True)
+        )
+        return context
 
 
 class CompletedTaskListView(LoginRequiredMixin, ListView):
