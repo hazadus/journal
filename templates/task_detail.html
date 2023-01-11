@@ -21,9 +21,12 @@
           <i class="fa-regular fa-calendar"></i> {{ task.created }} &middot; <i class="fa-solid fa-user"></i> {{ task.author.short_name }} &middot;  <i class="fa-solid fa-user-check"></i> {{ task.users_acquainted.count }} {% if task.due_date %}&middot; <i class="fa-solid fa-calendar-day"></i> {{ task.due_date }}{% endif %}
         </div>
         <div class="btn-toolbar mb-2 mb-md-0">
-          <a class="btn btn-sm btn-secondary" onclick="placeholderButton();" style="cursor: not-allowed;">
-            <i class="fa-solid fa-pen-to-square"></i> Изменить
-          </a>
+          {% if not task.is_completed %}
+            <!-- EDIT button only for open tasks -->
+            <a class="btn btn-sm btn-secondary" onclick="placeholderButton();" style="cursor: not-allowed;">
+              <i class="fa-solid fa-pen-to-square"></i> Изменить
+            </a>
+          {% endif %}
         </div>
       </div>
     </div>

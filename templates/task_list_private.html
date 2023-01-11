@@ -1,9 +1,9 @@
 {% extends "base_dashboard_task_list.html" %}
 
-{% block title %}Все активные задачи{% endblock title %}
+{% block title %}Личные задачи{% endblock title %}
 
 {% block content %}
-  {% for task in task_list %}
+  {% for task in private_task_list %}
     {% include "snippets/task_list_item.html" with task=task %}
   {% endfor %}
 {% endblock content %}

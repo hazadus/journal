@@ -1,5 +1,8 @@
 <div class="card mb-3">
   <div class="card-header">
+    {% if task.is_private %}
+      <i class="fa-solid fa-lock me-2"></i>
+    {% endif %}
     <i class="fa-solid fa-tag"></i> <span class="text-muted">{{ task.category }}</span>
   </div>
   <div class="card-body">
@@ -11,6 +14,6 @@
     <p class="card-text">{{ task.body }}</p>
   </div>
   <div class="card-footer text-muted">
-    <i class="fa-regular fa-calendar"></i> {{ task.created }} &middot; <i class="fa-solid fa-user"></i> {{ task.author.short_name }} &middot; <i class="fa-solid fa-comments"></i> {{ task.active_comments.count }} &middot; <i class="fa-solid fa-user-check"></i> {{ task.users_acquainted.count }} {% if task.due_date %}&middot; <i class="fa-solid fa-calendar-day"></i> {{ task.due_date }}{% endif %}
+    <i class="fa-regular fa-calendar"></i> {{ task.created }} &middot; <i class="fa-solid fa-user"></i> {{ task.author.short_name }} &middot; <i class="fa-solid fa-comments"></i> {{ task.active_comments.count }}<!-- &middot; <i class="fa-solid fa-user-check"></i> {{ task.users_acquainted.count }}--> {% if task.due_date %}&middot; <i class="fa-solid fa-calendar-day"></i> {{ task.due_date }}{% endif %}
   </div>
 </div>
