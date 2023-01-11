@@ -39,6 +39,25 @@ class CompletedTaskListView(LoginRequiredMixin, ListView):
         return context
 
 
+class PrivateTaskListView(LoginRequiredMixin, ListView):
+    """
+    "Задачи" - "Личные" view in Dashboard (active private tasks of logged in user)
+    """
+    model = Task
+    template_name = "task_list_private.html"
+    queryset = Task.objects.filter(is_completed=False, is_archived=False, is_private=True)
+    context_object_name = "private_task_list"
+
+    def get_context_data(self, ** kwargs):
+        """
+        Filter only tasks of logged in user
+        """
+        context = super().get_context_data(**kwargs)
+        private_task_list = context["private_task_list"]
+        context["private_task_list"] = private_task_list.filter(author=self.request.user)
+        return context
+
+
 class TaskDetailView(LoginRequiredMixin, DetailView):
     model = Task
     template_name = "task_detail.html"
