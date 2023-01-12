@@ -159,9 +159,8 @@ body {
   text-decoration: underline;
 }
 
-.nav-link:hover {
-  text-decoration: underline;
-  text-decoration-style: dashed;
+.nav .nav-item:hover {
+  background-color: var(--bs-secondary-bg);
 }
 
 .toolbar-link {

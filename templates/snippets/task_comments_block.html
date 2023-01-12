@@ -36,7 +36,10 @@
                 <div>
                   <!-- ARCHIVE (do not show to author if task is completed -->
                   {% if user.is_superuser or comment.author == user and not task.is_completed  %}
-                    <a class="toolbar-link toolbar-link-danger" hx-delete="{% url 'journal:task_comment_archive' task.pk comment.pk %}">
+                    <a class="toolbar-link toolbar-link-danger"
+                       hx-delete="{% url 'journal:task_comment_archive' task.pk comment.pk %}"
+                       data-bs-toggle="tooltip" data-bs-title="Удалить комментарий"
+                       data-bs-delay='{"show":1000,"hide":0}'>
                       <i class="fa-solid fa-trash"></i>
                     </a>
                   {% endif %}
@@ -69,7 +72,8 @@
                 hx-post="{% url 'journal:task_acquaint' task.pk %}"
                 hx-trigger="click"
                 hx-target="#task_with_comments"
-                hx-swap="outerHTML">
+                hx-swap="outerHTML"
+                data-bs-toggle="tooltip" data-bs-title="Ознакомиться с задачей и всеми комментариями к ней">
           <i class="fa-solid fa-file-signature"></i> Ознакомлен
         </button>
       </div>
@@ -90,7 +94,9 @@
                   hx-post="{% url 'journal:task_acquaint' task.pk %}"
                   hx-trigger="click"
                   hx-target="#task_with_comments"
-                  hx-swap="outerHTML">
+                  hx-swap="outerHTML"
+                  data-bs-toggle="tooltip" data-bs-title="Ознакомиться с задачей и всеми комментариями к ней"
+                  data-bs-delay='{"show":1000,"hide":0}'>
             <i class="fa-solid fa-file-signature"></i> Ознакомлен
           </button>
         {% endif %}
