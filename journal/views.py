@@ -3,8 +3,8 @@ from django.http import HttpRequest, HttpResponse
 from django.views.decorators.http import require_POST
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 from .models import Task, Comment
 
@@ -89,6 +89,18 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
         task.users_acquainted.add(self.request.user)
 
         return super().form_valid(form)
+
+
+class TaskUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Task
+    fields = ["title", "category", "body", "is_private", "due_date", "attachment"]
+    template_name = "task_update.html"
+    context_object_name = "task"
+
+    def test_func(self):
+        """Only allow author or admin to edit the task."""
+        obj = self.get_object()
+        return obj.author == self.request.user or self.request.user.is_superuser
 
 
 @login_required
