@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block body %}
   <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
     <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6" href="{% url 'journal:task_list' %}">Журнал Дежурства</a>
@@ -20,6 +22,24 @@
     <div class="row">
       <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
         <div class="position-sticky pt-3 sidebar-sticky">
+          <!-- User profile menu -->
+          <div class="dropdown ms-3">
+            <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              {% if user.avatar_img %}
+                <img src="{{ user.avatar_img.url }}" alt="" width="32" height="32" class="rounded-circle me-2">
+              {% else %}
+                <img src="{% static 'images/default_profile_pic.png' %}" alt="" width="32" height="32" class="rounded-circle me-2">
+              {% endif %}
+              <strong>{{ user.short_name }}</strong>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+              <li><a class="dropdown-item" href="{% url 'journal:task_create' %}">Создать задачу</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{% url 'logout' %}">Выйти из учетной записи</a></li>
+            </ul>
+          </div>
+          <hr>
+
           <ul class="nav flex-column">
             <li class="nav-item">
               <a class="nav-link" aria-current="page" onclick="placeholderButton();" style="cursor: not-allowed;">
@@ -72,7 +92,7 @@
               <i class="fa-solid fa-circle-plus"></i>
             </a>
           </h6>
-          <ul class="nav flex-column mb-2">
+          <ul class="nav flex-column mb-auto">
             <li class="nav-item">
               <a class="nav-link" href="/adminpanel/">
                 <i class="fa-solid fa-screwdriver-wrench"></i> Панель управления
