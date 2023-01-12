@@ -6,6 +6,9 @@
 
 {% block dashboard_page_header %}
   <h1 class="h2">
+    {% if task.is_completed %}
+      <i class="fa-solid fa-file-circle-check"></i>
+    {% endif %}
     {{ task.title }}
   </h1>
   <div class="btn-toolbar mb-2 mb-md-0">

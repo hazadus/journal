@@ -34,18 +34,18 @@
                 </div>
                 <!-- Buttons -->
                 <div>
-                    <!-- ARCHIVE -->
-                    {% if user.is_superuser or comment.author == user %}
-                      <a class="toolbar-link toolbar-link-danger" hx-delete="{% url 'journal:task_comment_archive' task.pk comment.pk %}">
-                        <i class="fa-solid fa-trash"></i>
-                      </a>
-                    {% endif %}
-                    <!-- DELETE -->
-                    {% if user.is_superuser %}
-                      <a class="toolbar-link toolbar-link-danger" hx-delete="{% url 'journal:task_comment_delete' task.pk comment.pk %}">
-                        <i class="fa-solid fa-trash-can-arrow-up"></i>
-                      </a>
-                    {% endif %}
+                  <!-- ARCHIVE (do not show to author if task is completed -->
+                  {% if user.is_superuser or comment.author == user and not task.is_completed  %}
+                    <a class="toolbar-link toolbar-link-danger" hx-delete="{% url 'journal:task_comment_archive' task.pk comment.pk %}">
+                      <i class="fa-solid fa-trash"></i>
+                    </a>
+                  {% endif %}
+                  <!-- DELETE -->
+                  {% if user.is_superuser %}
+                    <a class="toolbar-link toolbar-link-danger" hx-delete="{% url 'journal:task_comment_delete' task.pk comment.pk %}">
+                      <i class="fa-solid fa-trash-can-arrow-up"></i>
+                    </a>
+                  {% endif %}
                 </div>
               </div>
               <div class="card-body">
@@ -62,6 +62,18 @@
     <div class="alert alert-success">
       <i class="fa-solid fa-file-circle-check"></i> Задача завершена.
     </div>
+    {% if not task|is_user_acquainted:user %}
+      {# NB: Some code duplication here, gotta refactor eventually... #}
+      <div class="btn-toolbar mb-2 mb-md-0 justify-content-end">
+        <button class="btn btn-sm btn-primary me-2"
+                hx-post="{% url 'journal:task_acquaint' task.pk %}"
+                hx-trigger="click"
+                hx-target="#task_with_comments"
+                hx-swap="outerHTML">
+          <i class="fa-solid fa-file-signature"></i> Ознакомлен
+        </button>
+      </div>
+    {% endif %}
   {% else %}
     <form hx-post="{% url 'journal:task_comment_add' task.pk %}" hx-target="#comments" hx-swap="outerHTML">
       <div class="mb-3">

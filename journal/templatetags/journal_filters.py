@@ -13,8 +13,9 @@ def new_comments_count_for_user(value, arg):
     new_comments_count = 0
 
     for comment in task.comments.all():
-        if user not in comment.users_acquainted.all():
-            new_comments_count += 1
+        if not comment.is_archived:
+            if user not in comment.users_acquainted.all():
+                new_comments_count += 1
 
     return new_comments_count
 
@@ -31,7 +32,8 @@ def is_user_acquainted(value, arg):
         return False
 
     for comment in task.comments.all():
-        if user not in comment.users_acquainted.all():
-            return False
+        if not comment.is_archived:
+            if user not in comment.users_acquainted.all():
+                return False
 
     return True

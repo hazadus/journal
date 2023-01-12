@@ -138,8 +138,8 @@ def comment_archive(request: HttpRequest, task_pk: int, comment_pk: int) -> Http
     task = get_object_or_404(Task, pk=task_pk)
     comment = get_object_or_404(Comment, pk=comment_pk)
 
-    # Only allow superusers or authors to archive comments:
-    if request.user.is_superuser or request.user == comment.author:
+    # Only allow superusers or authors (if task is not completed) to archive comments:
+    if request.user.is_superuser or (request.user == comment.author and not task.is_completed):
         comment.is_archived = True
         comment.save()
 
