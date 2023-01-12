@@ -85,6 +85,8 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
         # Associate new Task with logged in user:
         task.author = self.request.user
         task.save()
+        # Auto-acquaint author with new task:
+        task.users_acquainted.add(self.request.user)
 
         return super().form_valid(form)
 
@@ -97,10 +99,12 @@ def comment_add(request: HttpRequest, pk: int) -> HttpResponse:
     HTMX view, adds a comment, then returns part of a page with comments block.
     """
     task = get_object_or_404(Task, pk=pk)
-    new_comment = str(request.POST.get("comment_text")).lstrip().rstrip()
+    new_comment_body = str(request.POST.get("comment_text")).lstrip().rstrip()
 
-    if new_comment:
-        Comment.objects.create(task=task, author=request.user, body=new_comment)
+    if new_comment_body:
+        # Create new comment, and auto-acquaint author:
+        new_comment = Comment.objects.create(task=task, author=request.user, body=new_comment_body)
+        new_comment.users_acquainted.add(request.user)
 
     return render(request, "snippets/task_comments_block.html", {
         "task": task,
@@ -134,11 +138,34 @@ def comment_archive(request: HttpRequest, task_pk: int, comment_pk: int) -> Http
     task = get_object_or_404(Task, pk=task_pk)
     comment = get_object_or_404(Comment, pk=comment_pk)
 
-    # Only allow superusers or authors to archive comments:
-    if request.user.is_superuser or request.user == comment.author:
+    # Only allow superusers or authors (if task is not completed) to archive comments:
+    if request.user.is_superuser or (request.user == comment.author and not task.is_completed):
         comment.is_archived = True
         comment.save()
 
     return render(request, "snippets/task_comments_block.html", {
+        "task": task,
+    })
+
+
+@login_required
+@require_POST
+def task_acquaint(request: HttpRequest, pk: int) -> HttpResponse:
+    """
+    Acquaint logged in user with task and all it's comments
+    HTMX view, does the thing, then returns part of a page with comments block.
+    """
+    task = get_object_or_404(Task, pk=pk)
+    user = request.user
+
+    # Acquaint
+    if user not in task.users_acquainted.all():
+        task.users_acquainted.add(user)
+
+    for comment in task.comments.all():
+        if user not in comment.users_acquainted.all():
+            comment.users_acquainted.add(user)
+
+    return render(request, "snippets/task_full_block.html", {  # NB: full block, 'cause we gotta update the task too!
         "task": task,
     })

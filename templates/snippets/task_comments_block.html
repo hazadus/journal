@@ -1,3 +1,5 @@
+{% load journal_filters %}
+
 <div id="comments">
   <!-- Timeline demo -->
   <div class="timeline">
@@ -22,7 +24,7 @@
           <!-- The description -->
           <div class="timeline__desc">
             <!-- Comment card -->
-            <div class="card" hx-confirm="Вы уверены, что хотите удалить этот комментарий?"
+            <div class="card {% if not user in comment.users_acquainted.all %}card-new border-success{% endif %}" hx-confirm="Вы уверены, что хотите удалить этот комментарий?"
                 hx-target="#comments"
                 hx-swap="outerHTML">
               <div class="card-header d-flex text-muted">
@@ -32,18 +34,18 @@
                 </div>
                 <!-- Buttons -->
                 <div>
-                    <!-- ARCHIVE -->
-                    {% if user.is_superuser or comment.author == user %}
-                      <a class="toolbar-link toolbar-link-danger" hx-delete="{% url 'journal:task_comment_archive' task.pk comment.pk %}">
-                        <i class="fa-solid fa-trash"></i>
-                      </a>
-                    {% endif %}
-                    <!-- DELETE -->
-                    {% if user.is_superuser %}
-                      <a class="toolbar-link toolbar-link-danger" hx-delete="{% url 'journal:task_comment_delete' task.pk comment.pk %}">
-                        <i class="fa-solid fa-trash-can-arrow-up"></i>
-                      </a>
-                    {% endif %}
+                  <!-- ARCHIVE (do not show to author if task is completed -->
+                  {% if user.is_superuser or comment.author == user and not task.is_completed  %}
+                    <a class="toolbar-link toolbar-link-danger" hx-delete="{% url 'journal:task_comment_archive' task.pk comment.pk %}">
+                      <i class="fa-solid fa-trash"></i>
+                    </a>
+                  {% endif %}
+                  <!-- DELETE -->
+                  {% if user.is_superuser %}
+                    <a class="toolbar-link toolbar-link-danger" hx-delete="{% url 'journal:task_comment_delete' task.pk comment.pk %}">
+                      <i class="fa-solid fa-trash-can-arrow-up"></i>
+                    </a>
+                  {% endif %}
                 </div>
               </div>
               <div class="card-body">
@@ -60,6 +62,18 @@
     <div class="alert alert-success">
       <i class="fa-solid fa-file-circle-check"></i> Задача завершена.
     </div>
+    {% if not task|is_user_acquainted:user %}
+      {# NB: Some code duplication here, gotta refactor eventually... #}
+      <div class="btn-toolbar mb-2 mb-md-0 justify-content-end">
+        <button class="btn btn-sm btn-primary me-2"
+                hx-post="{% url 'journal:task_acquaint' task.pk %}"
+                hx-trigger="click"
+                hx-target="#task_with_comments"
+                hx-swap="outerHTML">
+          <i class="fa-solid fa-file-signature"></i> Ознакомлен
+        </button>
+      </div>
+    {% endif %}
   {% else %}
     <form hx-post="{% url 'journal:task_comment_add' task.pk %}" hx-target="#comments" hx-swap="outerHTML">
       <div class="mb-3">
@@ -71,9 +85,15 @@
         <a class="btn btn-sm btn-secondary me-2" onclick="placeholderButton();" style="cursor: not-allowed;">
           <i class="fa-solid fa-circle-check"></i> Завершить
         </a>
-        <a class="btn btn-sm btn-primary me-2" onclick="placeholderButton();" style="cursor: not-allowed;">
-          <i class="fa-solid fa-file-signature"></i> Ознакомлен
-        </a>
+        {% if not task|is_user_acquainted:user %}
+          <button class="btn btn-sm btn-primary me-2"
+                  hx-post="{% url 'journal:task_acquaint' task.pk %}"
+                  hx-trigger="click"
+                  hx-target="#task_with_comments"
+                  hx-swap="outerHTML">
+            <i class="fa-solid fa-file-signature"></i> Ознакомлен
+          </button>
+        {% endif %}
         <button class="btn btn-sm btn-success" type="submit">
           <i class="fa-solid fa-comment"></i> Комментировать
         </button>

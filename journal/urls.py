@@ -1,7 +1,7 @@
 from django.urls import path
 
 from .views import (TaskListView, PrivateTaskListView, CompletedTaskListView, TaskDetailView, TaskCreateView,
-                    comment_add, comment_delete, comment_archive)
+                    comment_add, comment_delete, comment_archive, task_acquaint)
 
 app_name = "journal"
 
@@ -14,4 +14,5 @@ urlpatterns = [
     path("task/<int:pk>/add_comment/", comment_add, name="task_comment_add"),
     path("task/<int:task_pk>/delete_comment/<int:comment_pk>/", comment_delete, name="task_comment_delete"),
     path("task/<int:task_pk>/archive_comment/<int:comment_pk>/", comment_archive, name="task_comment_archive"),
+    path("task/<int:pk>/acquaint/", task_acquaint, name="task_acquaint"),
 ]

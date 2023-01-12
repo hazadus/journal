@@ -5,7 +5,12 @@
 {% endblock title %}
 
 {% block dashboard_page_header %}
-  <h1 class="h2">{{ task.title }}</h1>
+  <h1 class="h2">
+    {% if task.is_completed %}
+      <i class="fa-solid fa-file-circle-check"></i>
+    {% endif %}
+    {{ task.title }}
+  </h1>
   <div class="btn-toolbar mb-2 mb-md-0">
     <a class="btn btn-sm btn-success" href="{% url 'journal:task_create' %}">
       <i class="fa-solid fa-file-circle-plus"></i> Добавить задачу
@@ -14,33 +19,5 @@
 {% endblock dashboard_page_header %}
 
 {% block content %}
-  <div class="card mb-2">
-    <div class="card-header text-muted">
-      <div class="d-flex flex-wrap flex-md-nowrap align-items-center">
-        <div class="flex-grow-1">
-          <i class="fa-regular fa-calendar"></i> {{ task.created }} &middot; <i class="fa-solid fa-user"></i> {{ task.author.short_name }} &middot;  <i class="fa-solid fa-user-check"></i> {{ task.users_acquainted.count }} {% if task.due_date %}&middot; <i class="fa-solid fa-calendar-day"></i> {{ task.due_date }}{% endif %}
-        </div>
-        <div class="btn-toolbar mb-2 mb-md-0">
-          {% if not task.is_completed %}
-            <!-- EDIT button only for open tasks -->
-            <a class="btn btn-sm btn-secondary" onclick="placeholderButton();" style="cursor: not-allowed;">
-              <i class="fa-solid fa-pen-to-square"></i> Изменить
-            </a>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-    <div class="card-body">
-      {{ task.body|linebreaks }}
-      {% if task.attachment %}
-        <p>
-          <i class="fa-solid fa-paperclip"></i> Файл: <a href="{{ task.attachment.url }}">
-            {{ task.attachment.name }}</a>
-          ({{ task.attachment.size|filesizeformat }})
-        </p>
-      {% endif %}
-    </div>
-  </div>
-
-  {% include 'snippets/task_comments_block.html' with task=task %}
+  {% include "snippets/task_full_block.html" with task=task %}
 {% endblock content %}
