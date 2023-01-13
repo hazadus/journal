@@ -1,5 +1,8 @@
 {% extends "base_dashboard.html" %}
 
+{# GET params: #}
+{# - ?hide_private = get_hide_private #}
+
 {% block dashboard_page_header %}
   <h1 class="h2">{% block title %}{% endblock title %}</h1>
   <div class="btn-toolbar mb-2 mb-md-0">
@@ -8,10 +11,23 @@
       <button type="button" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-download"></i> <i class="fa-solid fa-file-csv"></i></button>
       <button type="button" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-download"></i> <i class="fa-solid fa-file-pdf"></i></button>
     </div>
-    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle me-2">
-      <i class="fa-solid fa-calendar-week"></i> За неделю
-    </button>
     -->
+    <div class="dropdown ms-3">
+      <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle me-2" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fa-solid fa-filter"></i> Фильтр:
+        {% if get_hide_private %}скрыть личные{% else %}нет{% endif %}
+      </button>
+      <ul class="dropdown-menu text-small shadow">
+        <li>
+          <a class="dropdown-item {% if get_hide_private %}active{% endif %}" href="{{ request.path }}{% if not get_hide_private %}?hide_private=1{% endif %}">
+            <i class="fa-solid fa-lock"></i> Скрыть личные
+          </a>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="{{ request.path }}"><i class="fa-solid fa-filter-circle-xmark"></i> Очистить фильтр</a></li>
+      </ul>
+    </div>
+
     <a class="btn btn-sm btn-success" href="{% url 'journal:task_create' %}">
       <i class="fa-solid fa-file-circle-plus"></i> Добавить задачу
     </a>
