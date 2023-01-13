@@ -12,7 +12,32 @@
       <button type="button" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-download"></i> <i class="fa-solid fa-file-pdf"></i></button>
     </div>
     -->
-    <div class="dropdown ms-3">
+    <!-- Sort dropdown -->
+    <div class="dropdown">
+      <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle me-2" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fa-solid fa-sort"></i> Порядок:
+        по времени создания <i class="fa-solid fa-arrow-down-9-1"></i>
+      </button>
+      <ul class="dropdown-menu text-small shadow">
+        <li>
+          <a class="dropdown-item disabled" href="#">
+            <i class="fa-solid fa-arrow-down-9-1"></i> По времени создания задачи
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item disabled" href="#">
+            <i class="fa-solid fa-arrow-down-9-1"></i> По последним комментариям
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item disabled" href="#">
+            <i class="fa-solid fa-arrow-down-9-1"></i> По сроку выполнения
+          </a>
+        </li>
+      </ul>
+    </div>
+    <!-- Filter dropdown -->
+    <div class="dropdown">
       <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle me-2" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="fa-solid fa-filter"></i> Фильтр:
         {% if get_hide_private %}скрыть личные{% else %}нет{% endif %}

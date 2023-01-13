@@ -13,7 +13,7 @@
       aria-label="Search">
     <div class="navbar-nav">
       <div class="nav-item text-nowrap">
-        <a class="nav-link px-3" href="{% url 'logout' %}">Выход <i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+        <a class="nav-link px-3" href="#" onclick="placeholderButton();" style="cursor: not-allowed;">Поиск</a>
       </div>
     </div>
   </header>
@@ -33,9 +33,17 @@
               <strong>{{ user.short_name }}</strong>
             </a>
             <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-              <li><a class="dropdown-item" href="{% url 'journal:task_create' %}">Создать задачу</a></li>
+              <li>
+                <a class="dropdown-item" href="{% url 'journal:task_create' %}">
+                  <i class="fa-solid fa-file-circle-plus"></i> Создать задачу
+                </a>
+              </li>
               <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="{% url 'logout' %}">Выйти из учетной записи</a></li>
+              <li>
+                <a class="dropdown-item" href="{% url 'logout' %}">
+                  <i class="fa-solid fa-arrow-right-from-bracket"></i> Выйти из учетной записи
+                </a>
+              </li>
             </ul>
           </div>
           <hr>
@@ -46,7 +54,7 @@
                 <i class="fa-solid fa-book"></i> Журнал
               </a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item {% if "/" == request.path %}nav-item-active{% endif %}">
               <a class="nav-link {% if "/" == request.path %}active{% endif %}" href="{% url 'journal:task_list' %}">
                 <i class="fa-solid fa-list-check"></i> Задачи
               </a>
@@ -57,13 +65,13 @@
                 <i class="fa-solid fa-lightbulb"></i> Новые
               </a>
             </li>
-            <li class="nav-item" style="margin-left: 20px;">
-              <a class="nav-link" href="{% url 'journal:private_task_list' %}">
+            <li class="nav-item {% if "/tasks/private/" in request.path %}nav-item-active{% endif %}" style="margin-left: 20px;">
+              <a class="nav-link {% if "/tasks/private/" in request.path %}active{% endif %}" href="{% url 'journal:private_task_list' %}">
                 <i class="fa-solid fa-lock"></i> Личные
               </a>
             </li>
-            <li class="nav-item" style="margin-left: 20px;">
-              <a class="nav-link" href="{% url 'journal:completed_task_list' %}">
+            <li class="nav-item {% if "/tasks/completed/" in request.path %}nav-item-active{% endif %}" style="margin-left: 20px;">
+              <a class="nav-link {% if "/tasks/completed/" in request.path %}active{% endif %}" href="{% url 'journal:completed_task_list' %}">
                 <i class="fa-solid fa-check-double"></i> Завершенные
               </a>
             </li>

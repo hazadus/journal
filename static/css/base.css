@@ -1,15 +1,5 @@
-:root {
-  --color-text: black;
-  --color-danger: red;
-}
-
 body {
   font-size: 16px;
-}
-
-.feather {
-  width: 16px;
-  height: 16px;
 }
 
 /*
@@ -43,18 +33,8 @@ body {
   color: #333;
 }
 
-.sidebar .nav-link .feather {
-  margin-right: 4px;
-  color: #727272;
-}
-
 .sidebar .nav-link.active {
   color: #2470dc;
-}
-
-.sidebar .nav-link:hover .feather,
-.sidebar .nav-link.active .feather {
-  color: inherit;
 }
 
 .sidebar-heading {
@@ -151,7 +131,7 @@ body {
 
 /* For like <h1><a class="title-link">...</a></h1> stuff */
 .title-link {
-  color: var(--color-text);
+  color: var(--bs-body-color);
   text-decoration: none;
 }
 
@@ -160,6 +140,10 @@ body {
 }
 
 .nav .nav-item:hover {
+  background-color: var(--bs-dark-bg-subtle);
+}
+
+.nav .nav-item-active {
   background-color: var(--bs-secondary-bg);
 }
 
@@ -175,7 +159,11 @@ body {
 }
 
 .toolbar-link-danger:hover {
-  color: var(--color-danger);
+  color: var(--bs-danger);
+}
+
+.toolbar-link-primary:hover {
+  color: var(--bs-primary);
 }
 
 .card-new .card {
