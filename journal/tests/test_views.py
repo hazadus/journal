@@ -88,7 +88,7 @@ class TaskListViewTest(TestCase):
         response = self.client.post(url, {"username": self.username, "password": self.password},
                                     follow=True)
         # Go to list page with "hide private" filter
-        url = reverse("journal:task_list") + "?hide_private=1"
+        url = reverse("journal:task_list") + "?hide_private=true"
         response = self.client.get(url)
         # Check tasks count on the page
         self.assertEqual(len(response.context["task_list"]), NUMBER_OF_SHARED_TASKS)
