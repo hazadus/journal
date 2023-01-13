@@ -5,13 +5,13 @@
   <div class="card-header">
     {% if task.is_private %}
       <i class="fa-solid fa-lock me-1"
-          data-bs-toggle="tooltip" data-bs-title="Личная задача - доступна только вам."
+          data-bs-toggle="tooltip" data-bs-title="Личная задача - доступна только вам"
           data-bs-delay='{"show":1000,"hide":0}'>
       </i>
     {% endif %}
     {% if task.is_completed %}
       <i class="fa-solid fa-file-circle-check me-1"
-          data-bs-toggle="tooltip" data-bs-title="Завершенная (выполненная) задача."
+          data-bs-toggle="tooltip" data-bs-title="Завершенная (выполненная) задача"
           data-bs-delay='{"show":1000,"hide":0}'>
       </i>
     {% endif %}
@@ -23,15 +23,35 @@
         {{ task.title }}
       </a>
     </h5>
-    <p class="card-text">{{ task.body }}</p>
+    <p class="card-text">
+      {{ task.body|truncatechars:232 }}
+    </p>
   </div>
   <div class="card-footer text-muted">
-    <i class="fa-regular fa-calendar"></i> {{ task.created }} &middot; <i class="fa-solid fa-user"></i> {{ task.author.short_name }} &middot; <i class="fa-solid fa-comments"></i> {{ task.active_comments.count }}
+    {% if task.last_comment_datetime %}
+      <span data-bs-toggle="tooltip" data-bs-title="Дата и время последнего комментария к задаче" data-bs-delay='{"show":1000,"hide":0}'>
+        <i class="fa-solid fa-comment"></i> {{ task.last_comment_datetime }}
+      </span>
+    {% else %}
+      <span data-bs-toggle="tooltip" data-bs-title="Дата и время создания задачи" data-bs-delay='{"show":1000,"hide":0}'>
+        <i class="fa-regular fa-calendar"></i> {{ task.created }}
+      </span>
+    {% endif %}
+    <span data-bs-toggle="tooltip" data-bs-title="Количество комментариев к задаче" data-bs-delay='{"show":1000,"hide":0}'>
+      &middot; <i class="fa-solid fa-comments"></i> {{ task.active_comments.count }}
+    </span>
     {% if new_comments_count %}
       <span class="badge text-bg-success"
             data-bs-toggle="tooltip" data-bs-title="Количество новых комментариев к задаче, с которыми вы еще не ознакомлены"
-            data-bs-delay='{"show":1000,"hide":0}'>{{ new_comments_count }}</span>
-    {% endif %}<!-- &middot; <i class="fa-solid fa-user-check"></i> {{ task.users_acquainted.count }}--> {% if task.due_date %}&middot; <i class="fa-solid fa-calendar-day"></i> {{ task.due_date }}{% endif %}
+            data-bs-delay='{"show":1000,"hide":0}'>
+        {{ new_comments_count }}
+      </span>
+    {% endif %}
+    {% if task.due_date %}
+      <span data-bs-toggle="tooltip" data-bs-title="Установленный срок выполнения задачи" data-bs-delay='{"show":1000,"hide":0}'>
+        &middot; <i class="fa-solid fa-calendar-day"></i> {{ task.due_date }}
+      </span>
+    {% endif %}
   </div>
 </div>
 {% endwith %}

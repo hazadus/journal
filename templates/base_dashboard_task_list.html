@@ -1,8 +1,5 @@
 {% extends "base_dashboard.html" %}
 
-{# GET params: #}
-{# - ?hide_private = get_hide_private #}
-
 {% block dashboard_page_header %}
   <h1 class="h2">{% block title %}{% endblock title %}</h1>
   <div class="btn-toolbar mb-2 mb-md-0">
@@ -16,16 +13,22 @@
     <div class="dropdown">
       <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle me-2" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="fa-solid fa-sort"></i> Порядок:
-        по времени создания <i class="fa-solid fa-arrow-down-9-1"></i>
+        {% if order_by == "latest_comment" %}
+          по последним комментариям <i class="fa-solid fa-arrow-down-9-1"></i>
+        {% elif order_by == "created"%}
+          по времени создания <i class="fa-solid fa-arrow-down-9-1"></i>
+        {% endif %}
       </button>
       <ul class="dropdown-menu text-small shadow">
         <li>
-          <a class="dropdown-item disabled" href="#">
+          <a class="dropdown-item {% if order_by == "created" %}active{% endif %}"
+             href="{% if order_by == "created" %}#{% else %}{{ request.path }}?order_by=created{% endif %}">
             <i class="fa-solid fa-arrow-down-9-1"></i> По времени создания задачи
           </a>
         </li>
         <li>
-          <a class="dropdown-item disabled" href="#">
+          <a class="dropdown-item {% if order_by == "latest_comment" %}active{% endif %}"
+             href="{% if order_by == "latest_comment" %}#{% else %}{{ request.path }}?order_by=latest_comment{% endif %}">
             <i class="fa-solid fa-arrow-down-9-1"></i> По последним комментариям
           </a>
         </li>
@@ -44,12 +47,12 @@
       </button>
       <ul class="dropdown-menu text-small shadow">
         <li>
-          <a class="dropdown-item {% if get_hide_private %}active{% endif %}" href="{{ request.path }}{% if not get_hide_private %}?hide_private=1{% endif %}">
+          <a class="dropdown-item {% if get_hide_private %}active{% endif %}" href="{{ request.path }}{% if get_hide_private %}?hide_private=false{% else %}?hide_private=true{% endif %}">
             <i class="fa-solid fa-lock"></i> Скрыть личные
           </a>
         </li>
         <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item" href="{{ request.path }}"><i class="fa-solid fa-filter-circle-xmark"></i> Очистить фильтр</a></li>
+        <li><a class="dropdown-item" href="{{ request.path }}?hide_private=false"><i class="fa-solid fa-filter-circle-xmark"></i> Очистить фильтр</a></li>
       </ul>
     </div>
 
