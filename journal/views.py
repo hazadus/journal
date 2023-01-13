@@ -9,7 +9,24 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import Task, Comment
 
 
-class TaskListView(LoginRequiredMixin, ListView):
+class TaskListFilterMixin(ListView):
+    """
+    Filter task list depending on GET parameters
+    ?hide_private=1 - exclude private tasks
+    """
+    def get_context_data(self, ** kwargs):
+        context = super().get_context_data(**kwargs)
+        task_list = context[self.context_object_name]
+
+        get_hide_private = self.request.GET.get("hide_private")
+        if get_hide_private:
+            context["get_hide_private"] = True
+            context[self.context_object_name] = task_list.exclude(Q(is_private=True))
+
+        return context
+
+
+class TaskListView(LoginRequiredMixin, TaskListFilterMixin, ListView):
     """ "Задачи" view in Dashboard (all active - without completed - tasks) """
     model = Task
     template_name = "task_list.html"
@@ -28,7 +45,7 @@ class TaskListView(LoginRequiredMixin, ListView):
         return context
 
 
-class CompletedTaskListView(LoginRequiredMixin, ListView):
+class CompletedTaskListView(LoginRequiredMixin, TaskListFilterMixin, ListView):
     """
     "Задачи" - "Завершенные" view in Dashboard (completed: public tasks, private tasks for this user, archived tasks
     excluded).
@@ -50,7 +67,7 @@ class CompletedTaskListView(LoginRequiredMixin, ListView):
         return context
 
 
-class PrivateTaskListView(LoginRequiredMixin, ListView):
+class PrivateTaskListView(LoginRequiredMixin, TaskListFilterMixin, ListView):
     """
     "Задачи" - "Личные" view in Dashboard (active private tasks of logged in user)
     """
