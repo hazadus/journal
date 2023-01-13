@@ -1,0 +1,16 @@
+{% extends "base_dashboard.html" %}
+
+{% block title %}Ошибка 403 - у вас нет доступа к запрашиваемой странице{% endblock title %}
+
+{% block content %}
+  <h2 class="mb-3">
+    Ошибка 403 - у вас нет доступа к запрашиваемой странице
+  </h2>
+  <p>
+    К сожалению, у вас нет доступа к запрашиваемой странице. {{ exception }}
+    {# https://docs.djangoproject.com/en/4.1/ref/views/#the-403-http-forbidden-view #}
+  </p>
+  <p class="mb-5">
+    Выберите один из разделов в меню слева, либо воспользуйтесь поиском.
+  </p>
+{% endblock content %}

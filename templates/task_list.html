@@ -5,5 +5,9 @@
 {% block content %}
   {% for task in task_list %}
     {% include "snippets/task_list_item.html" with task=task %}
+  {% empty %}
+    <div class="alert alert-info">
+      <i class="fa-solid fa-circle-info"></i> Нет задач, удовлетворяющих заданным параметрам.
+    </div>
   {% endfor %}
 {% endblock content %}
