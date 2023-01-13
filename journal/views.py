@@ -1,5 +1,5 @@
-from django.db.models import Q, OuterRef, Subquery, Case, When, Value
 from django.http import HttpRequest, HttpResponse
+from django.db.models import Q, OuterRef, Subquery
 from django.views.decorators.http import require_POST
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -11,22 +11,73 @@ from .models import Task, Comment
 
 class TaskListFilterMixin(ListView):
     """
-    Filter task list depending on GET parameters
-    ?hide_private=1 - exclude private tasks
+    Filter task list depending on GET parameters or session settings
+    ?hide_private=true - exclude private tasks
+    ?hide_private=false - reset option
     """
     def get_context_data(self, ** kwargs):
         context = super().get_context_data(**kwargs)
         task_list = context[self.context_object_name]
 
         get_hide_private = self.request.GET.get("hide_private")
+
+        # If not in GET params, check the session params:
+        if not get_hide_private:
+            get_hide_private = self.request.session.get("hide_private")
+
         if get_hide_private:
-            context["get_hide_private"] = True
-            context[self.context_object_name] = task_list.exclude(Q(is_private=True))
+            # Save param in session
+            self.request.session["hide_private"] = get_hide_private
+            if get_hide_private == "true":
+                context["get_hide_private"] = True
+                context[self.context_object_name] = task_list.exclude(Q(is_private=True))
+            elif get_hide_private == "false":
+                context["get_hide_private"] = False
 
         return context
 
 
-class TaskListView(LoginRequiredMixin, TaskListFilterMixin, ListView):
+class TaskListOrderMixin(ListView):
+    """
+    Order task list depending on GET parameters or session settings
+    ?order_by=latest_comment (default)
+    ?order_by=created
+    """
+    def get_context_data(self, ** kwargs):
+        context = super().get_context_data(**kwargs)
+        task_list = context[self.context_object_name]
+
+        order_by = self.request.GET.get("order_by")
+
+        # If not in GET params, check the session params:
+        if not order_by:
+            order_by = self.request.session.get("order_by")
+
+        # If nothing in session, set default value:
+        if not order_by:
+            order_by = "latest_comment"
+
+        # Save param in session
+        self.request.session["order_by"] = order_by
+        context["order_by"] = order_by
+
+        if order_by == "latest_comment":
+            task_list = task_list.annotate(
+                last_comment_datetime=Subquery(
+                    Comment.objects
+                    .filter(task_id=OuterRef("pk"))
+                    .order_by("-created")
+                    .values("created")
+                )
+            ).order_by("-last_comment_datetime", "-created")
+        elif order_by == "created":
+            task_list = task_list.order_by("-created")
+
+        context[self.context_object_name] = task_list
+        return context
+
+
+class TaskListView(LoginRequiredMixin, TaskListFilterMixin, TaskListOrderMixin, ListView):
     """ "Задачи" view in Dashboard (all active - without completed - tasks) """
     model = Task
     template_name = "task_list.html"
@@ -39,25 +90,13 @@ class TaskListView(LoginRequiredMixin, TaskListFilterMixin, ListView):
         """
         context = super().get_context_data(**kwargs)
         task_list = context["task_list"]
-
-        # Idea: sort tasks by datetime of newest comment
-        # Move to mixin
-        task_list = task_list.annotate(
-            last_comment_datetime=Subquery(
-                Comment.objects
-                .filter(task_id=OuterRef("pk"))
-                .order_by("-created")
-                .values("created")
-            )
-        ).order_by("-last_comment_datetime", "-created")
-
         context["task_list"] = task_list.exclude(
             ~Q(author=self.request.user) & Q(is_private=True)
         )
         return context
 
 
-class CompletedTaskListView(LoginRequiredMixin, TaskListFilterMixin, ListView):
+class CompletedTaskListView(LoginRequiredMixin, TaskListFilterMixin, TaskListOrderMixin, ListView):
     """
     "Задачи" - "Завершенные" view in Dashboard (completed: public tasks, private tasks for this user, archived tasks
     excluded).
@@ -79,7 +118,7 @@ class CompletedTaskListView(LoginRequiredMixin, TaskListFilterMixin, ListView):
         return context
 
 
-class PrivateTaskListView(LoginRequiredMixin, TaskListFilterMixin, ListView):
+class PrivateTaskListView(LoginRequiredMixin, TaskListFilterMixin, TaskListOrderMixin, ListView):
     """
     "Задачи" - "Личные" view in Dashboard (active private tasks of logged in user)
     """
