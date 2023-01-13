@@ -25,17 +25,23 @@
     crossorigin="anonymous"></script>
     <script src="https://unpkg.com/htmx.org@1.1.0"></script>
     <script>
-      document.body.addEventListener('htmx:configRequest', (event) => {
-        event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
-      })
-
       function placeholderButton() {
         alert('Пока ещё эта кнопка не работает!')
       }
 
-      // Init Bootstrap tooltips
-      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+      document.addEventListener('DOMContentLoaded', (event) => {
+        // Init HTMX
+        document.body.addEventListener('htmx:configRequest', (event) => {
+          event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+        })
+
+        // Init Bootstrap tooltips
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+        {% block domready %}
+        {% endblock domready %}
+      });
     </script>
 </body>
 

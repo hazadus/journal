@@ -129,11 +129,16 @@ def comment_add(request: HttpRequest, pk: int) -> HttpResponse:
     """
     task = get_object_or_404(Task, pk=pk)
     new_comment_body = str(request.POST.get("comment_text")).lstrip().rstrip()
+    check_complete_task = request.POST.get("check_complete_task")
 
     if new_comment_body:
         # Create new comment, and auto-acquaint author:
         new_comment = Comment.objects.create(task=task, author=request.user, body=new_comment_body)
         new_comment.users_acquainted.add(request.user)
+        # Check if the task must be completed:
+        if check_complete_task == "complete":
+            task.is_completed = True
+            task.save()
 
     return render(request, "snippets/task_comments_block.html", {
         "task": task,
