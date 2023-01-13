@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, OuterRef, Subquery, Case, When, Value
 from django.http import HttpRequest, HttpResponse
 from django.views.decorators.http import require_POST
 from django.shortcuts import render, get_object_or_404
@@ -39,6 +39,18 @@ class TaskListView(LoginRequiredMixin, TaskListFilterMixin, ListView):
         """
         context = super().get_context_data(**kwargs)
         task_list = context["task_list"]
+
+        # Idea: sort tasks by datetime of newest comment
+        # Move to mixin
+        task_list = task_list.annotate(
+            last_comment_datetime=Subquery(
+                Comment.objects
+                .filter(task_id=OuterRef("pk"))
+                .order_by("-created")
+                .values("created")
+            )
+        ).order_by("-last_comment_datetime", "-created")
+
         context["task_list"] = task_list.exclude(
             ~Q(author=self.request.user) & Q(is_private=True)
         )

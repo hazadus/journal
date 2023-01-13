@@ -23,6 +23,7 @@
             data-bs-toggle="tooltip" data-bs-title="Количество новых комментариев к задаче, с которыми вы еще не ознакомлены"
             data-bs-delay='{"show":1000,"hide":0}'>{{ new_comments_count }}</span>
     {% endif %}<!-- &middot; <i class="fa-solid fa-user-check"></i> {{ task.users_acquainted.count }}--> {% if task.due_date %}&middot; <i class="fa-solid fa-calendar-day"></i> {{ task.due_date }}{% endif %}
+    &middot; Newest comment: {{ task.last_comment_datetime }}
   </div>
 </div>
 {% endwith %}
