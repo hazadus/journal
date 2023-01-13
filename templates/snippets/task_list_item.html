@@ -4,7 +4,16 @@
 <div class="card list-card {% if not task|is_user_acquainted:user %}card-new border-success{% else %}border-dark{% endif %} mb-3">
   <div class="card-header">
     {% if task.is_private %}
-      <i class="fa-solid fa-lock me-2"></i>
+      <i class="fa-solid fa-lock me-1"
+          data-bs-toggle="tooltip" data-bs-title="Личная задача - доступна только вам."
+          data-bs-delay='{"show":1000,"hide":0}'>
+      </i>
+    {% endif %}
+    {% if task.is_completed %}
+      <i class="fa-solid fa-file-circle-check me-1"
+          data-bs-toggle="tooltip" data-bs-title="Завершенная (выполненная) задача."
+          data-bs-delay='{"show":1000,"hide":0}'>
+      </i>
     {% endif %}
     <i class="fa-solid fa-tag"></i> <span class="text-muted">{{ task.category }}</span>
   </div>

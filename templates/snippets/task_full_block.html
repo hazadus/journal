@@ -15,6 +15,12 @@
               <i class="fa-solid fa-pen-to-square"></i> Изменить
             </a>
           {% endif %}
+          {% if user.is_superuser %}
+            <!-- EDIT button only for superuser or author for open tasks -->
+            <a class="btn btn-sm btn-secondary ms-2" href="/adminpanel/journal/task/{{ task.pk }}/change/">
+              <i class="fa-solid fa-pen-to-square"></i> В админке
+            </a>
+          {% endif %}
         </div>
       </div>
     </div>
