@@ -3,8 +3,8 @@ from django.db.models import Q, OuterRef, Subquery
 from django.views.decorators.http import require_POST
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, TemplateView
 
 from .models import Task, Comment
 
@@ -253,4 +253,31 @@ def task_acquaint(request: HttpRequest, pk: int) -> HttpResponse:
 
     return render(request, "snippets/task_full_block.html", {  # NB: full block, 'cause we gotta update the task too!
         "task": task,
+    })
+
+
+class SearchView(LoginRequiredMixin, TemplateView):
+    template_name = "search.html"
+
+
+@login_required
+@require_POST
+def task_search(request: HttpRequest) -> HttpResponse:
+    """
+    Search tasks
+    HTMX view
+    """
+    user = request.user
+    search_text = request.POST.get("search")
+
+    # Exclude other user's private tasks, then search the remaining tasks (title, body, comments body)
+    found_task_list = Task.objects.exclude(
+        ~Q(author=user) & Q(is_private=True)
+    ).filter(
+        Q(title__contains=search_text) | Q(body__contains=search_text) | Q(comments__body__contains=search_text)
+    ).distinct()
+
+    return render(request, "snippets/task_search_results.html", {
+        "found_task_list": found_task_list,
+        "search_text": search_text,
     })

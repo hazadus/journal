@@ -1,0 +1,17 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+  <h1 class="h2">Результаты поиска по запросу &laquo;{{ search_text }}&raquo; ({{ found_task_list|length }})</h1>
+</div>
+
+{% for task in found_task_list %}
+  {% include "snippets/task_list_item.html" with task=task %}
+{% empty %}
+  <div class="alert alert-info">
+    <i class="fa-solid fa-circle-info"></i> Нет задач, удовлетворяющих вашему запросу.
+  </div>
+{% endfor %}
+
+<div class="btn-toolbar mb-3 mb-md-0 justify-content-end">
+  <button class="btn btn-sm btn-warning me-2" onclick="location.reload();">
+    <i class="fa-solid fa-rotate"></i> Назад
+  </button>
+</div>
