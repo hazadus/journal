@@ -1,0 +1,22 @@
+{% extends "base_dashboard.html" %}
+
+{% block dashboard_page_header %}
+  <h1 class="h2">
+    Поиск по задачам
+  </h1>
+{% endblock dashboard_page_header %}
+
+{% block content %}
+  <div class="alert alert-info">
+    <i class="fa-solid fa-circle-info"></i> Для поиска задач по заголовку, тексту, или тексту в комментариях,
+    начните печатать искомый текст в поле вверху страницы. Результаты будут выводиться автоматически.
+  </div>
+{% endblock content %}
+
+<script>
+{% block domready %}
+  // Auto-focus on Search field
+  searchField = document.getElementById("search");
+  searchField.focus();
+{% endblock domready %}
+</script>

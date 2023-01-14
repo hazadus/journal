@@ -9,13 +9,20 @@
       data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <input class="form-control form-control-dark w-100 rounded-0 border-0" type="text" placeholder="Найти..."
-      aria-label="Search">
+    <input class="form-control form-control-dark w-100 rounded-0 border-0"
+           type="search" name="search" id="search"
+           placeholder="Начните печатать для поиска..."
+           hx-post="{% url 'journal:task_search_htmx' %}"
+           hx-trigger="keyup changed delay:500ms, search"
+           hx-target="#dashboard-page-content"
+           aria-label="Search">
+    <!--
     <div class="navbar-nav">
       <div class="nav-item text-nowrap">
         <a class="nav-link px-3" href="#" onclick="placeholderButton();" style="cursor: not-allowed;">Поиск</a>
       </div>
     </div>
+    -->
   </header>
 
   <div class="container-fluid">
@@ -41,7 +48,7 @@
               <li><hr class="dropdown-divider"></li>
               <li>
                 <a class="dropdown-item" href="{% url 'logout' %}">
-                  <i class="fa-solid fa-arrow-right-from-bracket"></i> Выйти из учетной записи
+                  <i class="fa-solid fa-arrow-right-from-bracket"></i> Выйти из аккаунта
                 </a>
               </li>
             </ul>
@@ -81,8 +88,8 @@
                 <i class="fa-solid fa-file-invoice"></i> Документы
               </a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" onclick="placeholderButton();" style="cursor: not-allowed;">
+            <li class="nav-item {% if "/tasks/search/" in request.path %}nav-item-active{% endif %}">
+              <a class="nav-link {% if "/tasks/search/" in request.path %}active{% endif %}" href="{% url 'journal:task_search' %}">
                 <i class="fa-solid fa-magnifying-glass"></i> Поиск
               </a>
             </li>
@@ -113,15 +120,19 @@
       </nav>
 
       <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-          {% block dashboard_page_header %}
-          {% endblock dashboard_page_header %}
-        </div>
+        <!-- Dashboard page content -->
+        <div id="dashboard-page-content">
+          <!-- Dashboard page header -->
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            {% block dashboard_page_header %}
+            {% endblock dashboard_page_header %}
+          </div>
 
-        <!-- CONTENT -->
-        {% block content %}
-        {% endblock content %}
-        <!-- END CONTENT -->
+          <!-- CONTENT -->
+          {% block content %}
+          {% endblock content %}
+          <!-- END CONTENT -->
+        </div>
       </main>
     </div>
   </div>
