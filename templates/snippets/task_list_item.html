@@ -19,6 +19,7 @@
   </div>
   <div class="card-body">
     <h5 class="card-title">
+      {% include "snippets/task_list_item_favorite_button.html" with task=task %}
       <a class="title-link" href="{{ task.get_absolute_url }}">
         {{ task.title }}
       </a>

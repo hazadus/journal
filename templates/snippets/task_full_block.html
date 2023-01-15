@@ -3,6 +3,7 @@
     <div class="card-header text-muted">
       <div class="d-flex flex-wrap flex-md-nowrap align-items-center">
         <div class="flex-grow-1">
+          {% include "snippets/task_list_item_favorite_button.html" with task=task %}
           {% if task.is_private %}
             <i class="fa-solid fa-lock me-1" data-bs-toggle="tooltip" data-bs-title="Личная задача, доступна только вам" data-bs-delay='{"show":1000,"hide":0}'></i>
           {% endif %}

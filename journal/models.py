@@ -48,6 +48,8 @@ class Task(models.Model):
     updated = models.DateTimeField(verbose_name="Обновлена", auto_now=True)
     users_acquainted = models.ManyToManyField(verbose_name="Ознакомлены", to=settings.AUTH_USER_MODEL,
                                               related_name="tasks_acquainted", blank=True)
+    users_favorited = models.ManyToManyField(verbose_name="Добавили в избранное", to=settings.AUTH_USER_MODEL,
+                                             related_name="tasks_favorited", blank=True)
 
     # Model Managers
     objects = models.Manager()
