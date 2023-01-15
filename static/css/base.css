@@ -166,6 +166,37 @@ body {
   color: var(--bs-primary);
 }
 
+.star-link {
+  border: 0;
+  background-color: transparent;
+  margin-right: 3px;
+  color: var(--bs-secondary-bg);
+  text-decoration: none;
+  cursor: pointer;
+  transition: 0.5s;
+}
+
+.star-link:hover {
+  color: var(--bs-dark-bg-subtle);
+  transform: scale(1.1);
+}
+
+.star-link-favorite:hover
+{
+  color: var(--bs-warning-border-subtle);
+  transform: scale(1.1);
+}
+
+.star-link-favorite {
+  border: 0;
+  background-color: transparent;
+  margin-right: 3px;
+  color: var(--bs-warning);
+  text-decoration: none;
+  cursor: pointer;
+  transition: 0.5s;
+}
+
 .card-new .card {
   border-color: var(--bs-success);
 }
@@ -176,10 +207,10 @@ body {
 }
 
 .list-card {
-    transition: 0.5s;
+  transition: 0.5s;
 }
 
 .list-card:hover {
-    box-shadow: 0 0 10px rgb(0, 0, 0, 0.5);
-    transform: scale(1.001);
+  box-shadow: 0 0 10px rgb(0, 0, 0, 0.5);
+  transform: scale(1.001);
 }

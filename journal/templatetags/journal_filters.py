@@ -37,3 +37,17 @@ def is_user_acquainted(value, arg):
                 return False
 
     return True
+
+
+@register.filter(name="is_users_favorite")
+def is_users_favorite(value, arg):
+    """
+    Returns True if `user` added this task to favorites. Otherwise, returns False.
+    """
+    task = value
+    user = arg
+
+    if user not in task.users_favorited.all():
+        return False
+
+    return True

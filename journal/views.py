@@ -15,7 +15,7 @@ class TaskListFilterMixin(ListView):
     ?hide_private=true - exclude private tasks
     ?hide_private=false - reset option
     """
-    def get_context_data(self, ** kwargs):
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         task_list = context[self.context_object_name]
 
@@ -43,7 +43,7 @@ class TaskListOrderMixin(ListView):
     ?order_by=latest_comment (default)
     ?order_by=created
     """
-    def get_context_data(self, ** kwargs):
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         task_list = context[self.context_object_name]
 
@@ -84,12 +84,13 @@ class TaskListView(LoginRequiredMixin, TaskListFilterMixin, TaskListOrderMixin, 
     queryset = Task.objects.filter(is_completed=False, is_archived=False)
     context_object_name = "task_list"
 
-    def get_context_data(self, ** kwargs):
+    def get_context_data(self, **kwargs):
         """
         Exclude private tasks of other users
         """
         context = super().get_context_data(**kwargs)
         task_list = context["task_list"]
+        task_list = task_list.filter(Q(users_acquainted__in=[self.request.user]))
         context["task_list"] = task_list.exclude(
             ~Q(author=self.request.user) & Q(is_private=True)
         )
@@ -106,7 +107,7 @@ class CompletedTaskListView(LoginRequiredMixin, TaskListFilterMixin, TaskListOrd
     queryset = Task.objects.filter(is_completed=True, is_archived=False)
     context_object_name = "completed_task_list"
 
-    def get_context_data(self, ** kwargs):
+    def get_context_data(self, **kwargs):
         """
         Exclude private tasks of other users
         """
@@ -127,13 +128,27 @@ class PrivateTaskListView(LoginRequiredMixin, TaskListFilterMixin, TaskListOrder
     queryset = Task.objects.filter(is_completed=False, is_archived=False, is_private=True)
     context_object_name = "private_task_list"
 
-    def get_context_data(self, ** kwargs):
+    def get_context_data(self, **kwargs):
         """
         Filter only tasks of logged in user
         """
         context = super().get_context_data(**kwargs)
         private_task_list = context["private_task_list"]
         context["private_task_list"] = private_task_list.filter(author=self.request.user)
+        return context
+
+
+class FavoriteTaskListView(LoginRequiredMixin, TaskListFilterMixin, TaskListOrderMixin, ListView):
+    model = Task
+    template_name = "task_list_favorites.html"
+    context_object_name = "favorite_task_list"
+
+    def get_context_data(self, **kwargs):
+        """
+        Filter only tasks favorited by logged in user
+        """
+        context = super().get_context_data(**kwargs)
+        context["favorite_task_list"] = Task.objects.filter(users_favorited__in=[self.request.user])
         return context
 
 
@@ -274,10 +289,31 @@ def task_search(request: HttpRequest) -> HttpResponse:
     found_task_list = Task.objects.exclude(
         ~Q(author=user) & Q(is_private=True)
     ).filter(
-        Q(title__contains=search_text) | Q(body__contains=search_text) | Q(comments__body__contains=search_text)
+        Q(title__icontains=search_text) | Q(body__icontains=search_text) | Q(comments__body__icontains=search_text)
     ).distinct()
 
     return render(request, "snippets/task_search_results.html", {
         "found_task_list": found_task_list,
         "search_text": search_text,
+    })
+
+
+@login_required
+@require_POST
+def task_toggle_favorite(request: HttpRequest, pk: int) -> HttpResponse:
+    """
+    Adds or removes task from logged in user's favorites (i.e. toggles `favorite` status).
+    HTMX view, does the thing, then returns button with another state.
+    """
+    task = get_object_or_404(Task, pk=pk)
+    user = request.user
+
+    # Add or remove from logged in user's favorites
+    if user not in task.users_favorited.all():
+        task.users_favorited.add(user)
+    else:
+        task.users_favorited.remove(user)
+
+    return render(request, "snippets/task_list_item_favorite_button.html", {
+        "task": task,
     })
