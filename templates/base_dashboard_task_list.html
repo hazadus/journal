@@ -11,7 +11,8 @@
     -->
     <!-- Sort dropdown -->
     <div class="dropdown">
-      <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle me-2" data-bs-toggle="dropdown" aria-expanded="false">
+      <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle task-list-dropdown me-2"
+              data-bs-toggle="dropdown" aria-expanded="false">
         <i class="fa-solid fa-sort"></i> Порядок:
         {% if order_by == "latest_comment" %}
           по последним комментариям <i class="fa-solid fa-arrow-down-9-1"></i>
@@ -41,7 +42,8 @@
     </div>
     <!-- Filter dropdown -->
     <div class="dropdown">
-      <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle me-2" data-bs-toggle="dropdown" aria-expanded="false">
+      <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle task-list-dropdown me-2"
+              data-bs-toggle="dropdown" aria-expanded="false">
         <i class="fa-solid fa-filter"></i> Фильтр:
         {% if get_hide_private %}скрыть личные{% else %}нет{% endif %}
       </button>

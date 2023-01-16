@@ -18,6 +18,10 @@ class CommentAdmin(admin.ModelAdmin):
     list_display = ["body", "task", "author", "created", "is_archived"]
     list_filter = ["is_archived"]
     ordering = ["task", "-created"]
+    # Which fields to show when editing comment via admin panel:
+    readonly_fields = ["created"]
+    fieldsets = ((None, {"fields": ("task", "author", "created", "body", "is_archived", "users_acquainted",
+                                    "parent_comment",)}),)
 
 
 @admin.register(Task)
@@ -26,3 +30,4 @@ class TaskAdmin(admin.ModelAdmin):
     list_filter = ["is_completed", "is_private", "is_archived", "created"]
     ordering = ["is_completed", "-created"]
     inlines = [CommentInline]
+    readonly_fields = ["created"]

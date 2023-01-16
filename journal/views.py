@@ -147,7 +147,8 @@ class FavoriteTaskListView(LoginRequiredMixin, TaskListFilterMixin, TaskListOrde
         Filter only tasks favorited by logged in user
         """
         context = super().get_context_data(**kwargs)
-        context["favorite_task_list"] = Task.objects.filter(users_favorited__in=[self.request.user])
+        favorite_task_list = context["favorite_task_list"]
+        context["favorite_task_list"] = favorite_task_list.filter(users_favorited__in=[self.request.user])
         return context
 
 

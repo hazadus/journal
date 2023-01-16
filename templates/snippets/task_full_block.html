@@ -15,7 +15,11 @@
           </span>
           <!-- &middot;  <i class="fa-solid fa-user-check"></i> {{ task.users_acquainted.count }} -->
           {% if task.due_date %}
-            &middot; <i class="fa-solid fa-calendar-day"></i> {{ task.due_date }}
+          &middot;
+          <span class="{% if task.is_overdue and not task.is_completed %}due-date-overdue{% elif task.is_due_today and not task.is_completed %}due-date-today{% endif %}"
+                data-bs-toggle="tooltip" data-bs-title="Установленный срок выполнения задачи" data-bs-delay='{"show":1000,"hide":0}'>
+            <i class="fa-solid fa-calendar-day"></i> {{ task.due_date }}
+          </span>
           {% endif %}
         </div>
         <div class="btn-toolbar mb-2 mb-md-0">
