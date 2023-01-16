@@ -90,7 +90,6 @@ class TaskListView(LoginRequiredMixin, TaskListFilterMixin, TaskListOrderMixin, 
         """
         context = super().get_context_data(**kwargs)
         task_list = context["task_list"]
-        task_list = task_list.filter(Q(users_acquainted__in=[self.request.user]))
         context["task_list"] = task_list.exclude(
             ~Q(author=self.request.user) & Q(is_private=True)
         )
