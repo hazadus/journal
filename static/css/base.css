@@ -1,5 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu+Condensed&display=swap');
+
+:root {
+    --font-family: 'Ubuntu', sans-serif;
+    --font-family-condensed: 'Ubuntu Condensed', sans-serif;
+}
+
 body {
   font-size: 16px;
+  font-family: var(--font-family);
 }
 
 /*
@@ -63,7 +72,7 @@ body {
 
 .form-control-dark {
   color: #fff;
-  background-color: rgba(255, 255, 255, .1);
+  background-color: rgba(255, 255, 255, .4);
   border-color: rgba(255, 255, 255, .1);
 }
 
@@ -170,6 +179,7 @@ body {
   border: 0;
   background-color: transparent;
   margin-right: 3px;
+  padding: 0;
   color: var(--bs-secondary-bg);
   text-decoration: none;
   cursor: pointer;
@@ -191,6 +201,7 @@ body {
   border: 0;
   background-color: transparent;
   margin-right: 3px;
+  padding: 0;
   color: var(--bs-warning);
   text-decoration: none;
   cursor: pointer;
@@ -206,6 +217,16 @@ body {
   background-color: var(--bs-success-bg-subtle);
 }
 
+.due-date-overdue {
+  font-weight: bold;
+  color: var(--bs-danger-text);
+}
+
+.due-date-today {
+  font-weight: bold;
+  color: var(--bs-warning-text);
+}
+
 .list-card {
   transition: 0.5s;
 }
@@ -213,4 +234,8 @@ body {
 .list-card:hover {
   box-shadow: 0 0 10px rgb(0, 0, 0, 0.5);
   transform: scale(1.001);
+}
+
+.task-list-dropdown {
+  font-family: var(--font-family-condensed);
 }

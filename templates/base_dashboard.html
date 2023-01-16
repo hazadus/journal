@@ -4,7 +4,10 @@
 
 {% block body %}
   <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6" href="{% url 'journal:task_list' %}">Журнал Дежурства</a>
+    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-center" href="{% url 'journal:task_list' %}">
+      <i class="fa-solid fa-book-bookmark" style="color: var(--bs-primary-border-subtle);"></i>
+      Журнал Дежурства
+    </a>
     <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse"
       data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -79,8 +82,8 @@
                 <i class="fa-solid fa-lock"></i> Личные
               </a>
             </li>
-            <li class="nav-item" style="margin-left: 20px;">
-              <a class="nav-link" href="{% url 'journal:favorite_task_list' %}">
+            <li class="nav-item {% if "/tasks/favorites/" in request.path %}nav-item-active{% endif %}" style="margin-left: 20px;">
+              <a class="nav-link {% if "/tasks/favorites/" in request.path %}active{% endif %}" href="{% url 'journal:favorite_task_list' %}">
                 <i class="fa-regular fa-star"></i> Избранные
               </a>
             </li>
@@ -130,7 +133,7 @@
         <!-- Dashboard page content -->
         <div id="dashboard-page-content">
           <!-- Dashboard page header -->
-          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-baseline pt-3 pb-2 mb-3 border-bottom">
             {% block dashboard_page_header %}
             {% endblock dashboard_page_header %}
           </div>

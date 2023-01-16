@@ -93,8 +93,7 @@
                 hx-post="{% url 'journal:task_acquaint' task.pk %}"
                 hx-trigger="click"
                 hx-target="#task_with_comments"
-                hx-swap="outerHTML"
-                data-bs-toggle="tooltip" data-bs-title="Ознакомиться с задачей и всеми комментариями к ней">
+                hx-swap="outerHTML">
           <i class="fa-solid fa-file-signature"></i> Ознакомлен
         </button>
       </div>
@@ -131,9 +130,7 @@
                     hx-post="{% url 'journal:task_acquaint' task.pk %}"
                     hx-trigger="click"
                     hx-target="#task_with_comments"
-                    hx-swap="outerHTML"
-                    data-bs-toggle="tooltip" data-bs-title="Ознакомиться с задачей и всеми комментариями к ней"
-                    data-bs-delay='{"show":1000,"hide":0}'>
+                    hx-swap="outerHTML">
               <i class="fa-solid fa-file-signature"></i> Ознакомлен
             </button>
           {% endif %}

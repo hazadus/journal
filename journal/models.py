@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.db import models
 from django.urls import reverse
 from django.conf import settings
@@ -72,6 +74,14 @@ class Task(models.Model):
         Returns only `active`, i.e. not archived, comments.
         """
         return self.comments.filter(is_archived=False)
+
+    @property
+    def is_overdue(self):
+        return self.due_date < date.today() if self.due_date else False
+
+    @property
+    def is_due_today(self):
+        return self.due_date == date.today() if self.due_date else False
 
 
 class Comment(models.Model):
