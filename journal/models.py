@@ -3,6 +3,9 @@ from datetime import date
 from django.db import models
 from django.urls import reverse
 from django.conf import settings
+from django.db.models import Q, QuerySet
+
+from users.models import CustomUser
 
 
 class ActiveTaskManager(models.Manager):
@@ -82,6 +85,79 @@ class Task(models.Model):
     @property
     def is_due_today(self):
         return self.due_date == date.today() if self.due_date else False
+
+    @classmethod
+    def get_green_active_tasks(cls, user) -> QuerySet:
+        """
+        Get QuerySet with active tasks (not completed, not archived, not private tasks of others)
+            (1) `user` isn't acquainted with,
+            (2) have comment(s) `user` isn't acquainted with.
+
+        :param user: `User` object, for which we are getting tasks
+        """
+        # Step 1: Exclude private tasks of other users:
+        active_tasks = Task.objects.filter(is_completed=False, is_archived=False).exclude(
+            ~Q(author=user) & Q(is_private=True)
+        )
+
+        # Step 2: Get all comments `user` isn't acquainted with:
+        new_comments = Comment.objects.filter(~Q(users_acquainted__in=[user]))
+
+        # Step 3: Filter tasks withe new comments or with which `user` isn't acquainted
+        green_tasks = active_tasks.filter(
+            Q(comments__in=new_comments) |
+            ~Q(users_acquainted__in=[user])
+        ).distinct()
+
+        return green_tasks
+
+    @classmethod
+    def get_green_favorite_tasks(cls, user) -> QuerySet:
+        """
+        Get QuerySet with favorite tasks:
+            (1) `user` isn't acquainted with,
+            (2) have comment(s) `user` isn't acquainted with.
+
+        :param user: `User` object, for which we are getting tasks
+        """
+        # Step 1: Exclude private tasks of other users:
+        favorite_tasks = Task.objects.filter(users_favorited__in=[user])
+
+        # Step 2: Get all comments `user` isn't acquainted with:
+        new_comments = Comment.objects.filter(~Q(users_acquainted__in=[user]))
+
+        # Step 3: Filter tasks withe new comments or with which `user` isn't acquainted
+        green_tasks = favorite_tasks.filter(
+            Q(comments__in=new_comments) |
+            ~Q(users_acquainted__in=[user])
+        ).distinct()
+
+        return green_tasks
+
+    @classmethod
+    def get_green_completed_tasks(cls, user) -> QuerySet:
+        """
+        Get QuerySet with completed tasks (IS completed, not archived, not private tasks of others)
+            (1) `user` isn't acquainted with,
+            (2) have comment(s) `user` isn't acquainted with.
+
+        :param user: `User` object, for which we are getting tasks
+        """
+        # Step 1: Exclude private tasks of other users:
+        completed_tasks = Task.objects.filter(is_completed=True, is_archived=False).exclude(
+            ~Q(author=user) & Q(is_private=True)
+        )
+
+        # Step 2: Get all comments `user` isn't acquainted with:
+        new_comments = Comment.objects.filter(~Q(users_acquainted__in=[user]))
+
+        # Step 3: Filter tasks withe new comments or with which `user` isn't acquainted
+        green_tasks = completed_tasks.filter(
+            Q(comments__in=new_comments) |
+            ~Q(users_acquainted__in=[user])
+        ).distinct()
+
+        return green_tasks
 
 
 class Comment(models.Model):
