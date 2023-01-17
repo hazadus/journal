@@ -93,8 +93,8 @@
               </a>
             </li>
 
-            <li class="nav-item">
-              <a class="nav-link" onclick="placeholderButton();" style="cursor: not-allowed;">
+            <li class="nav-item {% if "/documents/" in request.path %}nav-item-active{% endif %}">
+              <a class="nav-link {% if "/documents/" in request.path %}active{% endif %}" href="{% url 'documents:document_list' %}">
                 <i class="fa-solid fa-file-invoice"></i> Документы
               </a>
             </li>
