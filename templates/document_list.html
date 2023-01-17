@@ -1,0 +1,17 @@
+{% extends "base_dashboard.html" %}
+
+{% block dashboard_page_header %}
+  <h1 class="h2">
+    Актуальные документы и поручения
+  </h1>
+{% endblock dashboard_page_header %}
+
+{% block content %}
+  {% for document in document_list %}
+    {% include "snippets/document_list_item.html" with document=document %}
+  {% empty %}
+    <div class="alert alert-info">
+      <i class="fa-solid fa-circle-info"></i> Нет документов и поручений, удовлетворяющих заданным параметрам.
+    </div>
+  {% endfor %}
+{% endblock content %}

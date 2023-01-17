@@ -1,0 +1,53 @@
+<div id="document">
+  <div class="card {% if not user in document.users_acquainted.all %}card-new border-success{% endif %} mb-2">
+    <div class="card-header text-muted">
+      <div class="d-flex flex-wrap flex-md-nowrap align-items-center">
+        <div class="flex-grow-1">
+          <span data-bs-toggle="tooltip" data-bs-title="Дата и время создания документа" data-bs-delay='{"show":1000,"hide":0}'>
+            <i class="fa-regular fa-calendar"></i> {{ document.created }}
+          </span>
+          <span data-bs-toggle="tooltip" data-bs-title="Автор документа" data-bs-delay='{"show":1000,"hide":0}'>
+            &middot; <i class="fa-solid fa-user"></i> {{ document.author.short_name }}
+          </span>
+          &middot;  <i class="fa-solid fa-user-check"></i> {{ document.users_acquainted.count }}
+        </div>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          {% if user.is_superuser %}
+            <!-- EDIT button only for superuser -->
+            <a class="btn btn-sm btn-secondary ms-2" href="/adminpanel/documents/document/{{ document.pk }}/change/">
+              <i class="fa-solid fa-pen-to-square"></i> В админке
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      {{ document.body|linebreaks }}
+      {% if document.attachment %}
+        <p>
+          <i class="fa-solid fa-paperclip"></i> Файл: <a href="{{ document.attachment.url }}">
+            {{ document.attachment.name }}</a>
+          ({{ document.attachment.size|filesizeformat }})
+        </p>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if document.is_completed %}
+    <div class="alert alert-warning">
+      <i class="fa-solid fa-file-circle-check"></i> Документ уже не актуален!
+    </div>
+  {% endif %}
+
+  {% if not user in document.users_acquainted.all %}
+    <div class="btn-toolbar mb-2 mb-md-0 justify-content-end">
+      <button class="btn btn-sm btn-primary me-2"
+              hx-post="{% url 'documents:document_acquaint' document.pk %}"
+              hx-trigger="click"
+              hx-target="#document"
+              hx-swap="outerHTML">
+        <i class="fa-solid fa-file-signature"></i> Ознакомлен
+      </button>
+    </div>
+  {% endif %}
+</div>

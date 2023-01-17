@@ -45,5 +45,5 @@ class Document(models.Model):
     def __str__(self):
         return self.title
 
-    # def get_absolute_url(self):
-    #     return reverse("journal:task_detail", args=[self.pk])
+    def get_absolute_url(self):
+        return reverse("documents:document_detail", args=[self.pk])

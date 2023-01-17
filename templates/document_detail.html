@@ -1,0 +1,18 @@
+{% extends "base_dashboard.html" %}
+
+{% block title %}
+  {{ document.title }}
+{% endblock title %}
+
+{% block dashboard_page_header %}
+  <h1 class="h2">
+    {% if document.is_completed %}
+      <i class="fa-solid fa-file-circle-check"></i>
+    {% endif %}
+    {{ document.title }}
+  </h1>
+{% endblock dashboard_page_header %}
+
+{% block content %}
+  {% include "snippets/document_detail_item.html" with document=document %}
+{% endblock content %}
