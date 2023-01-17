@@ -11,3 +11,4 @@ staticfiles/
 docker-compose.yml
 *.rdb
 *.log
+Makefile
