@@ -1,0 +1,13 @@
+{% if count %}
+  <span class="badge text-bg-success"
+        hx-get="{% url 'journal:task_green_badge_htmx' task_type %}"
+        hx-trigger="load delay:2s"
+        hx-swap="outerHTML">
+    {{ count }}
+  </span>
+{% else %}
+  <span hx-get="{% url 'journal:task_green_badge_htmx' task_type %}"
+        hx-trigger="load delay:2s"
+        hx-swap="outerHTML">
+  </span>
+{% endif %}

@@ -317,3 +317,27 @@ def task_toggle_favorite(request: HttpRequest, pk: int) -> HttpResponse:
     return render(request, "snippets/task_list_item_favorite_button.html", {
         "task": task,
     })
+
+
+@login_required
+def task_green_badge(request: HttpRequest, task_type: str) -> HttpResponse:
+    """
+    Returns green badges for sidebar with "new" ("green") tasks counters.
+    HTMX view, badge polls this view and updates itself.
+    """
+    user = request.user
+
+    match task_type:
+        case "green_active_tasks":
+            count = Task.get_green_active_tasks(user).count()
+        case "green_favorite_tasks":
+            count = Task.get_green_favorite_tasks(user).count()
+        case "green_completed_tasks":
+            count = Task.get_green_completed_tasks(user).count()
+        case _:
+            count = 0
+
+    return render(request, "snippets/task_green_badge.html", {
+        "count": count,
+        "task_type": task_type,
+    })
