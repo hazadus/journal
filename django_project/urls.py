@@ -4,6 +4,7 @@ from django.urls import path, include
 import notifications.urls
 
 urlpatterns = [
+    path("", include("core.urls")),
     path("", include("journal.urls")),
     path("documents/", include("documents.urls")),
     path("adminpanel/", admin.site.urls),

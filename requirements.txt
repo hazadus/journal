@@ -7,3 +7,5 @@ django-crispy-forms==1.14.0
 crispy-bootstrap5==0.7
 rollbar==0.16.3
 django-notifications-hq==1.7.0
+django-model-utils~=4.3.1
+jsonfield~=3.1.0

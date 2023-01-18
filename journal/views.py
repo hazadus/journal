@@ -10,6 +10,7 @@ from notifications.signals import notify
 
 from .models import Task, Comment
 from users.models import CustomUser
+from core.models import Notification
 
 
 class TaskListFilterMixin(ListView):
@@ -18,6 +19,7 @@ class TaskListFilterMixin(ListView):
     ?hide_private=true - exclude private tasks
     ?hide_private=false - reset option
     """
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         task_list = context[self.context_object_name]
@@ -46,6 +48,7 @@ class TaskListOrderMixin(ListView):
     ?order_by=latest_comment (default)
     ?order_by=created
     """
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         task_list = context[self.context_object_name]
@@ -175,11 +178,11 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
         task.users_acquainted.add(self.request.user)
 
         if not task.is_private:
-            notify.send(sender=self.request.user,
-                        actor=self.request.user,
-                        recipient=CustomUser.objects.all(),
-                        verb="создаёт задачу",
-                        target=task)
+            Notification.send(sender=self.request.user,
+                              actor=self.request.user,
+                              recipient=CustomUser.objects.all(),
+                              verb_code=Notification.VERB_CODES.task_add,
+                              target=task)
 
         return super().form_valid(form)
 
@@ -216,12 +219,14 @@ def comment_add(request: HttpRequest, pk: int) -> HttpResponse:
             task.is_completed = True
             task.save()
 
-        notify.send(sender=request.user,
-                    actor=request.user,
-                    recipient=CustomUser.objects.all(),
-                    verb="добавляет комментарий",
-                    action_object=new_comment,
-                    target=task)
+        # Notify all about new comment
+        Notification.send(sender=request.user, actor=request.user, recipient=CustomUser.objects.all(),
+                          verb_code=Notification.VERB_CODES.comment_add, action_object=new_comment, target=task)
+
+        # Notify all about completed task
+        if task.is_completed:
+            Notification.send(sender=request.user, actor=request.user, recipient=CustomUser.objects.all(),
+                              verb_code=Notification.VERB_CODES.task_completed, target=task)
 
     return render(request, "snippets/task_comments_block.html", {
         "task": task,
@@ -283,6 +288,10 @@ def task_acquaint(request: HttpRequest, pk: int) -> HttpResponse:
         if user not in comment.users_acquainted.all():
             comment.users_acquainted.add(user)
 
+    # Notify admins
+    Notification.send(sender=request.user, actor=request.user, recipient=CustomUser.objects.filter(is_superuser=True),
+                      verb_code=Notification.VERB_CODES.acquainted, target=task)
+
     return render(request, "snippets/task_full_block.html", {  # NB: full block, 'cause we gotta update the task too!
         "task": task,
     })
@@ -328,6 +337,12 @@ def task_toggle_favorite(request: HttpRequest, pk: int) -> HttpResponse:
     # Add or remove from logged in user's favorites
     if user not in task.users_favorited.all():
         task.users_favorited.add(user)
+
+        Notification.send(sender=request.user,
+                          actor=request.user,
+                          recipient=CustomUser.objects.filter(is_superuser=True),
+                          verb_code=Notification.VERB_CODES.favorites_add,
+                          target=task)
     else:
         task.users_favorited.remove(user)
 
@@ -357,16 +372,4 @@ def task_green_badge(request: HttpRequest, task_type: str) -> HttpResponse:
     return render(request, "snippets/task_green_badge.html", {
         "count": count,
         "task_type": task_type,
-    })
-
-
-@login_required
-def dashboard(request: HttpRequest) -> HttpResponse:
-    """
-    Notifications list
-    """
-    all_notifications = request.user.notifications.all()
-
-    return render(request, "dashboard.html", {
-        "all_notifications": all_notifications,
     })

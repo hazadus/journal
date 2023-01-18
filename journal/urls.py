@@ -2,14 +2,12 @@ from django.urls import path
 
 from .views import (TaskListView, PrivateTaskListView, CompletedTaskListView, TaskDetailView, TaskCreateView,
                     TaskUpdateView, comment_add, comment_delete, comment_archive, task_acquaint,
-                    SearchView, task_search, FavoriteTaskListView, task_toggle_favorite, task_green_badge,
-                    dashboard)
+                    SearchView, task_search, FavoriteTaskListView, task_toggle_favorite, task_green_badge)
 
 app_name = "journal"
 
 urlpatterns = [
     path("", TaskListView.as_view(), name="task_list"),
-    path("dashboard/", dashboard, name="dashboard"),
     path("tasks/private/", PrivateTaskListView.as_view(), name="private_task_list"),
     path("tasks/completed/", CompletedTaskListView.as_view(), name="completed_task_list"),
     path("tasks/favorites/", FavoriteTaskListView.as_view(), name="favorite_task_list"),

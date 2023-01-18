@@ -1,5 +1,7 @@
 {% extends "base_dashboard.html" %}
 
+{% block title %}Журнал событий{% endblock title %}
+
 {% block dashboard_page_header %}
   <h1 class="h2">
     Журнал событий
@@ -13,24 +15,70 @@ user(actor) "edited/deleted comment"(verb)  comment(action_object)  task/comment
 user(actor) "added task"(verb)              ---(action_object)      task(target)
 user(actor) "acquainted"(verb)              ---(action_object)      task(target)
 
-TODO: login (admin only), logout (admin only), favorite (admin only)
+TODO: login (admin only), logout (admin only), acquaint (admin only), task edit (all)
 -->
 
 {% block content %}
-  {% for notify in all_notifications %}
-    {% if notify.action_object_content_type.model == "comment" %}
-      {{ notify.actor.short_name }} {{ notify.verb }} &laquo;{{ notify.action_object }}&raquo; к
-      &laquo;<a href="{{ notify.target.get_absolute_url }}">{{ notify.target }}</a>&raquo;
-      {{ notify.timestamp|timesince }} назад
-    {% else %}
-      {{ notify.actor.short_name }} {{ notify.verb }}
-      &laquo;<a href="{{ notify.target.get_absolute_url }}">{{ notify.target }}</a>&raquo;
-      {{ notify.timestamp|timesince }} назад
-    {% endif %}
-    <br>
-  {% empty %}
-    <div class="alert alert-info">
-      <i class="fa-solid fa-circle-info"></i> У вас нет уведомлений.
+  <!-- Timeline -->
+  <div class="timeline">
+    <!-- Left vertical line -->
+    <div class="timeline__line"></div>
+
+    <!-- The timeline items timeline -->
+    <div class="timeline__items">
+      {% for notify in all_notifications %}
+        <!-- Each timeline item -->
+        <div class="timeline__item mb-3">
+          <!-- The circle and title -->
+          <div class="timeline__top mb-2">
+            <!-- The circle -->
+            <div class="timeline__circle text-center">
+              {# Comment: #}
+              {% if notify.verb_code == "favorites_add" %}
+                <i class="fa-solid fa-star"></i>
+              {% elif notify.verb_code == "task_add" %}
+                <i class="fa-solid fa-list-check"></i>
+              {% elif notify.verb_code == "comment_add" %}
+                <i class="fa-solid fa-comment"></i>
+              {% elif notify.verb_code == "task_completed" %}
+                <i class="fa-solid fa-check"></i>
+              {% elif notify.verb_code == "acquainted" %}
+                <i class="fa-solid fa-file-signature"></i>
+              {% endif %}
+            </div>
+
+            <!-- The title -->
+            <div class="timeline__title" id="comment-{{ comment.pk }}">
+              {# Comment: #}
+              {% if notify.action_object_content_type.model == "comment" %}
+                {{ notify.actor.short_name }}
+                <a href="{{ notify.action_object.get_absolute_url }}">{{ notify.verb }}</a>
+                к &laquo;<a href="{{ notify.target.get_absolute_url }}">{{ notify.target }}</a>&raquo;
+              {% else %}
+                {{ notify.actor.short_name }}
+                {{ notify.verb }}
+                &laquo;<a href="{{ notify.target.get_absolute_url }}">{{ notify.target }}</a>&raquo;
+              {% endif %}
+              &middot; <span class="timeline__title__timestamp text-muted">{{ notify.timestamp }}</span>
+            </div>
+          </div>
+          <!-- The description -->
+          <div class="timeline__desc">
+            {# Comment: #}
+            {% if notify.action_object_content_type.model == "comment" %}
+              <div class="card flex-grow-1">
+                <div class="card-body">
+                  {{ notify.action_object.body }}
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% empty %}
+        <div class="alert alert-info">
+          <i class="fa-solid fa-circle-info"></i> У вас пока ещё нет уведомлений.
+        </div>
+      {% endfor %}
     </div>
-  {% endfor %}
+  </div>
 {% endblock content %}
