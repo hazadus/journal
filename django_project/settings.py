@@ -76,7 +76,8 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 # Local
-                "journal.context_processors.green_tasks"
+                "journal.context_processors.green_tasks",
+                "documents.context_processors.green_documents",
             ],
         },
     },

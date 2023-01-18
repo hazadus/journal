@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q, QuerySet
 
 from django.urls import reverse
 from django.conf import settings
@@ -47,3 +48,11 @@ class Document(models.Model):
 
     def get_absolute_url(self):
         return reverse("documents:document_detail", args=[self.pk])
+
+    @classmethod
+    def get_green_active_documents(cls, user) -> QuerySet:
+        """
+        Get QuerySet with active (not archived, not completed) documents `user` not acquainted with.
+        """
+        return Document.objects.filter(~Q(users_acquainted__in=[user]),
+                                       is_archived=False, is_completed=False)

@@ -185,3 +185,9 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.body
+
+    def get_absolute_url(self):
+        return "{task_detail_link}#comment-{pk}".format(
+            task_detail_link=self.task.get_absolute_url(),
+            pk=self.pk
+        )
