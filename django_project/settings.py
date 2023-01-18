@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     # 3rd party apps
     "crispy_forms",
     "crispy_bootstrap5",
+    "notifications",
     # Local
     "users.apps.UsersConfig",
     "journal.apps.JournalConfig",

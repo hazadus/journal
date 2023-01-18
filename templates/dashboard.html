@@ -1,0 +1,36 @@
+{% extends "base_dashboard.html" %}
+
+{% block dashboard_page_header %}
+  <h1 class="h2">
+    Журнал событий
+  </h1>
+{% endblock dashboard_page_header %}
+
+<!--
+user(actor) "add comment"(verb)             comment(action_object)  task/comment(target)
+user(actor) "edited/deleted comment"(verb)  comment(action_object)  task/comment(target) + data (previous edit)
+
+user(actor) "added task"(verb)              ---(action_object)      task(target)
+user(actor) "acquainted"(verb)              ---(action_object)      task(target)
+
+TODO: login (admin only), logout (admin only), favorite (admin only)
+-->
+
+{% block content %}
+  {% for notify in all_notifications %}
+    {% if notify.action_object_content_type.model == "comment" %}
+      {{ notify.actor.short_name }} {{ notify.verb }} &laquo;{{ notify.action_object }}&raquo; к
+      &laquo;<a href="{{ notify.target.get_absolute_url }}">{{ notify.target }}</a>&raquo;
+      {{ notify.timestamp|timesince }} назад
+    {% else %}
+      {{ notify.actor.short_name }} {{ notify.verb }}
+      &laquo;<a href="{{ notify.target.get_absolute_url }}">{{ notify.target }}</a>&raquo;
+      {{ notify.timestamp|timesince }} назад
+    {% endif %}
+    <br>
+  {% empty %}
+    <div class="alert alert-info">
+      <i class="fa-solid fa-circle-info"></i> У вас нет уведомлений.
+    </div>
+  {% endfor %}
+{% endblock content %}

@@ -6,3 +6,4 @@ Pillow==9.4.0
 django-crispy-forms==1.14.0
 crispy-bootstrap5==0.7
 rollbar==0.16.3
+django-notifications-hq==1.7.0

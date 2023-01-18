@@ -6,7 +6,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, TemplateView
 
+from notifications.signals import notify
+
 from .models import Task, Comment
+from users.models import CustomUser
 
 
 class TaskListFilterMixin(ListView):
@@ -171,6 +174,13 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
         # Auto-acquaint author with new task:
         task.users_acquainted.add(self.request.user)
 
+        if not task.is_private:
+            notify.send(sender=self.request.user,
+                        actor=self.request.user,
+                        recipient=CustomUser.objects.all(),
+                        verb="создаёт задачу",
+                        target=task)
+
         return super().form_valid(form)
 
 
@@ -205,6 +215,13 @@ def comment_add(request: HttpRequest, pk: int) -> HttpResponse:
         if check_complete_task == "complete":
             task.is_completed = True
             task.save()
+
+        notify.send(sender=request.user,
+                    actor=request.user,
+                    recipient=CustomUser.objects.all(),
+                    verb="добавляет комментарий",
+                    action_object=new_comment,
+                    target=task)
 
     return render(request, "snippets/task_comments_block.html", {
         "task": task,
@@ -340,4 +357,16 @@ def task_green_badge(request: HttpRequest, task_type: str) -> HttpResponse:
     return render(request, "snippets/task_green_badge.html", {
         "count": count,
         "task_type": task_type,
+    })
+
+
+@login_required
+def dashboard(request: HttpRequest) -> HttpResponse:
+    """
+    Notifications list
+    """
+    all_notifications = request.user.notifications.all()
+
+    return render(request, "dashboard.html", {
+        "all_notifications": all_notifications,
     })
