@@ -146,6 +146,11 @@ body {
   margin-left: 2rem;
 }
 
+.timeline__desc_avatar {
+  /* For descriptions which begin with round userpic (e.g.comments) */
+  margin-left: 24px;
+}
+
 /* For like <h1><a class="title-link">...</a></h1> stuff */
 .title-link {
   color: var(--bs-body-color);
@@ -254,4 +259,30 @@ body {
 
 .task-list-dropdown {
   font-family: var(--font-family-condensed);
+}
+
+.bubble,
+.bubble-new {
+  position: relative;
+}
+
+.bubble:after,
+.bubble-new:after{
+  content: "";
+  position: absolute;
+  top: 43px;
+  left: -4px;
+  -webkit-transform: rotate(135deg);
+  -moz-transform: rotate(135deg);
+  -o-transform: rotate(135deg);
+  -ms-transform: rotate(135deg);
+  transform: rotate(135deg);
+  border: 4px solid;
+  opacity: 1;
+  box-shadow: 1px 1px 1px var(--bs-card-border-color);
+  border-color: transparent white white transparent;
+}
+
+.bubble-new:after {
+  box-shadow: 1px 1px 1px var(--bs-success-text);
 }

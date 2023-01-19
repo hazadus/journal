@@ -41,7 +41,7 @@
     <div class="card-body">
       {{ task.body|linebreaks }}
       {% if task.attachment %}
-        <p>
+        <p class="mt-3">
           <i class="fa-solid fa-paperclip"></i> Файл: <a href="{{ task.attachment.url }}">
             {{ task.attachment.name }}</a>
           ({{ task.attachment.size|filesizeformat }})

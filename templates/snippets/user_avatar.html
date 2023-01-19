@@ -1,0 +1,7 @@
+{# Params: user, size #}
+{% load static %}
+{% if user.avatar_img %}
+  <img src="{{ user.avatar_img.url }}" width="{{ size }}" height="{{ size }}" class="rounded-circle">
+{% else %}
+  <img src="{% static 'images/default_profile_pic.png' %}" width="{{ size }}" height="{{ size }}" class="rounded-circle">
+{% endif %}

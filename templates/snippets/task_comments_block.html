@@ -15,28 +15,27 @@
           <!-- The circle and title -->
           <div class="timeline__top mb-2">
             <!-- The circle -->
-            <div class="timeline__circle"></div>
+            <div class="timeline__circle text-center">
+              <i class="fa-solid fa-comment"></i>
+            </div>
 
             <!-- The title -->
             <div class="timeline__title" id="comment-{{ comment.pk }}">
               Добавлен комментарий:
             </div>
           </div>
-          <!-- The description -->
-          <div class="timeline__desc">
+          <!-- The description which has round userpic -->
+          <div class="timeline__desc_avatar">
             <div class="d-flex">
               <!-- Comment author's avatar -->
-              <div class="mt-3">
-                {% if comment.author.avatar_img %}
-                  <img src="{{ comment.author.avatar_img.url }}" alt="" width="48" height="48" class="rounded-circle me-2">
-                {% else %}
-                  <img src="{% static 'images/default_profile_pic.png' %}" alt="" width="48" height="48" class="rounded-circle me-2">
-                {% endif %}
+              <div class="mt-3 me-2">
+                {% include "snippets/user_avatar.html" with user=user size=48 %}
               </div>
               <!-- Comment card -->
-              <div class="card flex-grow-1 {% if not user in comment.users_acquainted.all %}card-new border-success{% endif %}" hx-confirm="Вы уверены, что хотите удалить этот комментарий?"
-                  hx-target="#comments"
-                  hx-swap="outerHTML">
+              <div class="card flex-grow-1 {% if user in comment.users_acquainted.all %}bubble{% else %}card-new border-success bubble-new{% endif %}"
+                   hx-confirm="Вы уверены, что хотите удалить этот комментарий?"
+                   hx-target="#comments"
+                   hx-swap="outerHTML">
                 <div class="card-header d-flex text-muted">
                   <!-- Comment info -->
                   <div class="flex-grow-1">
@@ -103,12 +102,8 @@
       <div class="mb-3">
         <label for="comment_text" class="form-label">Добавить комментарий:</label>
         <div class="d-flex">
-          <div>
-            {% if user.avatar_img %}
-              <img src="{{ user.avatar_img.url }}" alt="" width="48" height="48" class="rounded-circle me-2">
-            {% else %}
-              <img src="{% static 'images/default_profile_pic.png' %}" alt="" width="48" height="48" class="rounded-circle me-2">
-            {% endif %}
+          <div class="me-2">
+            {% include "snippets/user_avatar.html" with user=user size=48 %}
           </div>
           <div class="flex-grow-1">
             <textarea class="form-control" id="comment-text" name="comment_text" rows="3"></textarea>
