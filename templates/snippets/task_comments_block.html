@@ -29,7 +29,7 @@
             <div class="d-flex">
               <!-- Comment author's avatar -->
               <div class="mt-3 me-2">
-                {% include "snippets/user_avatar.html" with user=user size=48 %}
+                {% include "snippets/user_avatar.html" with user=comment.author size=48 %}
               </div>
               <!-- Comment card -->
               <div class="card flex-grow-1 {% if user in comment.users_acquainted.all %}bubble{% else %}card-new border-success bubble-new{% endif %}"
