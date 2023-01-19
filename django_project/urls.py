@@ -5,7 +5,7 @@ import notifications.urls
 
 urlpatterns = [
     path("", include("core.urls")),
-    path("", include("journal.urls")),
+    path("journal/", include("journal.urls")),
     path("documents/", include("documents.urls")),
     path("adminpanel/", admin.site.urls),
     path("accounts/", include("django.contrib.auth.urls")),  # Must be "accounts/" to work properly

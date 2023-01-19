@@ -59,13 +59,13 @@
           <hr>
 
           <ul class="nav flex-column">
-            <li class="nav-item {% if "/dashboard/" == request.path %}nav-item-active{% endif %}">
-              <a class="nav-link {% if "/dashboard/" == request.path %}active{% endif %}" aria-current="page" href="{% url 'core:dashboard' %}">
+            <li class="nav-item {% if "/" == request.path %}nav-item-active{% endif %}">
+              <a class="nav-link {% if "/" == request.path %}active{% endif %}" aria-current="page" href="{% url 'core:dashboard' %}">
                 <i class="fa-solid fa-book"></i> Журнал
               </a>
             </li>
-            <li class="nav-item {% if "/" == request.path %}nav-item-active{% endif %}">
-              <a class="nav-link {% if "/" == request.path %}active{% endif %}" href="{% url 'journal:task_list' %}">
+            <li class="nav-item {% if "/journal/tasks/" == request.path %}nav-item-active{% endif %}">
+              <a class="nav-link {% if "/journal/tasks/" == request.path %}active{% endif %}" href="{% url 'journal:task_list' %}">
                 <i class="fa-solid fa-list-check"></i> Задачи
                 {% include "snippets/task_green_badge.html" with count=green_active_tasks.count task_type="green_active_tasks"  %}
               </a>

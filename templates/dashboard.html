@@ -15,7 +15,7 @@ user(actor) "edited/deleted comment"(verb)  comment(action_object)  task/comment
 user(actor) "added task"(verb)              ---(action_object)      task(target)
 user(actor) "acquainted"(verb)              ---(action_object)      task(target)
 
-TODO: login (admin only), logout (admin only), acquaint (admin only), task edit (all)
+TODO: login (admin only), logout (admin only)
 -->
 
 {% block content %}
@@ -26,7 +26,7 @@ TODO: login (admin only), logout (admin only), acquaint (admin only), task edit 
 
     <!-- The timeline items timeline -->
     <div class="timeline__items">
-      {% for notify in all_notifications %}
+      {% for notify in notifications %}
         <!-- Each timeline item -->
         <div class="timeline__item mb-3">
           <!-- The circle and title -->
@@ -116,4 +116,5 @@ TODO: login (admin only), logout (admin only), acquaint (admin only), task edit 
       {% endfor %}
     </div>
   </div>
+{% include "snippets/pagination.html" with page_obj=page_obj %}
 {% endblock content %}

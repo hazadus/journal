@@ -1,0 +1,45 @@
+<!-- Pagination -->
+<nav aria-label="Page navigation" class="m-3" >
+  <ul class="pagination" style="justify-content: center;">
+    {% if not page_obj.has_previous %}
+      <li class="page-item disabled">
+        <a class="page-link">Назад</a>
+      </li>
+    {% else %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Назад</a>
+      </li>
+    {% endif %}
+
+    {% for num in paginator.page_range %}
+      {# https://testdriven.io/blog/django-pagination/ #}
+      {% if num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+      <li class="page-item">
+        {% if num != page_obj.number %}
+          <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+        {% else %}
+          <a class="page-link disabled">{{ num }}</a>
+        {% endif %}
+      </li>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_obj.number < page_obj.paginator.num_pages|add:'-3' %}
+      <a class="page-link disabled">...</a>
+      <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>
+    {% elif page_obj.number < page_obj.paginator.num_pages|add:'-2' %}
+      <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>
+    {% endif %}
+
+    {% if not page_obj.has_next %}
+      <li class="page-item disabled">
+      <a class="page-link">Вперёд</a>
+      </li>
+    {% else %}
+      <li class="page-item">
+      <a class="page-link" href="?page={{ page_obj.next_page_number }}">Вперёд</a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+<!-- End of Pagination -->
