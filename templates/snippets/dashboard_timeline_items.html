@@ -29,7 +29,8 @@
       </div>
 
       <!-- The title -->
-      <div class="timeline__title" id="comment-{{ comment.pk }}">
+      <div class="timeline__title">
+        {% include "snippets/user_avatar.html" with user=notify.actor size=24 %}
         {# Comment: #}
         {% if notify.verb_code == "comment_add" %}
           {{ notify.actor.short_name }}
