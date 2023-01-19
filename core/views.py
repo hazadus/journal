@@ -10,7 +10,7 @@ def dashboard(request: HttpRequest) -> HttpResponse:
     Notifications list
     """
     all_notifications = request.user.notifications.all()
-    paginator = Paginator(all_notifications, 15)
+    paginator = Paginator(all_notifications, 20)
 
     # page = number of desired page
     page = request.GET.get("page")

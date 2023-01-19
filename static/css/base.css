@@ -220,6 +220,10 @@ body {
   margin: 0;
 }
 
+.accordion-body p {
+  margin: 0;
+}
+
 .card-new .card {
   border-color: var(--bs-success);
 }

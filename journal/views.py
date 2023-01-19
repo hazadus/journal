@@ -314,10 +314,10 @@ def task_acquaint(request: HttpRequest, pk: int) -> HttpResponse:
         if user not in comment.users_acquainted.all():
             comment.users_acquainted.add(user)
 
-        # Notify admins
-        Notification.send(sender=request.user, actor=request.user,
-                          recipient=CustomUser.objects.filter(is_superuser=True),
-                          verb_code=Notification.VERB_CODES.acquainted, target=task)
+    # Notify admins
+    Notification.send(sender=request.user, actor=request.user,
+                      recipient=CustomUser.objects.filter(is_superuser=True),
+                      verb_code=Notification.VERB_CODES.acquainted, target=task)
 
     return render(request, "snippets/task_full_block.html", {  # NB: full block, 'cause we gotta update the task too!
         "task": task,
