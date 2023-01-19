@@ -6,8 +6,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, TemplateView
 
-from notifications.signals import notify
-
 from .models import Task, Comment
 from users.models import CustomUser
 from core.models import Notification
@@ -198,6 +196,34 @@ class TaskUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         obj = self.get_object()
         return obj.author == self.request.user or self.request.user.is_superuser
 
+    def form_valid(self, form):
+        # Get updated task from form, but not yet commit it to DB
+        updated_task = form.save(commit=False)
+
+        # Create notification, saving previous and new title and body of the task (if changed)
+        task = Task.objects.get(pk=updated_task.pk)
+        previous_title = None
+        new_title = None
+        previous_body = None
+        new_body = None
+
+        if not task.title == updated_task.title:
+            previous_title = task.title
+            new_title = updated_task.title
+        if not task.body == updated_task.body:
+            previous_body = task.body
+            new_body = updated_task.body
+
+        # Notify only if title or body has changed
+        if previous_title or previous_body:
+            Notification.send(sender=self.request.user, actor=self.request.user, recipient=CustomUser.objects.all(),
+                              verb_code=Notification.VERB_CODES.task_edit, target=task,
+                              previous_title=previous_title, previous_body=previous_body,
+                              new_title=new_title, new_body=new_body)
+
+        # Super actually saves updated task to DB
+        return super().form_valid(form)
+
 
 @login_required
 @require_POST
@@ -288,9 +314,10 @@ def task_acquaint(request: HttpRequest, pk: int) -> HttpResponse:
         if user not in comment.users_acquainted.all():
             comment.users_acquainted.add(user)
 
-    # Notify admins
-    Notification.send(sender=request.user, actor=request.user, recipient=CustomUser.objects.filter(is_superuser=True),
-                      verb_code=Notification.VERB_CODES.acquainted, target=task)
+        # Notify admins
+        Notification.send(sender=request.user, actor=request.user,
+                          recipient=CustomUser.objects.filter(is_superuser=True),
+                          verb_code=Notification.VERB_CODES.acquainted, target=task)
 
     return render(request, "snippets/task_full_block.html", {  # NB: full block, 'cause we gotta update the task too!
         "task": task,

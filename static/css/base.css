@@ -216,6 +216,10 @@ body {
   transition: 0.5s;
 }
 
+.card-body p {
+  margin: 0;
+}
+
 .card-new .card {
   border-color: var(--bs-success);
 }
