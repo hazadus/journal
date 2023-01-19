@@ -7,7 +7,7 @@ from .views import (TaskListView, PrivateTaskListView, CompletedTaskListView, Ta
 app_name = "journal"
 
 urlpatterns = [
-    path("", TaskListView.as_view(), name="task_list"),
+    path("tasks/", TaskListView.as_view(), name="task_list"),
     path("tasks/private/", PrivateTaskListView.as_view(), name="private_task_list"),
     path("tasks/completed/", CompletedTaskListView.as_view(), name="completed_task_list"),
     path("tasks/favorites/", FavoriteTaskListView.as_view(), name="favorite_task_list"),
