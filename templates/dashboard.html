@@ -1,0 +1,119 @@
+{% extends "base_dashboard.html" %}
+
+{% block title %}Журнал событий{% endblock title %}
+
+{% block dashboard_page_header %}
+  <h1 class="h2">
+    Журнал событий
+  </h1>
+{% endblock dashboard_page_header %}
+
+<!--
+user(actor) "add comment"(verb)             comment(action_object)  task/comment(target)
+user(actor) "edited/deleted comment"(verb)  comment(action_object)  task/comment(target) + data (previous edit)
+
+user(actor) "added task"(verb)              ---(action_object)      task(target)
+user(actor) "acquainted"(verb)              ---(action_object)      task(target)
+
+TODO: login (admin only), logout (admin only), acquaint (admin only), task edit (all)
+-->
+
+{% block content %}
+  <!-- Timeline -->
+  <div class="timeline">
+    <!-- Left vertical line -->
+    <div class="timeline__line"></div>
+
+    <!-- The timeline items timeline -->
+    <div class="timeline__items">
+      {% for notify in all_notifications %}
+        <!-- Each timeline item -->
+        <div class="timeline__item mb-3">
+          <!-- The circle and title -->
+          <div class="timeline__top mb-2">
+            <!-- The circle -->
+            <div class="timeline__circle text-center">
+              {# Comment: #}
+              {% if notify.verb_code == "favorites_add" %}
+                <i class="fa-solid fa-star"></i>
+              {% elif notify.verb_code == "task_add" %}
+                <i class="fa-solid fa-list-check"></i>
+              {% elif notify.verb_code == "task_edit" %}
+                <i class="fa-solid fa-edit"></i>
+              {% elif notify.verb_code == "task_completed" %}
+                <i class="fa-solid fa-check"></i>
+              {% elif notify.verb_code == "acquainted" %}
+                <i class="fa-solid fa-file-signature"></i>
+              {% elif notify.verb_code == "comment_add" %}
+                <i class="fa-solid fa-comment"></i>
+              {% endif %}
+            </div>
+
+            <!-- The title -->
+            <div class="timeline__title" id="comment-{{ comment.pk }}">
+              {# Comment: #}
+              {% if notify.verb_code == "comment_add" %}
+                {{ notify.actor.short_name }}
+                <a href="{{ notify.action_object.get_absolute_url }}">{{ notify.verb }}</a>
+                к &laquo;<a href="{{ notify.target.get_absolute_url }}">{{ notify.target }}</a>&raquo;
+              {% else %}
+                {{ notify.actor.short_name }}
+                {{ notify.verb }}
+                &laquo;<a href="{{ notify.target.get_absolute_url }}">{{ notify.target }}</a>&raquo;
+              {% endif %}
+              &middot; <span class="timeline__title__timestamp text-muted">{{ notify.timestamp }}</span>
+            </div>
+          </div>
+          <!-- The description -->
+          <div class="timeline__desc">
+            {% if notify.verb_code == "comment_add" %}
+            {# Comment #}
+              <div class="card flex-grow-1">
+                <div class="card-body">
+                  {{ notify.action_object.body }}
+                </div>
+              </div>
+            {% elif notify.verb_code == "task_edit" %}
+            {# Task updated (with history in accordion) #}
+              <div class="accordion" id="accordionExample">
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingTwo">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ notify.pk }}" aria-expanded="false" aria-controls="collapseTwo">
+                      Нажмите, чтобы увидеть что было изменено в задаче.
+                    </button>
+                  </h2>
+                  <div id="collapse-{{ notify.pk }}" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                      {% if notify.previous_title %}
+                        <p class="{% if notify.previous_body %}mb-3{% endif %}">
+                          <b>Заголовок изменен на:</b> {{ notify.new_title }}
+                          <br>
+                          <span class="text-muted">Прежний заголовок: {{ notify.previous_title }}</span>
+                        </p>
+                      {% endif %}
+                      {% if notify.previous_body %}
+                        <p>
+                          <b>Содержание задачи изменено на:</b><br>
+                          {{ notify.new_body }}
+                          <br>
+                          <span class="text-muted">
+                            Прежнее содержание задачи:<br>
+                            {{ notify.previous_body }}
+                          </span>
+                        </p>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% empty %}
+        <div class="alert alert-info">
+          <i class="fa-solid fa-circle-info"></i> У вас пока ещё нет уведомлений.
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock content %}

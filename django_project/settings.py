@@ -44,7 +44,9 @@ INSTALLED_APPS = [
     # 3rd party apps
     "crispy_forms",
     "crispy_bootstrap5",
+    "notifications",
     # Local
+    "core.apps.CoreConfig",
     "users.apps.UsersConfig",
     "journal.apps.JournalConfig",
     "documents.apps.DocumentsConfig",
@@ -152,3 +154,6 @@ SESSION_COOKIE_AGE = 60 * 60 * 16
 # Crispy stuff
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+# Django Notifications stuff
+NOTIFICATIONS_NOTIFICATION_MODEL = "core.Notification"

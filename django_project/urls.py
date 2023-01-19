@@ -1,11 +1,16 @@
 from django.contrib import admin
 from django.urls import path, include
 
+import notifications.urls
+
 urlpatterns = [
+    path("", include("core.urls")),
     path("", include("journal.urls")),
     path("documents/", include("documents.urls")),
     path("adminpanel/", admin.site.urls),
     path("accounts/", include("django.contrib.auth.urls")),  # Must be "accounts/" to work properly
+    # 3rd
+    path("inbox/notifications/", include(notifications.urls, namespace="notifications")),
 ]
 
 # Configure Admin panel titles

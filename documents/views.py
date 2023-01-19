@@ -6,6 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Document
+from users.models import CustomUser
+from core.models import Notification
 
 
 class DocumentListView(LoginRequiredMixin, ListView):
@@ -34,6 +36,10 @@ def document_acquaint(request: HttpRequest, pk: int) -> HttpResponse:
     # Acquaint
     if user not in document.users_acquainted.all():
         document.users_acquainted.add(user)
+
+    # Notify admins
+    Notification.send(sender=request.user, actor=request.user, recipient=CustomUser.objects.filter(is_superuser=True),
+                      verb_code=Notification.VERB_CODES.acquainted, target=document)
 
     return render(request, "snippets/document_detail_item.html", {
         "document": document,
