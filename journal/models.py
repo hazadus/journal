@@ -191,3 +191,17 @@ class Comment(models.Model):
             task_detail_link=self.task.get_absolute_url(),
             pk=self.pk
         )
+
+
+class Report(models.Model):
+    title = models.CharField(verbose_name="Название", max_length=256)
+    attachment = models.FileField(verbose_name="Файл отчёта")
+    created = models.DateTimeField(verbose_name="Создан", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Отчёт"
+        verbose_name_plural = "Отчёты"
+        ordering = ["-created"]
+
+    def __str__(self):
+        return self.title

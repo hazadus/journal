@@ -12,7 +12,6 @@
     <div class="timeline__top mb-2">
       <!-- The circle -->
       <div class="timeline__circle text-center">
-        {# Comment: #}
         {% if notify.verb_code == "favorites_add" %}
           <i class="fa-solid fa-star"></i>
         {% elif notify.verb_code == "task_add" %}
@@ -25,6 +24,8 @@
           <i class="fa-solid fa-file-signature"></i>
         {% elif notify.verb_code == "comment_add" %}
           <i class="fa-solid fa-comment"></i>
+        {% elif notify.verb_code == "report_add" %}
+          <i class="fa-solid fa-table"></i>
         {% endif %}
       </div>
 
@@ -36,6 +37,9 @@
           {{ notify.actor.short_name }}
           <a href="{{ notify.action_object.get_absolute_url }}">{{ notify.verb }}</a>
           к &laquo;<a href="{{ notify.target.get_absolute_url }}">{{ notify.target }}</a>&raquo;
+        {% elif notify.verb_code == "report_add" %}
+          {{ notify.verb }}
+          &laquo;<a href="{{ notify.target.attachment.url }}">{{ notify.target }}</a>&raquo;
         {% else %}
           {{ notify.actor.short_name }}
           {{ notify.verb }}

@@ -7,23 +7,31 @@ from django.core.management.base import BaseCommand
 
 import xlsxwriter
 
-from journal.models import Task
+from users.models import CustomUser
+from core.models import Notification
+from journal.models import Task, Report
 
-REPORT_DIR = os.path.join(settings.MEDIA_ROOT, "reports")
+REPORTS_SUBDIR = "reports"
+REPORTS_FULL_PATH = os.path.join(settings.MEDIA_ROOT, REPORTS_SUBDIR)
 
 
 class Command(BaseCommand):
-    help = "Создаёт отчет по текущим задачам в формате Excel."
+    """
+    Генерирует файл Excel, в который выводятся активные на текущий момент задачи (каждая задача на отдельном листе)
+    и все комментарии к ним. К файлу отчета создаётся запись в БД, и рассылаются уведомления о генерации отчета.
+    """
+    help = "Создаёт отчет `О передаче смены` по текущим задачам и комментариям к ним в формате Excel."
 
     def handle(self, *args, **options):
         filename = "Report_" + datetime.now().strftime("%Y-%m-%d_%H_%M_%S") + ".xlsx"
-        report_path = os.path.join(REPORT_DIR, filename)
+        report_path = os.path.join(REPORTS_FULL_PATH, filename)
 
-        if not os.path.exists(REPORT_DIR):
-            os.mkdir(REPORT_DIR)
+        if not os.path.exists(REPORTS_FULL_PATH):
+            os.mkdir(REPORTS_FULL_PATH)
 
         tasks = Task.objects.filter(is_private=False, is_completed=False, is_archived=False)
 
+        # Create Excel file with active tasks and comments
         workbook = xlsxwriter.Workbook(report_path)
         bold = workbook.add_format({"bold": True})
         date_format = workbook.add_format({"num_format": "dd.mm.yyyy hh:mm"})
@@ -57,5 +65,22 @@ class Command(BaseCommand):
                     row += 1
 
         workbook.close()
+
+        # Create Report entry
+        report = Report()
+        report.title = "Передача смены на {date_time}".format(
+            date_time=datetime.now().strftime("%H:%M %d.%m.%Y")
+        )
+        report.attachment.name = "/{subdir}/{filename}".format(
+            subdir=REPORTS_SUBDIR,
+            filename=filename
+        )
+        report.save()
+
+        # Send notification to all users
+        # Set an admin as notification sender and actor
+        sender = CustomUser.objects.filter(is_superuser=True).first()
+        Notification.send(sender=sender, actor=sender, recipient=CustomUser.objects.all(),
+                          verb_code=Notification.VERB_CODES.report_add, target=report)
 
         self.stdout.write(self.style.SUCCESS("Отчёт успешно создан."))
