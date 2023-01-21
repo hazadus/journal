@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Task, TaskCategory, Comment
+from .models import Task, TaskCategory, Comment, Report
 
 
 class CommentInline(admin.TabularInline):
@@ -30,4 +30,11 @@ class TaskAdmin(admin.ModelAdmin):
     list_filter = ["is_completed", "is_private", "is_archived", "created"]
     ordering = ["is_completed", "-created"]
     inlines = [CommentInline]
+    readonly_fields = ["created"]
+
+
+@admin.register(Report)
+class ReportAdmin(admin.ModelAdmin):
+    list_display = ["title", "created"]
+    ordering = ["-created"]
     readonly_fields = ["created"]

@@ -16,3 +16,5 @@ down:
 static:
 	sudo rm -rf ./collectstatic
 	python -m manage collectstatic
+report:
+	sudo docker exec journal-web python -m manage create_report

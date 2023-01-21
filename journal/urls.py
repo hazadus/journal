@@ -2,7 +2,8 @@ from django.urls import path
 
 from .views import (TaskListView, PrivateTaskListView, CompletedTaskListView, TaskDetailView, TaskCreateView,
                     TaskUpdateView, comment_add, comment_delete, comment_archive, task_acquaint,
-                    SearchView, task_search, FavoriteTaskListView, task_toggle_favorite, task_green_badge)
+                    SearchView, task_search, FavoriteTaskListView, task_toggle_favorite, task_green_badge,
+                    ReportListView)
 
 app_name = "journal"
 
@@ -20,6 +21,7 @@ urlpatterns = [
     path("task/<int:pk>/acquaint/", task_acquaint, name="task_acquaint"),
     path("task/<int:pk>/favorite/", task_toggle_favorite, name="task_toggle_favorite"),
     path("tasks/search/", SearchView.as_view(), name="task_search"),
+    path("reports/", ReportListView.as_view(), name="report_list"),
     path("tasks/htmx/search/", task_search, name="task_search_htmx"),
     path("tasks/htmx/green_badge/<str:task_type>/", task_green_badge, name="task_green_badge_htmx"),
 ]

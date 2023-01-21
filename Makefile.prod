@@ -16,3 +16,5 @@ static:
 	sudo docker compose up -d
 	sudo docker exec journal-web python -m manage collectstatic --noinput
 	sudo docker compose down
+report:
+	sudo docker exec journal-web python -m manage create_report
