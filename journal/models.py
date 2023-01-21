@@ -51,6 +51,7 @@ class Task(models.Model):
     due_date = models.DateField(verbose_name="Срок выполнения", null=True, blank=True)
     created = models.DateTimeField(verbose_name="Создана", auto_now_add=True)
     updated = models.DateTimeField(verbose_name="Обновлена", auto_now=True)
+    completed = models.DateTimeField(verbose_name="Завершена", null=True, blank=True)
     users_acquainted = models.ManyToManyField(verbose_name="Ознакомлены", to=settings.AUTH_USER_MODEL,
                                               related_name="tasks_acquainted", blank=True)
     users_favorited = models.ManyToManyField(verbose_name="Добавили в избранное", to=settings.AUTH_USER_MODEL,
