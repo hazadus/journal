@@ -1,13 +1,26 @@
 {% extends "base_dashboard_task_list.html" %}
 
+{% load journal_filters %}
+
 {% block title %}Избранные задачи{% endblock title %}
 
 {% block content %}
-  {% for task in favorite_task_list %}
-    {% include "snippets/task_list_item.html" with task=task %}
-  {% empty %}
+  {% if favorite_task_list %}
+    {# Show `green` tasks at the top of the list #}
+    {% for task in favorite_task_list %}
+      {% if not task|is_user_acquainted:user %}
+        {% include "snippets/task_list_item.html" with task=task %}
+      {% endif %}
+    {% endfor %}
+    {# Show other tasks #}
+    {% for task in favorite_task_list %}
+      {% if task|is_user_acquainted:user %}
+        {% include "snippets/task_list_item.html" with task=task %}
+      {% endif %}
+    {% endfor %}
+  {% else %}
     <div class="alert alert-info">
       <i class="fa-solid fa-circle-info"></i> Вы пока ещё не добавили в "Избранное" ни одной задачи.
     </div>
-  {% endfor %}
+  {% endif %}
 {% endblock content %}

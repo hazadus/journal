@@ -25,9 +25,25 @@ body {
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
 }
 
-@media (max-width: 767.98px) {
+@media (max-width: 768px) {
   .sidebar {
-    top: 5rem;
+    top: 50px;
+  }
+
+  .card-header {
+    font-family: var(--font-family-condensed);
+  }
+
+  .card-title {
+    font-family: var(--font-family-condensed);
+  }
+
+  .card-footer {
+    font-family: var(--font-family-condensed);
+  }
+
+  .timeline__desc_avatar__avatar {
+    display: none;
   }
 }
 
@@ -94,7 +110,7 @@ body {
   /* Positioned at the left */
   left: 0.75rem;
   position: absolute;
-  top: 0px;
+  top: 0;
 
   /* Take full height */
   height: 100%;
@@ -103,12 +119,12 @@ body {
 .timeline__items {
   /* Reset styles */
   list-style-type: none;
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
 }
 
 .timeline__item {
-  margin-bottom: 8px;
+  margin-bottom: 25px;
 }
 
 .timeline__top {
@@ -126,6 +142,9 @@ body {
   height: 1.5rem;
   width: 1.5rem;
 
+  /* Icon color */
+  color: var(--bs-secondary-color);
+
   /* This is for icon on top of the circle to be visible */
   z-index: 1;
 }
@@ -133,8 +152,20 @@ body {
 .timeline__title {
   /* Take available width */
   flex: 1;
+  align-items: center;
+  line-height: 1rem;
   margin-left: 0.5rem;
   font-family: var(--font-family-condensed);
+}
+
+.timeline__title a {
+  text-decoration: none;
+}
+
+@media (min-width: 1080px) {
+  .timeline__title {
+    font-size: 1.1rem;
+  }
 }
 
 .timeline__title__timestamp {
@@ -144,6 +175,10 @@ body {
 .timeline__desc {
   /* Make it align with the title */
   margin-left: 2rem;
+}
+
+.timeline__desc .card-body {
+  background-color: rgba(33, 37, 41, 0.03);
 }
 
 .timeline__desc_avatar {
