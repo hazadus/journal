@@ -1,0 +1,103 @@
+{% extends "base_dashboard.html" %}
+
+{% load journal_filters %}
+
+{% block title %}Задачи: табличный вид{% endblock title %}
+
+{% block dashboard_page_header %}
+  <h1 class="h2">
+    Задачи: табличный вид
+  </h1>
+{% endblock dashboard_page_header %}
+
+{% block content %}
+  <table class="table table-hover" style="font-family: var(--font-family-condensed);">
+    <thead>
+      <tr>
+        <th scope="col"><i class="fa-regular fa-star"></i></th>
+        <th scope="col"><i class="fa-solid fa-lock"></i></th>
+        <th scope="col">Задача</th>
+        <th scope="col"><i class="fa-solid fa-comments"></i></th>
+        <th scope="col">
+          <!-- Category dropdown -->
+          <div class="dropdown">
+            <button type="button" class="btn btn-outline-dark dropdown-toggle"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fa-solid fa-tag"></i>
+              Категория:
+              {% if not show_category %}
+                все
+              {% else %}
+                {{ show_category.title }}
+              {% endif %}
+            </button>
+            <ul class="dropdown-menu text-small shadow">
+              <li>
+                <a class="dropdown-item {% if not show_category %}active{% endif %}" href="{{ request.path }}?is_completed={{ is_completed }}">
+                  <i class="fa-solid fa-tags"></i> Все категории задач
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              {% for category in categories %}
+                <li>
+                  <a class="dropdown-item {% if show_category == category %}active{% endif %}" href="{{ request.path }}?category_id={{ category.pk }}&is_completed={{ is_completed }}">
+                    <i class="fa-solid fa-tag"></i> {{ category.title }}
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </th>
+        <th scope="col">Создана</th>
+        <th scope="col">
+          <!-- Completed dropdown -->
+          <div class="dropdown">
+            <button type="button" class="btn btn-outline-dark dropdown-toggle"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fa-solid fa-check"></i>
+              Завершена:
+              {% if is_completed == "true" %}
+                да
+              {% elif is_completed == "false" %}
+                нет
+              {% else %}
+                все
+              {% endif %}
+            </button>
+            <ul class="dropdown-menu text-small shadow">
+              <li>
+                <a class="dropdown-item {% if not is_completed %}active{% endif %}" href="{{ request.path }}?category_id={{ category_id }}">
+                  Все задачи
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item {% if is_completed == "false" %}active{% endif %}" href="{{ request.path }}?category_id={{ category_id }}&is_completed=false">
+                  Не завершена
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item {% if is_completed == "true" %}active{% endif %}" href="{{ request.path }}?category_id={{ category_id }}&is_completed=true">
+                  Завершена
+                </a>
+              </li>
+            </ul>
+          </div>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for task in task_list %}
+        {% if not task|is_user_acquainted:user %}
+          {% include "snippets/task_list_table_row.html" with task=task %}
+        {% endif %}
+      {% endfor %}
+
+      {% for task in task_list %}
+        {% if task|is_user_acquainted:user %}
+          {% include "snippets/task_list_table_row.html" with task=task %}
+        {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock content %}

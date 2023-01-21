@@ -3,15 +3,16 @@ from django.urls import path
 from .views import (TaskListView, PrivateTaskListView, CompletedTaskListView, TaskDetailView, TaskCreateView,
                     TaskUpdateView, comment_add, comment_delete, comment_archive, task_acquaint,
                     SearchView, task_search, FavoriteTaskListView, task_toggle_favorite, task_green_badge,
-                    ReportListView)
+                    ReportListView, TableTaskListView)
 
 app_name = "journal"
 
 urlpatterns = [
     path("tasks/", TaskListView.as_view(), name="task_list"),
     path("tasks/private/", PrivateTaskListView.as_view(), name="private_task_list"),
-    path("tasks/completed/", CompletedTaskListView.as_view(), name="completed_task_list"),
     path("tasks/favorites/", FavoriteTaskListView.as_view(), name="favorite_task_list"),
+    path("tasks/completed/", CompletedTaskListView.as_view(), name="completed_task_list"),
+    path("tasks/table/", TableTaskListView.as_view(), name="task_list_table"),
     path("task/<int:pk>/", TaskDetailView.as_view(), name="task_detail"),
     path("task/create/", TaskCreateView.as_view(), name="task_create"),
     path("task/update/<int:pk>/", TaskUpdateView.as_view(), name="task_update"),
