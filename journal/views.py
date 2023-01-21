@@ -175,12 +175,14 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
         # Auto-acquaint author with new task:
         task.users_acquainted.add(self.request.user)
 
-        if not task.is_private:
-            Notification.send(sender=self.request.user,
-                              actor=self.request.user,
-                              recipient=CustomUser.objects.all(),
-                              verb_code=Notification.VERB_CODES.task_add,
-                              target=task)
+        # Decide who we will notify
+        recipient = task.author if task.is_private else CustomUser.objects.all()
+
+        Notification.send(sender=self.request.user,
+                          actor=self.request.user,
+                          recipient=recipient,
+                          verb_code=Notification.VERB_CODES.task_add,
+                          target=task)
 
         return super().form_valid(form)
 
@@ -214,9 +216,12 @@ class TaskUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             previous_body = task.body
             new_body = updated_task.body
 
+        # Decide who we will notify
+        recipient = task.author if task.is_private else CustomUser.objects.all()
+
         # Notify only if title or body has changed
         if previous_title or previous_body:
-            Notification.send(sender=self.request.user, actor=self.request.user, recipient=CustomUser.objects.all(),
+            Notification.send(sender=self.request.user, actor=self.request.user, recipient=recipient,
                               verb_code=Notification.VERB_CODES.task_edit, target=task,
                               previous_title=previous_title, previous_body=previous_body,
                               new_title=new_title, new_body=new_body)
@@ -245,13 +250,16 @@ def comment_add(request: HttpRequest, pk: int) -> HttpResponse:
             task.is_completed = True
             task.save()
 
-        # Notify all about new comment
-        Notification.send(sender=request.user, actor=request.user, recipient=CustomUser.objects.all(),
+        # Decide who we will notify
+        recipient = task.author if task.is_private else CustomUser.objects.all()
+
+        # Notify about new comment
+        Notification.send(sender=request.user, actor=request.user, recipient=recipient,
                           verb_code=Notification.VERB_CODES.comment_add, action_object=new_comment, target=task)
 
-        # Notify all about completed task
+        # Notify about completed task
         if task.is_completed:
-            Notification.send(sender=request.user, actor=request.user, recipient=CustomUser.objects.all(),
+            Notification.send(sender=request.user, actor=request.user, recipient=recipient,
                               verb_code=Notification.VERB_CODES.task_completed, target=task)
 
     return render(request, "snippets/task_comments_block.html", {
