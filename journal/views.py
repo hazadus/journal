@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.http import HttpRequest, HttpResponse
 from django.db.models import Q, OuterRef, Subquery
 from django.views.decorators.http import require_POST
@@ -252,6 +253,7 @@ def comment_add(request: HttpRequest, pk: int) -> HttpResponse:
         # Check if the task must be completed:
         if check_complete_task == "complete":
             task.is_completed = True
+            task.completed = timezone.now()
             task.save()
 
         # Decide who we will notify
