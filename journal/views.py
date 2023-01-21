@@ -6,9 +6,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, TemplateView
 
-from .models import Task, Comment
 from users.models import CustomUser
 from core.models import Notification
+from .models import Task, Comment, Report
 
 
 class TaskListFilterMixin(ListView):
@@ -400,3 +400,9 @@ def task_green_badge(request: HttpRequest, task_type: str) -> HttpResponse:
         "count": count,
         "task_type": task_type,
     })
+
+
+class ReportListView(LoginRequiredMixin, ListView):
+    model = Report
+    template_name = "report_list.html"
+    context_object_name = "report_list"

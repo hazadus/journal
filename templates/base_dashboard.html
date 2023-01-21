@@ -105,9 +105,9 @@
                 <i class="fa-solid fa-magnifying-glass"></i> Поиск
               </a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" onclick="placeholderButton();" style="cursor: not-allowed;">
-                <i class="fa-solid fa-chart-line"></i> Отчет
+            <li class="nav-item {% if "/journal/reports/" in request.path %}nav-item-active{% endif %}">
+              <a class="nav-link {% if "/journal/reports/" in request.path %}active{% endif %}" href="{% url 'journal:report_list' %}">
+                <i class="fa-solid fa-chart-line"></i> Отчёты
               </a>
             </li>
           </ul>
