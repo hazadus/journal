@@ -45,6 +45,7 @@ class TaskListOrderMixin(ListView):
     Order task list depending on GET parameters or session settings
     ?order_by=latest_comment (default)
     ?order_by=created
+    ?order_by=completed
     """
 
     def get_context_data(self, **kwargs):
@@ -65,17 +66,20 @@ class TaskListOrderMixin(ListView):
         self.request.session["order_by"] = order_by
         context["order_by"] = order_by
 
-        if order_by == "latest_comment":
-            task_list = task_list.annotate(
-                last_comment_datetime=Subquery(
-                    Comment.objects
-                    .filter(task_id=OuterRef("pk"))
-                    .order_by("-created")
-                    .values("created")
-                )
-            ).order_by("-last_comment_datetime", "-created")
-        elif order_by == "created":
-            task_list = task_list.order_by("-created")
+        match order_by:
+            case "latest_comment":
+                task_list = task_list.annotate(
+                    last_comment_datetime=Subquery(
+                        Comment.objects
+                        .filter(task_id=OuterRef("pk"))
+                        .order_by("-created")
+                        .values("created")
+                    )
+                ).order_by("-last_comment_datetime", "-created")
+            case "created":
+                task_list = task_list.order_by("-created")
+            case "completed":
+                task_list = task_list.order_by("-completed", "-created")
 
         context[self.context_object_name] = task_list
         return context

@@ -18,6 +18,8 @@
           по последним комментариям <i class="fa-solid fa-arrow-down-9-1"></i>
         {% elif order_by == "created"%}
           по времени создания <i class="fa-solid fa-arrow-down-9-1"></i>
+        {% elif order_by == "completed"%}
+          по времени завершения <i class="fa-solid fa-arrow-down-9-1"></i>
         {% endif %}
       </button>
       <ul class="dropdown-menu text-small shadow">
@@ -31,6 +33,12 @@
           <a class="dropdown-item {% if order_by == "latest_comment" %}active{% endif %}"
              href="{% if order_by == "latest_comment" %}#{% else %}{{ request.path }}?order_by=latest_comment{% endif %}">
             <i class="fa-solid fa-arrow-down-9-1"></i> По последним комментариям
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item {% if order_by == "completed" %}active{% endif %}"
+             href="{% if order_by == "completed" %}#{% else %}{{ request.path }}?order_by=completed{% endif %}">
+            <i class="fa-solid fa-arrow-down-9-1"></i> По времени завершения
           </a>
         </li>
         <li>
