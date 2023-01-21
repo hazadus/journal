@@ -1,13 +1,26 @@
 {% extends "base_dashboard_task_list.html" %}
 
+{% load journal_filters %}
+
 {% block title %}Личные задачи{% endblock title %}
 
 {% block content %}
-  {% for task in private_task_list %}
-    {% include "snippets/task_list_item.html" with task=task %}
-  {% empty %}
+  {% if private_task_list %}
+    {# Show `green` tasks at the top of the list #}
+    {% for task in private_task_list %}
+      {% if not task|is_user_acquainted:user %}
+        {% include "snippets/task_list_item.html" with task=task %}
+      {% endif %}
+    {% endfor %}
+    {# Show other tasks #}
+    {% for task in private_task_list %}
+      {% if task|is_user_acquainted:user %}
+        {% include "snippets/task_list_item.html" with task=task %}
+      {% endif %}
+    {% endfor %}
+  {% else %}
     <div class="alert alert-info">
       <i class="fa-solid fa-circle-info"></i> Нет задач, удовлетворяющих заданным параметрам.
     </div>
-  {% endfor %}
+  {% endif %}
 {% endblock content %}

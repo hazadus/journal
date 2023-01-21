@@ -6,6 +6,11 @@
   <h1 class="h2">
     Журнал событий
   </h1>
+  <div class="btn-toolbar mb-2 mb-md-0">
+    <a class="btn btn-sm btn-success" href="{% url 'journal:task_create' %}">
+      <i class="fa-solid fa-file-circle-plus"></i> Добавить задачу
+    </a>
+  </div>
 {% endblock dashboard_page_header %}
 
 <!--

@@ -11,7 +11,7 @@
     <div class="timeline__items">
       {% for comment in task.active_comments.all %}
         <!-- Each timeline item -->
-        <div class="timeline__item">
+        <div class="timeline__item mb-3">
           <!-- The circle and title -->
           <div class="timeline__top mb-2">
             <!-- The circle -->
@@ -28,7 +28,7 @@
           <div class="timeline__desc_avatar">
             <div class="d-flex">
               <!-- Comment author's avatar -->
-              <div class="mt-3 me-2">
+              <div class="timeline__desc_avatar__avatar mt-3 me-2">
                 {% include "snippets/user_avatar.html" with user=comment.author size=48 %}
               </div>
               <!-- Comment card -->

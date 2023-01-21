@@ -16,9 +16,11 @@
   </div>
 
   {% if report_list %}
-    <ul>
+    <ul style="list-style: none;">
       {% for report in report_list %}
         <li>
+          <i class="fa-solid fa-file-excel"></i>
+          <i class="fa-solid fa-paperclip"></i>
           <a href="{{ report.attachment.url }}">
             {{ report.title }}
           </a>

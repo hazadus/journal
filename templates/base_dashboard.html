@@ -14,7 +14,7 @@
     </button>
     <input class="form-control form-control-dark w-100 rounded-0 border-0"
            type="search" name="search" id="search"
-           placeholder="Начните печатать для поиска..."
+           placeholder="Начните печатать для поиска по задачам..."
            hx-post="{% url 'journal:task_search_htmx' %}"
            hx-trigger="keyup changed delay:500ms, search"
            hx-target="#dashboard-page-content"

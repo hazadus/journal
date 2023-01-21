@@ -9,11 +9,22 @@
 {% endblock dashboard_page_header %}
 
 {% block content %}
-  {% for document in document_list %}
-    {% include "snippets/document_list_item.html" with document=document %}
-  {% empty %}
+  {% if document_list %}
+    {# List `green` documents on top of the list #}
+    {% for document in document_list %}
+      {% if not user in document.users_acquainted.all %}
+        {% include "snippets/document_list_item.html" with document=document %}
+      {% endif %}
+    {% endfor %}
+    {# List other documents #}
+    {% for document in document_list %}
+      {% if user in document.users_acquainted.all %}
+        {% include "snippets/document_list_item.html" with document=document %}
+      {% endif %}
+    {% endfor %}
+  {% else %}
     <div class="alert alert-info">
       <i class="fa-solid fa-circle-info"></i> Нет документов и поручений, удовлетворяющих заданным параметрам.
     </div>
-  {% endfor %}
+  {% endif %}
 {% endblock content %}
