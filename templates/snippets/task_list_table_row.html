@@ -1,0 +1,23 @@
+{% load journal_filters %}
+
+<tr {% if not task|is_user_acquainted:user %}class="table-success"{% endif %}>
+  <td>
+    {% include "snippets/task_list_item_favorite_button.html" with task=task %}
+  </td>
+  <td>
+    {% if task.is_private %}
+      <i class="fa-solid fa-lock"></i>
+    {% endif %}
+  </td>
+  <td>
+    <a href="{{ task.get_absolute_url }}">
+      {{ task.title }}
+    </a>
+  </td>
+  <td>
+    {{ task.active_comments.count }}
+  </td>
+  <td>{{ task.category }}</td>
+  <td>{{ task.created }}</td>
+  <td>{% if task.completed %}{{ task.completed }}{% endif %}</td>
+</tr>

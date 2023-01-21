@@ -9,7 +9,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, T
 
 from users.models import CustomUser
 from core.models import Notification
-from .models import Task, Comment, Report
+from .models import Task, Comment, Report, TaskCategory
 
 
 class TaskListFilterMixin(ListView):
@@ -420,3 +420,41 @@ class ReportListView(LoginRequiredMixin, ListView):
     model = Report
     template_name = "report_list.html"
     context_object_name = "report_list"
+
+
+class TableTaskListView(LoginRequiredMixin, ListView):
+    model = Task
+    template_name = "task_list_table.html"
+    context_object_name = "task_list"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        task_list = context["task_list"]
+        category = None
+
+        # Exclude private tasks of other users
+        task_list = task_list.exclude(
+            ~Q(author=self.request.user) & Q(is_private=True)
+        ).order_by("is_completed", "-completed", "-created")
+
+        category_id = self.request.GET.get("category_id")
+        if category_id is not None:
+            category = TaskCategory.objects.filter(pk=category_id).first()
+            if category:
+                task_list = task_list.filter(category=category)
+
+        if is_completed := self.request.GET.get("is_completed"):
+            match is_completed:
+                case "true":
+                    task_list = task_list.filter(is_completed=True)
+                case "false":
+                    task_list = task_list.filter(is_completed=False)
+
+        categories = TaskCategory.objects.all()
+
+        context["task_list"] = task_list
+        context["show_category"] = category
+        context["category_id"] = category_id if category_id is not None else 0
+        context["categories"] = categories
+        context["is_completed"] = is_completed
+        return context
