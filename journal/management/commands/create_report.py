@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 
+from django.db.models import Q
 from django.conf import settings
 from django.utils import timezone
 from django.core.management.base import BaseCommand
@@ -29,7 +30,13 @@ class Command(BaseCommand):
         if not os.path.exists(REPORTS_FULL_PATH):
             os.mkdir(REPORTS_FULL_PATH)
 
-        tasks = Task.objects.filter(is_private=False, is_completed=False, is_archived=False)
+        # Filter all active task and task completed today
+        tasks = Task.objects.filter(
+            Q(is_private=False, is_completed=False, is_archived=False) |
+            Q(is_private=False, is_completed=True, is_archived=False,
+              completed__year=timezone.now().year, completed__month=timezone.now().month,
+              completed__day=timezone.now().day)
+        )
 
         # Create Excel file with active tasks and comments
         workbook = xlsxwriter.Workbook(report_path)
@@ -63,6 +70,10 @@ class Command(BaseCommand):
                     worksheet.write(row, 1, comment.author.short_name)
                     worksheet.write_datetime(row, 2, timezone.make_naive(comment.created), date_format)
                     row += 1
+
+            if task.is_completed and task.completed:
+                worksheet.write(row, 0, "Задача завершена: ", bold)
+                worksheet.write_datetime(row, 2, timezone.make_naive(task.completed), date_format)
 
         workbook.close()
 
