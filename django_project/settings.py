@@ -26,6 +26,12 @@ ALLOWED_HOSTS = [
     "45.95.234.132",
 ]
 
+if DEBUG:
+    # Config internal ips for DjDT with Docker Compose
+    import socket
+    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+    INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1", "10.0.2.2"]
+
 CSRF_TRUSTED_ORIGINS = [
     "http://*.127.0.0.1",
     "http://45.95.234.132",
@@ -45,6 +51,7 @@ INSTALLED_APPS = [
     "crispy_forms",
     "crispy_bootstrap5",
     "notifications",
+    "debug_toolbar",
     # Local
     "core.apps.CoreConfig",
     "users.apps.UsersConfig",
@@ -53,6 +60,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "debug_toolbar.middleware.DebugToolbarMiddleware",  # 3rd
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",  # 3rd
     "django.contrib.sessions.middleware.SessionMiddleware",
