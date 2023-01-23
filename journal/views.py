@@ -433,12 +433,12 @@ class TaskListAnnotateMixin(ListView):
             comments_count=Count("comments", filter=Q(comments__is_archived=False))
         )
 
-        # TODO: where is_archived = False!
         task_list = task_list.annotate(
             new_comments_count=RawSQL("""
                     SELECT COUNT(*) AS "__count"
                     FROM "journal_comment"
-                    WHERE ("journal_comment"."task_id" IN ("journal_task"."id") 
+                    WHERE ("journal_comment"."task_id" IN ("journal_task"."id")
+                    AND NOT "journal_comment"."is_archived"
                     AND NOT (EXISTS(SELECT '1' AS "a" FROM "journal_comment_users_acquainted" U1 
                     WHERE (U1."customuser_id" IN (%s) AND U1."comment_id" = ("journal_comment"."id")) LIMIT 1)))
                  """, (self.request.user.pk,))
@@ -469,7 +469,8 @@ class TaskListAnnotateMixin(ListView):
         task_list = task_list.annotate(
             id_latest_comment_unacqainted=Subquery(
                 Comment.objects.filter(Q(task_id=OuterRef("pk")) &
-                                       ~Q(users_acquainted__exact=self.request.user.pk))
+                                       ~Q(users_acquainted__exact=self.request.user.pk) &
+                                       Q(is_archived=False))
                 .order_by("-created")
                 .values("id")
             )
@@ -485,7 +486,7 @@ class TaskListAnnotateMixin(ListView):
                 default=Value(True)
             )
         ).order_by("is_acquainted", "is_completed", "-completed", "-created") \
-            .select_related("category").prefetch_related("comments")
+            .select_related("category")
 
         context[self.context_object_name] = task_list
         return context

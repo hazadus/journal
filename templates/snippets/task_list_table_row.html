@@ -31,7 +31,7 @@
   </td>
   <td class="text-center">
     <span class="text-muted">
-      {{ task.comments_count }} | {{ task.new_comments_count }}
+      {{ task.comments_count }}{% if task.new_comments_count %} &middot; <span class="text-success-emphasis">{{ task.new_comments_count }}</span>{% endif %}
     </span>
   </td>
   <td>
