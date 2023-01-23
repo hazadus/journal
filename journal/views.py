@@ -438,17 +438,47 @@ class TableTaskListView(LoginRequiredMixin, ListView):
         ).order_by("is_completed", "-completed", "-created")
 
         category_id = self.request.GET.get("category_id")
+        # If not in GET params, check the session params:
+        if not category_id:
+            category_id = self.request.session.get("category_id")
+
         if category_id is not None:
             category = TaskCategory.objects.filter(pk=category_id).first()
             if category:
                 task_list = task_list.filter(category=category)
+                self.request.session["category_id"] = category_id
+            if category_id == "0":
+                self.request.session["category_id"] = "0"  # id="0" means "all"
 
-        if is_completed := self.request.GET.get("is_completed"):
+        is_completed = self.request.GET.get("is_completed")
+        if not is_completed:
+            is_completed = self.request.session.get("is_completed")
+
+        if is_completed:
             match is_completed:
                 case "true":
                     task_list = task_list.filter(is_completed=True)
+                    self.request.session["is_completed"] = "true"
                 case "false":
                     task_list = task_list.filter(is_completed=False)
+                    self.request.session["is_completed"] = "false"
+                case "all":
+                    self.request.session["is_completed"] = "all"
+
+        is_private = self.request.GET.get("is_private")
+        if not is_private:
+            is_private = self.request.session.get("is_private")
+
+        if is_private:
+            match is_private:
+                case "true":
+                    task_list = task_list.filter(is_private=True)
+                    self.request.session["is_private"] = "true"
+                case "false":
+                    task_list = task_list.exclude(is_private=True)
+                    self.request.session["is_private"] = "false"
+                case "all":
+                    self.request.session["is_private"] = "all"
 
         categories = TaskCategory.objects.all()
 
@@ -457,4 +487,5 @@ class TableTaskListView(LoginRequiredMixin, ListView):
         context["category_id"] = category_id if category_id is not None else 0
         context["categories"] = categories
         context["is_completed"] = is_completed
+        context["is_private"] = is_private
         return context

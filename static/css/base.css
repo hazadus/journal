@@ -321,3 +321,7 @@ body {
 .bubble-new:after {
   box-shadow: 1px 1px 1px var(--bs-success-text);
 }
+
+.table a {
+  text-decoration: none;
+}

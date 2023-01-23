@@ -6,18 +6,39 @@
   </td>
   <td>
     {% if task.is_private %}
-      <i class="fa-solid fa-lock"></i>
+      <span class="text-muted">
+        <i class="fa-solid fa-lock"></i>
+      </span>
     {% endif %}
   </td>
-  <td>
+  <td colspan="2">
     <a href="{{ task.get_absolute_url }}">
       {{ task.title }}
     </a>
+    {% if not category_id %}
+      {# Do not show category here if filter by category is on #}
+      <br>
+      <span class="text-muted">
+        <i class="fa-solid fa-tag"></i> {{ task.category }}
+      </span>
+    {% endif %}
   </td>
   <td>
-    {{ task.active_comments.count }}
+    <span class="text-muted">
+      {{ task.active_comments.count }}
+    </span>
   </td>
-  <td>{{ task.category }}</td>
-  <td>{{ task.created }}</td>
-  <td>{% if task.completed %}{{ task.completed }}{% endif %}</td>
+  <!-- <td>{{ task.category }}</td> -->
+  <td>
+    <span class="text-muted">
+      {{ task.created }}
+    </span>
+  </td>
+  <td>
+    {% if task.completed %}
+      <span class="text-muted">
+        {{ task.completed }}
+      </span>
+    {% endif %}
+  </td>
 </tr>
