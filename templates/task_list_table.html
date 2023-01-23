@@ -6,7 +6,7 @@
 
 {% block dashboard_page_header %}
   <h1 class="h2">
-    Задачи: табличный вид
+    Задачи: табличный вид ({{ task_list|length }})
   </h1>
   <div class="btn-toolbar mb-2 mb-md-0">
     <a class="btn btn-sm btn-success" href="{% url 'journal:task_create' %}">
@@ -129,15 +129,7 @@
     </thead>
     <tbody>
       {% for task in task_list %}
-        {% if not task|is_user_acquainted:user %}
-          {% include "snippets/task_list_table_row.html" with task=task %}
-        {% endif %}
-      {% endfor %}
-
-      {% for task in task_list %}
-        {% if task|is_user_acquainted:user %}
-          {% include "snippets/task_list_table_row.html" with task=task %}
-        {% endif %}
+        {% include "snippets/task_list_table_row.html" with task=task %}
       {% endfor %}
     </tbody>
   </table>

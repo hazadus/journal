@@ -1,9 +1,9 @@
 from django.utils import timezone
 from django.http import HttpRequest, HttpResponse
-from django.db.models import Q, OuterRef, Subquery
 from django.views.decorators.http import require_POST
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q, Case, When, Value, OuterRef, Subquery, Count
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, TemplateView
 
@@ -422,7 +422,62 @@ class ReportListView(LoginRequiredMixin, ListView):
     context_object_name = "report_list"
 
 
-class TableTaskListView(LoginRequiredMixin, ListView):
+class TaskListAnnotateMixin(ListView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        task_list = context[self.context_object_name]
+
+        # Count non-archived comments for each task
+        task_list = task_list.annotate(
+            comments_count=Count("comments", filter=Q(comments__is_archived=False))
+        )
+
+        # `is_favorite` will be `username` if user favorited the Task, or else None
+        task_list = task_list.annotate(
+            is_favorite=Subquery(
+                CustomUser.objects.filter(
+                    Q(tasks_favorited__in=OuterRef("pk")) &
+                    Q(tasks_favorited__users_favorited__exact=self.request.user.pk)
+                ).values("username")
+            )
+        )
+
+        # `is_acquinted` will be `username` if user acquainted with Task, or else None
+        task_list = task_list.annotate(
+            is_acquainted_task=Subquery(
+                CustomUser.objects.filter(
+                    Q(tasks_acquainted__in=OuterRef("pk")) &
+                    Q(tasks_acquainted__users_acquainted__exact=self.request.user.pk)
+                ).values("username")
+            )
+        )
+
+        # `id_latest_comment_unacqainted` will be id of the newest unacquainted comment, or else None
+        task_list = task_list.annotate(
+            id_latest_comment_unacqainted=Subquery(
+                Comment.objects.filter(Q(task_id=OuterRef("pk")) &
+                                       ~Q(users_acquainted__exact=self.request.user.pk))
+                .order_by("-created")
+                .values("id")
+            )
+        )
+
+        # Finally, annotate with `is_acquainted` based on two previous fields
+        task_list = task_list.annotate(
+            is_acquainted=Case(
+                When(
+                    Q(is_acquainted_task=None) | ~Q(id_latest_comment_unacqainted=None),
+                    then=Value(False)
+                ),
+                default=Value(True)
+            )
+        ).order_by("is_acquainted", "is_completed", "-completed", "-created").select_related("category")
+
+        context[self.context_object_name] = task_list
+        return context
+
+
+class TableTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, ListView):
     model = Task
     template_name = "task_list_table.html"
     context_object_name = "task_list"
@@ -435,7 +490,7 @@ class TableTaskListView(LoginRequiredMixin, ListView):
         # Exclude private tasks of other users
         task_list = task_list.exclude(
             ~Q(author=self.request.user) & Q(is_private=True)
-        ).order_by("is_completed", "-completed", "-created")
+        )
 
         category_id = self.request.GET.get("category_id")
         # If not in GET params, check the session params:
