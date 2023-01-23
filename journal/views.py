@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Case, When, Value, OuterRef, Subquery, Count
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, TemplateView
+from django.db.models.expressions import RawSQL
 
 from users.models import CustomUser
 from core.models import Notification
@@ -432,6 +433,18 @@ class TaskListAnnotateMixin(ListView):
             comments_count=Count("comments", filter=Q(comments__is_archived=False))
         )
 
+        # TODO: where is_archived = False!
+        task_list = task_list.annotate(
+            new_comments_count=RawSQL("""
+                    SELECT COUNT(*) AS "__count"
+                    FROM "journal_comment"
+                    WHERE ("journal_comment"."task_id" IN ("journal_task"."id") 
+                    AND NOT (EXISTS(SELECT '1' AS "a" FROM "journal_comment_users_acquainted" U1 
+                    WHERE (U1."customuser_id" IN (%s) AND U1."comment_id" = ("journal_comment"."id")) LIMIT 1)))
+                 """, (self.request.user.pk,))
+
+        )
+
         # `is_favorite` will be `username` if user favorited the Task, or else None
         task_list = task_list.annotate(
             is_favorite=Subquery(
@@ -471,7 +484,8 @@ class TaskListAnnotateMixin(ListView):
                 ),
                 default=Value(True)
             )
-        ).order_by("is_acquainted", "is_completed", "-completed", "-created").select_related("category")
+        ).order_by("is_acquainted", "is_completed", "-completed", "-created") \
+            .select_related("category").prefetch_related("comments")
 
         context[self.context_object_name] = task_list
         return context
