@@ -1,10 +1,10 @@
 {% load journal_filters %}
 
 <tr {% if not task|is_user_acquainted:user %}class="table-success"{% endif %}>
-  <td>
+  <td class="text-center">
     {% include "snippets/task_list_item_favorite_button.html" with task=task %}
   </td>
-  <td>
+  <td class="text-center">
     {% if task.is_private %}
       <span class="text-muted">
         <i class="fa-solid fa-lock"></i>
@@ -15,7 +15,7 @@
     <a href="{{ task.get_absolute_url }}">
       {{ task.title }}
     </a>
-    {% if not category_id %}
+    {% if category_id == "0" %}
       {# Do not show category here if filter by category is on #}
       <br>
       <span class="text-muted">
@@ -23,7 +23,7 @@
       </span>
     {% endif %}
   </td>
-  <td>
+  <td class="text-center">
     <span class="text-muted">
       {{ task.active_comments.count }}
     </span>

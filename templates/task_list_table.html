@@ -19,11 +19,13 @@
   <table class="table table-hover text-nowrap" style="font-family: var(--font-family-condensed);">
     <thead>
       <tr>
-        <th scope="col" style="width: 30px;"><i class="fa-regular fa-star"></i></th>
-        <th scope="col" style="width: 60px;">
+        <th scope="col" class="text-center" style="width: 30px;">
+          <i class="fa-regular fa-star"></i>
+        </th>
+        <th scope="col" class="text-center" style="width: 60px;">
           <!-- Private dropdown -->
           <div class="dropdown">
-            <button type="button" class="btn btn-outline-dark dropdown-toggle"
+            <button type="button" class="btn btn-sm btn-outline-dark dropdown-toggle"
                     data-bs-toggle="dropdown" aria-expanded="false">
               {% if is_private == "true" %}
                 <i class="fa-solid fa-lock"></i>
@@ -57,10 +59,10 @@
         <th scope="col" style="width: 50px;">
           <!-- Category dropdown -->
           <div class="dropdown">
-            <button type="button" class="btn btn-outline-dark dropdown-toggle"
+            <button type="button" class="btn btn-sm btn-outline-dark dropdown-toggle"
                     data-bs-toggle="dropdown" aria-expanded="false">
               <i class="fa-solid fa-tag"></i>
-              Категория:
+              <b>Категория:</b>
               {% if not show_category %}
                 все
               {% else %}
@@ -84,17 +86,17 @@
             </ul>
           </div>
         </th>
-        <th scope="col">
+        <th scope="col" class="text-center">
           <i class="fa-solid fa-comments"></i>
         </th>
         <th scope="col">Создана</th>
         <th scope="col">
           <!-- Completed dropdown -->
           <div class="dropdown">
-            <button type="button" class="btn btn-outline-dark dropdown-toggle"
+            <button type="button" class="btn btn-sm btn-outline-dark dropdown-toggle"
                     data-bs-toggle="dropdown" aria-expanded="false">
               <i class="fa-solid fa-check"></i>
-              Завершена:
+              <b>Завершена:</b>
               {% if is_completed == "true" %}
                 да
               {% elif is_completed == "false" %}
