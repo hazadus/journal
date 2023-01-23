@@ -36,12 +36,18 @@ class Command(BaseCommand):
             Q(is_private=False, is_completed=True, is_archived=False,
               completed__year=timezone.now().year, completed__month=timezone.now().month,
               completed__day=timezone.now().day)
-        )
+        ).order_by("is_completed", "-completed", "-created")
 
         # Create Excel file with active tasks and comments
         workbook = xlsxwriter.Workbook(report_path)
         bold = workbook.add_format({"bold": True})
         date_format = workbook.add_format({"num_format": "dd.mm.yyyy hh:mm"})
+        date_format_header = workbook.add_format({"num_format": "dd.mm.yyyy hh:mm"})
+        date_format_header.set_bg_color("#8ecae6")
+        cell_format_wrap = workbook.add_format()
+        cell_format_wrap.set_text_wrap()
+        cell_format_header = workbook.add_format({"bold": True})
+        cell_format_header.set_bg_color("#8ecae6")
 
         for i, task in enumerate(tasks):
             print(task)
@@ -53,27 +59,30 @@ class Command(BaseCommand):
             worksheet.set_column(0, 0, 100)
             worksheet.set_column(1, 2, 15)
 
-            worksheet.write(0, 0, task.title, bold)
-            worksheet.write(0, 1, "Автор", bold)
-            worksheet.write(0, 2, "Дата и время", bold)
+            worksheet.write(0, 0, task.title, cell_format_header)
+            worksheet.write(0, 1, "Автор", cell_format_header)
+            worksheet.write(0, 2, "Дата и время", cell_format_header)
 
-            worksheet.write(1, 0, task.body)
+            worksheet.write(1, 0, task.body, cell_format_wrap)
             worksheet.write(1, 1, task.author.short_name)
             worksheet.write_datetime(1, 2, timezone.make_naive(task.created), date_format)
 
-            worksheet.write(2, 0, "Комментарии:", bold)
+            worksheet.write(2, 0, "Комментарии:", cell_format_header)
+            worksheet.write(2, 1, "", cell_format_header)
+            worksheet.write(2, 2, "", cell_format_header)
 
             row = 3
             for comment in task.comments.all():
                 if not comment.is_archived:
-                    worksheet.write(row, 0, comment.body)
+                    worksheet.write(row, 0, comment.body, cell_format_wrap)
                     worksheet.write(row, 1, comment.author.short_name)
                     worksheet.write_datetime(row, 2, timezone.make_naive(comment.created), date_format)
                     row += 1
 
             if task.is_completed and task.completed:
-                worksheet.write(row, 0, "Задача завершена: ", bold)
-                worksheet.write_datetime(row, 2, timezone.make_naive(task.completed), date_format)
+                worksheet.write(row, 0, "Задача завершена: ", cell_format_header)
+                worksheet.write(row, 1, "", cell_format_header)
+                worksheet.write_datetime(row, 2, timezone.make_naive(task.completed), date_format_header)
 
         workbook.close()
 
