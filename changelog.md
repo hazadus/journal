@@ -1,3 +1,7 @@
+24.01.2023, Вт
+    - 08:50 - Оптимизированы запросы в видах `TaskListView`, `CompletedTaskListView`, `PrivateTaskListView`,
+            `FavoriteTaskListView` с использованием `TaskListAnnotateMixin`.
+
 23.01.2023, Пн
     - 11:30 - В табличном виде задач добавлен фильтр по личным задачам, небольшие изменения UI.
     - 14:40 - Добавлен `django_debug_toolbar`.
