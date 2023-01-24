@@ -32,18 +32,38 @@ body {
 
   .card-header {
     font-family: var(--font-family-condensed);
+    padding: 8px;
+  }
+
+  .list-card .card-header {
+    display: none;
   }
 
   .card-title {
     font-family: var(--font-family-condensed);
   }
 
+  .card-body {
+    padding: 8px;
+  }
+
   .card-footer {
     font-family: var(--font-family-condensed);
+    padding: 8px;
+  }
+
+  .dropdown-task-list-order,
+  .dropdown-task-list-filter {
+    display: none;
   }
 
   .timeline__desc_avatar__avatar {
     display: none;
+  }
+
+  .table th, td {
+    padding-left: 0;
+    padding-right: 0;
   }
 }
 
