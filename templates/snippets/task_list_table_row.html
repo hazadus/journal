@@ -1,14 +1,8 @@
 {% load journal_filters %}
 
 <tr {% if not task.is_acquainted %}class="table-success"{% endif %}>
-  <!-- TODO move to snippet -->
   <td class="text-center">
-    <button class="{% if task.is_favorite %}star-link-favorite{% else %}star-link{% endif %} me-0"
-            hx-post="{% url 'journal:task_toggle_favorite' task.pk %}"
-            hx-target="this"
-            hx-swap="outerHTML">
-      <i class="fa-regular fa-star"></i>
-    </button>
+    {% include "snippets/task_list_item_favorite_button.html" with task=task %}
   </td>
   <td class="text-center">
     {% if task.is_private %}
@@ -18,7 +12,7 @@
     {% endif %}
   </td>
   <td colspan="2">
-    <a href="{{ task.get_absolute_url }}">
+    <a class="table-task-title-link" href="{{ task.get_absolute_url }}">
       {{ task.title }}
     </a>
     {% if category_id == "0" %}
