@@ -166,6 +166,10 @@ body {
   .timeline__title {
     font-size: 1.1rem;
   }
+
+  .table-task-title-link {
+    font-size: 1.2rem;
+  }
 }
 
 .timeline__title__timestamp {

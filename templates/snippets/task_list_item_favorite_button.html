@@ -1,5 +1,4 @@
-{% load journal_filters %}
-<button class="{% if task|is_users_favorite:user %}star-link-favorite{% else %}star-link{% endif %} me-0"
+<button class="{% if task.is_favorite or is_favorite %}star-link-favorite{% else %}star-link{% endif %} me-0"
         hx-post="{% url 'journal:task_toggle_favorite' task.pk %}"
         hx-target="this"
         hx-swap="outerHTML">

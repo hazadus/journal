@@ -6,17 +6,8 @@
 
 {% block content %}
   {% if completed_task_list %}
-    {# Show `green` tasks at the top of the list #}
     {% for task in completed_task_list %}
-      {% if not task|is_user_acquainted:user %}
-        {% include "snippets/task_list_item.html" with task=task %}
-      {% endif %}
-    {% endfor %}
-    {# Show other tasks #}
-    {% for task in completed_task_list %}
-      {% if task|is_user_acquainted:user %}
-        {% include "snippets/task_list_item.html" with task=task %}
-      {% endif %}
+      {% include "snippets/task_list_item.html" with task=task %}
     {% endfor %}
   {% else %}
     <div class="alert alert-info">

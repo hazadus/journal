@@ -1,15 +1,93 @@
 from django.utils import timezone
 from django.http import HttpRequest, HttpResponse
-from django.db.models import Q, OuterRef, Subquery
 from django.views.decorators.http import require_POST
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db.models import Q, Case, When, Value, OuterRef, Subquery, Count
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, TemplateView
+from django.db.models.expressions import RawSQL
 
 from users.models import CustomUser
 from core.models import Notification
 from .models import Task, Comment, Report, TaskCategory
+
+
+class TaskListAnnotateMixin(ListView):
+    """
+    Annotates Task QuerySet with the following fields:
+        comments_count: total number of non-archived comments for the task;
+        new_comments_count: number of "new" non-archived comments for logged-in user for the task;
+        is_favorite: is task favorited by logged in user (actually equals `username` or None respectively);
+        is_acquainted: is logged in user acquainted with the task and all of its non-archived comments, boolean.
+    """
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        task_list = context[self.context_object_name]
+
+        # Count non-archived comments for each task
+        task_list = task_list.annotate(
+            comments_count=Count("comments", filter=Q(comments__is_archived=False))
+        )
+
+        task_list = task_list.annotate(
+            new_comments_count=RawSQL("""
+                    SELECT COUNT(*) AS "__count"
+                    FROM "journal_comment"
+                    WHERE ("journal_comment"."task_id" IN ("journal_task"."id")
+                    AND NOT "journal_comment"."is_archived"
+                    AND NOT (EXISTS(SELECT '1' AS "a" FROM "journal_comment_users_acquainted" U1 
+                    WHERE (U1."customuser_id" IN (%s) AND U1."comment_id" = ("journal_comment"."id")) LIMIT 1)))
+                 """, (self.request.user.pk,))
+
+        )
+
+        # `is_favorite` will be `username` if user favorited the Task, or else None
+        task_list = task_list.annotate(
+            is_favorite=Subquery(
+                CustomUser.objects.filter(
+                    Q(tasks_favorited__in=OuterRef("pk")) &
+                    Q(tasks_favorited__users_favorited__exact=self.request.user.pk)
+                ).values("username")
+            )
+        )
+
+        # `is_acquinted` will be `username` if user acquainted with Task, or else None
+        task_list = task_list.annotate(
+            is_acquainted_task=Subquery(
+                CustomUser.objects.filter(
+                    Q(tasks_acquainted__in=OuterRef("pk")) &
+                    Q(tasks_acquainted__users_acquainted__exact=self.request.user.pk)
+                ).values("username")
+            )
+        )
+
+        # `id_latest_comment_unacqainted` will be id of the newest unacquainted comment, or else None
+        task_list = task_list.annotate(
+            id_latest_comment_unacqainted=Subquery(
+                Comment.objects.filter(Q(task_id=OuterRef("pk")) &
+                                       ~Q(users_acquainted__exact=self.request.user.pk) &
+                                       Q(is_archived=False))
+                .order_by("-created")
+                .values("id")
+            )
+        )
+
+        # Finally, annotate with `is_acquainted` based on two previous fields
+        task_list = task_list.annotate(
+            is_acquainted=Case(
+                When(
+                    Q(is_acquainted_task=None) | ~Q(id_latest_comment_unacqainted=None),
+                    then=Value(False)
+                ),
+                default=Value(True)
+            )
+        ).select_related("category")
+        # ).order_by("is_acquainted", "is_completed", "-completed", "-created") \
+        #     .select_related("category")
+
+        context[self.context_object_name] = task_list
+        return context
 
 
 class TaskListFilterMixin(ListView):
@@ -86,7 +164,7 @@ class TaskListOrderMixin(ListView):
         return context
 
 
-class TaskListView(LoginRequiredMixin, TaskListFilterMixin, TaskListOrderMixin, ListView):
+class TaskListView(LoginRequiredMixin, TaskListAnnotateMixin, TaskListFilterMixin, TaskListOrderMixin, ListView):
     """ "Задачи" view in Dashboard (all active - without completed - tasks) """
     model = Task
     template_name = "task_list.html"
@@ -105,7 +183,8 @@ class TaskListView(LoginRequiredMixin, TaskListFilterMixin, TaskListOrderMixin, 
         return context
 
 
-class CompletedTaskListView(LoginRequiredMixin, TaskListFilterMixin, TaskListOrderMixin, ListView):
+class CompletedTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, TaskListFilterMixin, TaskListOrderMixin,
+                            ListView):
     """
     "Задачи" - "Завершенные" view in Dashboard (completed: public tasks, private tasks for this user, archived tasks
     excluded).
@@ -127,7 +206,7 @@ class CompletedTaskListView(LoginRequiredMixin, TaskListFilterMixin, TaskListOrd
         return context
 
 
-class PrivateTaskListView(LoginRequiredMixin, TaskListFilterMixin, TaskListOrderMixin, ListView):
+class PrivateTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, TaskListFilterMixin, TaskListOrderMixin, ListView):
     """
     "Задачи" - "Личные" view in Dashboard (active private tasks of logged in user)
     """
@@ -146,7 +225,8 @@ class PrivateTaskListView(LoginRequiredMixin, TaskListFilterMixin, TaskListOrder
         return context
 
 
-class FavoriteTaskListView(LoginRequiredMixin, TaskListFilterMixin, TaskListOrderMixin, ListView):
+class FavoriteTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, TaskListFilterMixin, TaskListOrderMixin,
+                           ListView):
     model = Task
     template_name = "task_list_favorites.html"
     context_object_name = "favorite_task_list"
@@ -165,6 +245,16 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
     model = Task
     template_name = "task_detail.html"
     context_object_name = "task"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        task = context["task"]
+
+        if self.request.user in task.users_favorited.all():
+            task.is_favorite = True
+
+        context["task"] = task
+        return context
 
 
 class TaskCreateView(LoginRequiredMixin, CreateView):
@@ -374,10 +464,12 @@ def task_toggle_favorite(request: HttpRequest, pk: int) -> HttpResponse:
     """
     task = get_object_or_404(Task, pk=pk)
     user = request.user
+    is_favorite = False
 
     # Add or remove from logged in user's favorites
     if user not in task.users_favorited.all():
         task.users_favorited.add(user)
+        is_favorite = True
 
         Notification.send(sender=request.user,
                           actor=request.user,
@@ -386,9 +478,11 @@ def task_toggle_favorite(request: HttpRequest, pk: int) -> HttpResponse:
                           target=task)
     else:
         task.users_favorited.remove(user)
+        is_favorite = False
 
     return render(request, "snippets/task_list_item_favorite_button.html", {
         "task": task,
+        "is_favorite": is_favorite,
     })
 
 
@@ -422,7 +516,7 @@ class ReportListView(LoginRequiredMixin, ListView):
     context_object_name = "report_list"
 
 
-class TableTaskListView(LoginRequiredMixin, ListView):
+class TableTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, ListView):
     model = Task
     template_name = "task_list_table.html"
     context_object_name = "task_list"
@@ -435,7 +529,7 @@ class TableTaskListView(LoginRequiredMixin, ListView):
         # Exclude private tasks of other users
         task_list = task_list.exclude(
             ~Q(author=self.request.user) & Q(is_private=True)
-        ).order_by("is_completed", "-completed", "-created")
+        )
 
         category_id = self.request.GET.get("category_id")
         # If not in GET params, check the session params:
@@ -479,6 +573,8 @@ class TableTaskListView(LoginRequiredMixin, ListView):
                     self.request.session["is_private"] = "false"
                 case "all":
                     self.request.session["is_private"] = "all"
+
+        task_list = task_list.order_by("is_acquainted", "-is_favorite", "is_completed", "-completed", "-created")
 
         categories = TaskCategory.objects.all()
 

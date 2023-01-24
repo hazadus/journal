@@ -65,7 +65,7 @@
             <li class="nav-item {% if "/journal/tasks/" == request.path %}nav-item-active{% endif %}">
               <a class="nav-link {% if "/journal/tasks/" == request.path %}active{% endif %}" href="{% url 'journal:task_list' %}">
                 <i class="fa-solid fa-list-check"></i> Задачи
-                {% include "snippets/task_green_badge.html" with count=green_active_tasks.count task_type="green_active_tasks"  %}
+                {% include "snippets/task_green_badge.html" with count=green_active_tasks.count task_type="green_active_tasks" %}
               </a>
             </li>
             <!-- Subitems -->
