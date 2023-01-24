@@ -11,3 +11,4 @@ django-model-utils~=4.3.1
 jsonfield~=3.1.0
 XlsxWriter==3.0.7
 django_debug_toolbar==3.8.1
+Markdown==3.4.1

@@ -1,3 +1,4 @@
+{% load core_filters %}
 {% load journal_filters %}
 {% load static %}
 
@@ -71,7 +72,7 @@
                   </div>
                 </div>
                 <div class="card-body">
-                  {{ comment.body|linebreaks }}
+                  {{ comment.body|markdown|safe|linebreaks }}
                 </div>
               </div>
             </div>

@@ -1,3 +1,5 @@
+{% load core_filters %}
+
 <div id="task_with_comments">
   <div class="card {% if not user in task.users_acquainted.all %}card-new border-success{% endif %} mb-2">
     <div class="card-header text-muted">
@@ -46,7 +48,7 @@
       </div>
     </div>
     <div class="card-body">
-      {{ task.body|linebreaks }}
+      {{ task.body|markdown|safe|linebreaks }}
       {% if task.attachment %}
         <p class="mt-3">
           <i class="fa-solid fa-paperclip"></i> Файл: <a href="{{ task.attachment.url }}">
