@@ -82,8 +82,9 @@ class TaskListAnnotateMixin(ListView):
                 ),
                 default=Value(True)
             )
-        ).order_by("is_acquainted", "is_completed", "-completed", "-created") \
-            .select_related("category")
+        ).select_related("category")
+        # ).order_by("is_acquainted", "is_completed", "-completed", "-created") \
+        #     .select_related("category")
 
         context[self.context_object_name] = task_list
         return context
@@ -182,7 +183,8 @@ class TaskListView(LoginRequiredMixin, TaskListAnnotateMixin, TaskListFilterMixi
         return context
 
 
-class CompletedTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, TaskListFilterMixin, TaskListOrderMixin, ListView):
+class CompletedTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, TaskListFilterMixin, TaskListOrderMixin,
+                            ListView):
     """
     "Задачи" - "Завершенные" view in Dashboard (completed: public tasks, private tasks for this user, archived tasks
     excluded).
@@ -243,6 +245,16 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
     model = Task
     template_name = "task_detail.html"
     context_object_name = "task"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        task = context["task"]
+
+        if self.request.user in task.users_favorited.all():
+            task.is_favorite = True
+
+        context["task"] = task
+        return context
 
 
 class TaskCreateView(LoginRequiredMixin, CreateView):
@@ -561,6 +573,8 @@ class TableTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, ListView):
                     self.request.session["is_private"] = "false"
                 case "all":
                     self.request.session["is_private"] = "all"
+
+        task_list = task_list.order_by("is_acquainted", "-is_favorite", "is_completed", "-completed", "-created")
 
         categories = TaskCategory.objects.all()
 
