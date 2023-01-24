@@ -65,7 +65,7 @@
             <li class="nav-item {% if "/journal/tasks/" == request.path %}nav-item-active{% endif %}">
               <a class="nav-link {% if "/journal/tasks/" == request.path %}active{% endif %}" href="{% url 'journal:task_list' %}">
                 <i class="fa-solid fa-list-check"></i> Задачи
-                {# TODO include "snippets/task_green_badge.html" with count=green_active_tasks.count task_type="green_active_tasks"  #}
+                {% include "snippets/task_green_badge.html" with count=green_active_tasks.count task_type="green_active_tasks" %}
               </a>
             </li>
             <!-- Subitems -->
@@ -84,13 +84,13 @@
             <li class="nav-item {% if "/tasks/favorites/" in request.path %}nav-item-active{% endif %}" style="margin-left: 20px;">
               <a class="nav-link {% if "/tasks/favorites/" in request.path %}active{% endif %}" href="{% url 'journal:favorite_task_list' %}">
                 <i class="fa-regular fa-star"></i> Избранные
-                {# TODO include "snippets/task_green_badge.html" with count=green_favorite_tasks.count task_type="green_favorite_tasks" #}
+                {% include "snippets/task_green_badge.html" with count=green_favorite_tasks.count task_type="green_favorite_tasks" %}
               </a>
             </li>
             <li class="nav-item {% if "/tasks/completed/" in request.path %}nav-item-active{% endif %}" style="margin-left: 20px;">
               <a class="nav-link {% if "/tasks/completed/" in request.path %}active{% endif %}" href="{% url 'journal:completed_task_list' %}">
                 <i class="fa-solid fa-check-double"></i> Завершенные
-                {# TODO include "snippets/task_green_badge.html" with count=green_completed_tasks.count task_type="green_completed_tasks" #}
+                {% include "snippets/task_green_badge.html" with count=green_completed_tasks.count task_type="green_completed_tasks" %}
               </a>
             </li>
             {% if user.is_superuser %}
@@ -104,7 +104,7 @@
             <li class="nav-item {% if "/documents/" in request.path %}nav-item-active{% endif %}">
               <a class="nav-link {% if "/documents/" in request.path %}active{% endif %}" href="{% url 'documents:document_list' %}">
                 <i class="fa-solid fa-file-invoice"></i> Документы
-                {# TODO include "snippets/document_green_badge.html" with count=green_active_documents.count #}
+                {% include "snippets/document_green_badge.html" with count=green_active_documents.count %}
               </a>
             </li>
             <li class="nav-item {% if "/tasks/search/" in request.path %}nav-item-active{% endif %}">
