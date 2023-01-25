@@ -1,12 +1,15 @@
 import os
+import re
 from datetime import datetime
 
 from django.db.models import Q
 from django.conf import settings
 from django.utils import timezone
+from django.utils.html import strip_tags
 from django.core.management.base import BaseCommand
 
 import xlsxwriter
+import markdown as md
 
 from users.models import CustomUser
 from core.models import Notification
@@ -49,11 +52,17 @@ class Command(BaseCommand):
         cell_format_header = workbook.add_format({"bold": True})
         cell_format_header.set_bg_color("#8ecae6")
 
+        # Symbols Xlsxwriter don't like in sheet names:
+        sheet_name_invalid_chars = "[|]|:|;|\\|/"
+
         for i, task in enumerate(tasks):
             print(task)
+
+            # Remove "invalid" characters from sheet name
+            sheet_title = string = re.sub(sheet_name_invalid_chars, " ", task.title)
             worksheet = workbook.add_worksheet(name="{num}. {title}".format(
                 num=i + 1,
-                title=task.title[:26]  # max len = 31
+                title=sheet_title[:26]  # max len = 31
             ))
 
             worksheet.set_column(0, 0, 100)
@@ -63,7 +72,11 @@ class Command(BaseCommand):
             worksheet.write(0, 1, "Автор", cell_format_header)
             worksheet.write(0, 2, "Дата и время", cell_format_header)
 
-            worksheet.write(1, 0, task.body, cell_format_wrap)
+            # Convert markdown to HTML, then strip all tags - we don't need them in Excel file
+            task_stripped = md.markdown(task.body, extensions=["markdown.extensions.fenced_code"])
+            task_stripped = strip_tags(task_stripped)
+
+            worksheet.write(1, 0, task_stripped, cell_format_wrap)
             worksheet.write(1, 1, task.author.short_name)
             worksheet.write_datetime(1, 2, timezone.make_naive(task.created), date_format)
 
@@ -74,7 +87,9 @@ class Command(BaseCommand):
             row = 3
             for comment in task.comments.all():
                 if not comment.is_archived:
-                    worksheet.write(row, 0, comment.body, cell_format_wrap)
+                    comment_stripped = md.markdown(comment.body, extensions=["markdown.extensions.fenced_code"])
+                    comment_stripped = strip_tags(comment_stripped)
+                    worksheet.write(row, 0, comment_stripped, cell_format_wrap)
                     worksheet.write(row, 1, comment.author.short_name)
                     worksheet.write_datetime(row, 2, timezone.make_naive(comment.created), date_format)
                     row += 1
