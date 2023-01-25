@@ -316,6 +316,14 @@ body {
   transform: scale(1.001);
 }
 
+.task-card-body p {
+  font-size: 1.1rem;
+}
+
+.document-card-body p {
+  font-size: 1.1rem;
+}
+
 .task-list-dropdown {
   font-family: var(--font-family-condensed);
 }

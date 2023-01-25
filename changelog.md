@@ -1,3 +1,8 @@
+25.01.2023, Ср
+    - 08:40 - Escape ввод задач, отредактированных задач, комментариев.
+    - 09:20 - Добавлено удаление разметки `markdown` из задач и комментариев перед выводом отчета в Excel командой
+            `create_report`.
+
 24.01.2023, Вт
     - 08:50 - Оптимизированы запросы в видах `TaskListView`, `CompletedTaskListView`, `PrivateTaskListView`,
             `FavoriteTaskListView` с использованием `TaskListAnnotateMixin`.

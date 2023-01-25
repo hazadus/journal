@@ -1,4 +1,5 @@
 from django.utils import timezone
+from django.utils.html import escape
 from django.http import HttpRequest, HttpResponse
 from django.views.decorators.http import require_POST
 from django.shortcuts import render, get_object_or_404
@@ -266,6 +267,8 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
         task = form.save(commit=False)
         # Associate new Task with logged in user:
         task.author = self.request.user
+        task.title = escape(task.title)
+        task.body = escape(task.body)
         task.save()
         # Auto-acquaint author with new task:
         task.users_acquainted.add(self.request.user)
@@ -296,6 +299,8 @@ class TaskUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def form_valid(self, form):
         # Get updated task from form, but not yet commit it to DB
         updated_task = form.save(commit=False)
+        updated_task.title = escape(updated_task.title)
+        updated_task.body = escape(updated_task.body)
 
         # Create notification, saving previous and new title and body of the task (if changed)
         task = Task.objects.get(pk=updated_task.pk)
@@ -333,7 +338,7 @@ def comment_add(request: HttpRequest, pk: int) -> HttpResponse:
     HTMX view, adds a comment, then returns part of a page with comments block.
     """
     task = get_object_or_404(Task, pk=pk)
-    new_comment_body = str(request.POST.get("comment_text")).lstrip().rstrip()
+    new_comment_body = escape(str(request.POST.get("comment_text")).lstrip().rstrip())
     check_complete_task = request.POST.get("check_complete_task")
 
     if new_comment_body:
