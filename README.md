@@ -3,68 +3,97 @@
 
 Система совместной работы над задачами для сменных работников.
 
-## Для чего
+## Для чего?
 
-Сменные работники, особенно когда они не встречаются лично; "передача смены".
+ - Для совместной работы над задачами сменными работниками, особенно когда они не встречаются лично.
+ - Учет выполнения задач.
+ - "Передача смены" с генерацией отчета в формате Excel.
+ - Ознакомление работников с задачами, поручениями и документами с фиксацией времени ознакомления.
 
 
 ## Features
 
-- Совместная работа над задачами
-- Контроль ознакомления пользователей с задачами и сообщениями о ходе их выполнения
-- Архив задач и комментариев (пользователи не могут их удалить бесследно)
-- Личные задачи пользователей
+- Контроль ознакомления пользователей с задачами и сообщениями о ходе их выполнения.
+- Поток уведомлений (activity stream) о действиях пользователей в разделе "Журнал".
+- Сохранение предыдущей версии задачи при её изменении.
+- Архив задач и комментариев (пользователи не могут их удалить бесследно).
+- Личные задачи пользователей.
+- Быстрый поиск по задачам и комментариям к ним.
+- Поддержка [Markdown](https://daringfireball.net/projects/markdown/basics) в задачах, комментариях и поручениях.
 
-## Tech stack used
+## Используемые технологии
 
-- Python 3.10 / Django 4 / Gunicorn 
-- Bootstrap 5 / Font Awesome
-- HTMX 1.8.4
-- SQLite
-- Nginx
-- Docker Compose
-- Rollbar
+- Python 3.10 / [Django 4](https://www.djangoproject.com)
+- - `whitenoise` - раздача статических файлов.
+- - `django-notifications-hq` - журнал активности пользователей.
+- - `XlsxWriter` - генерация отчетов в формате Excel.
+- - `Markdown` - разметка Markdown в задачах, комментариях и поручениях.
+- [Bootstrap 5](https://getbootstrap.com) / [Font Awesome](https://fontawesome.com)
+- [HTMX 1.8.4](https://htmx.org)
+- [SQLite](https://sqlite.org/index.html) - проект не рассчитывался на значительное количество одновременно работающих 
+пользователей, поэтому выбрана данная БД из-за её простоты, удобства отладки и резервного копирования. 
+- [Nginx](https://www.nginx.com) / [Gunicorn](https://gunicorn.org) 
+- [Docker Compose](https://docs.docker.com/compose/)
+- [Rollbar](https://rollbar.com)
 
 
-## Deployment
+## Деплой
 
-To deploy this project run
+Для установки и запуска проекта, необходимо склонировать репозиторий,
+создать файл `docker-compose.yml` по одному из прилагаемых шаблонов
+(`dev` или `prod`), задать в нём корректные переменные окружения,
+и затем запустить командой `sudo docker compose up -d`.
+При первом запуске необходимо также выполнить команду миграции БД
+и создать учетную запись администратора:
 
 ```bash
-  git clone ...
-  sudo docker compose up -d
+  git clone ttps://github.com/hazadus/journal
+  cd ./journal
+  cp ./docker-compose.prod.yml ./docker-compose.yml
+  nano ./docker-compose.yml
+  sudo docker compose up -d --build
+  sudo docker exec journal-web python -m manage migrate
+  sudo docker exec journal-web python -m manage createsuperuser
 ```
 
 
-## Environment Variables
+## Переменные окружения
+Для корректного запуска проекта, необходимо установить следующие
+переменные окружения в файле `docker-compose.yml`:
 
-To run this project, you will need to add the following environment variables to your .env file
-
-`API_KEY`
-
-`ANOTHER_API_KEY`
+`SECRET_KEY`: стандартный secret key для Django.
+`ROLLBAR_ACCESS_TOKEN`: токен [Rollbar](https://rollbar.com), необходимо получить на их сайте.
 
 ## Структура проекта Django
 
-Описание apps и папок в проекте.
+Django apps:
+- `journal`
+- `documents`
+- `users`
+- `core`
 
+Директории и файлы:
+- `db.sqlite3` - файл БД.
+- `media/files` - файлы, загружаемые в качестве приложений к задачам и документам.
+- `media/images` - изображения профилей пользователей.
+- `media/reports` - отчеты, генерируемые командой `create_report`.
+- `docker/nginx/default.conf` - конфигурационный файл Nginx.
+- `docker/nginx/logs/` - логи Nginx.
 
-## Running Tests
+## Запуск тестов
 
-To run tests, run the following command
+Тесты запускаются стандартной для Django командой:
 
 ```bash
-  npm run test
+  python -m manage test
 ```
 
 
-## FAQ
+## Планируемые доработки
 
-#### Question 1
+Все запланированые изменения и доработки можно увидеть в разделе
+[Issues](https://github.com/hazadus/journal/issues).
 
-Answer 1
-
-#### Question 2
-
-Answer 2
-
+## Известные проблемы
+- Из-за особенностей работы SQLite с кириллицей, поиск по задачам и комментариям к ним чувствителен к регистру 
+кириллических символов в поисковом запросе.
