@@ -1,0 +1,17 @@
+<div class="card-body" id="comment-body-{{ comment.pk }}">
+  <form hx-post="{% url 'journal:task_comment_edit_save' comment.pk %}"
+        hx-target="#comment-body-{{ comment.pk }}" hx-swap="outerHTML">
+    <textarea class="form-control mb-1" name="updated_comment_text" rows="3">{{ comment.body  }}</textarea>
+    <div class="btn-toolbar mb-md-0 justify-content-end">
+      <button class="btn btn-secondary me-1"
+              hx-get="{% url 'journal:task_comment_show' comment.pk %}"
+              hx-target="#comment-body-{{ comment.pk }}"
+              hx-swap="outerHTML">
+        Отмена
+      </button>
+      <button class="btn btn-success">
+        Сохранить
+      </button>
+    </div>
+  </form>
+</div>

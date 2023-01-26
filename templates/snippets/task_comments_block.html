@@ -34,8 +34,8 @@
               </div>
               <!-- Comment card -->
               <div class="card flex-grow-1 {% if user in comment.users_acquainted.all %}bubble{% else %}card-new border-success bubble-new{% endif %}"
-                   hx-confirm="Вы уверены, что хотите удалить этот комментарий?"
-                   hx-target="#comments"
+{#                   hx-confirm="Вы уверены, что хотите удалить этот комментарий?"#}
+{#                   hx-target="#comments"#}
                    hx-swap="outerHTML">
                 <div class="card-header d-flex text-muted">
                   <!-- Comment info -->
@@ -49,13 +49,24 @@
                       <a class="toolbar-link toolbar-link-primary" href="/adminpanel/journal/comment/{{ comment.pk }}/change/"
                          data-bs-toggle="tooltip" data-bs-title="Редактировать в панели администратора"
                          data-bs-delay='{"show":1000,"hide":0}'>
-                        <i class="fa-solid fa-pen-to-square"></i>
+                        <i class="fa-solid fa-pencil"></i>
                       </a>
                     {% endif %}
-                    <!-- ARCHIVE (do not show to author if task is completed -->
+                    <!-- EDIT and ARCHIVE (do not show to author if task is completed -->
                     {% if user.is_superuser or comment.author == user and not task.is_completed  %}
+                      <a class="toolbar-link toolbar-link-primary"
+                         hx-get="{% url 'journal:task_comment_edit' comment.pk %}"
+                         hx-target="#comment-body-{{ comment.pk }}"
+                         hx-swap="outerHTML"
+                         data-bs-toggle="tooltip" data-bs-title="Редактировать комментарий"
+                         data-bs-delay='{"show":1000,"hide":0}'>
+                        <i class="fa-solid fa-pen-to-square"></i>
+                      </a>
                       <a class="toolbar-link toolbar-link-danger"
                          hx-delete="{% url 'journal:task_comment_archive' task.pk comment.pk %}"
+                         hx-confirm="Вы уверены, что хотите удалить этот комментарий?"
+                         hx-target="#comments"
+                         hx-swap="outerHTML"
                          data-bs-toggle="tooltip" data-bs-title="Удалить комментарий"
                          data-bs-delay='{"show":1000,"hide":0}'>
                         <i class="fa-solid fa-trash"></i>
@@ -63,7 +74,11 @@
                     {% endif %}
                     <!-- DELETE -->
                     {% if user.is_superuser %}
-                      <a class="toolbar-link toolbar-link-danger" hx-delete="{% url 'journal:task_comment_delete' task.pk comment.pk %}"
+                      <a class="toolbar-link toolbar-link-danger"
+                         hx-delete="{% url 'journal:task_comment_delete' task.pk comment.pk %}"
+                         hx-confirm="Вы уверены, что хотите удалить этот комментарий?"
+                         hx-target="#comments"
+                         hx-swap="outerHTML"
                          data-bs-toggle="tooltip" data-bs-title="Удалить комментарий (администратор)"
                          data-bs-delay='{"show":1000,"hide":0}'>
                         <i class="fa-solid fa-trash-can-arrow-up"></i>
@@ -71,7 +86,7 @@
                     {% endif %}
                   </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body" id="comment-body-{{ comment.pk }}">
                   {{ comment.body|markdown|safe|linebreaks }}
                 </div>
               </div>

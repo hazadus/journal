@@ -26,6 +26,8 @@
           <i class="fa-solid fa-file-signature"></i>
         {% elif notify.verb_code == "comment_add" %}
           <i class="fa-solid fa-comment"></i>
+        {% elif notify.verb_code == "comment_edit" %}
+          <i class="fa-solid fa-edit"></i>
         {% elif notify.verb_code == "report_add" %}
           <i class="fa-solid fa-table"></i>
         {% endif %}
@@ -45,7 +47,7 @@
         {% else %}
           {{ notify.actor.short_name }}
           {{ notify.verb }}
-          &laquo;<a href="{{ notify.target.get_absolute_url }}">{{ notify.target }}</a>&raquo;
+          &laquo;<a href="{{ notify.target.get_absolute_url }}">{{ notify.target|truncatechars:64 }}</a>&raquo;
         {% endif %}
         &middot; <span class="timeline__title__timestamp text-muted">{{ notify.timestamp }}</span>
       </div>
@@ -59,13 +61,13 @@
             {{ notify.action_object.body|markdown|safe|linebreaks }}
           </div>
         </div>
-      {% elif notify.verb_code == "task_edit" %}
-      {# Task updated (with history in accordion) #}
+      {% elif notify.verb_code == "task_edit" or notify.verb_code == "comment_edit" %}
+      {# Task or comment updated (with history in accordion) #}
         <div class="accordion" id="accordionExample">
           <div class="accordion-item">
             <h2 class="accordion-header" id="headingTwo">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ notify.pk }}" aria-expanded="false" aria-controls="collapseTwo">
-                Нажмите, чтобы увидеть что было изменено в задаче.
+                Нажмите, чтобы увидеть что было изменено.
               </button>
             </h2>
             <div id="collapse-{{ notify.pk }}" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
@@ -79,11 +81,11 @@
                 {% endif %}
                 {% if notify.previous_body %}
                   <p>
-                    <b>Содержание задачи изменено на:</b><br>
+                    <b>Содержание изменено на:</b><br>
                     {{ notify.new_body|markdown|safe|linebreaks }}
                     <br><br>
                     <span class="text-muted">
-                      Прежнее содержание задачи:<br>
+                      Прежнее содержание:<br>
                       {{ notify.previous_body|markdown|safe|linebreaks }}
                     </span>
                   </p>

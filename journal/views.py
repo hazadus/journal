@@ -406,6 +406,66 @@ def comment_archive(request: HttpRequest, task_pk: int, comment_pk: int) -> Http
 
 
 @login_required
+def comment_edit(request: HttpRequest, comment_pk: int) -> HttpResponse:
+    """
+    Inline edit comment.
+    HTMX view.
+    """
+    comment = get_object_or_404(Comment, pk=comment_pk)
+
+    return render(request, "snippets/task_comment_edit.html", {
+        "comment": comment,
+    })
+
+
+@login_required
+def comment_show(request: HttpRequest, comment_pk: int) -> HttpResponse:
+    """
+    Show single comment.
+    HTMX view, used for "Cancel" button in `comment_edit` view.
+    """
+    comment = get_object_or_404(Comment, pk=comment_pk)
+
+    return render(request, "snippets/task_comment_show.html", {
+        "comment": comment,
+    })
+
+
+@login_required
+@require_POST
+def comment_edit_save(request: HttpRequest, comment_pk: int) -> HttpResponse:
+    """
+    Save updated comment.
+    HTMX view.
+    """
+    comment = get_object_or_404(Comment, pk=comment_pk)
+    task = comment.task
+    user = request.user
+
+    updated_comment_text = request.POST.get("updated_comment_text")
+    updated_comment_text = escape(updated_comment_text.lstrip().rstrip())
+
+    can_edit = True if (user.is_superuser or comment.author == user) and not task.is_completed else False
+
+    if comment.body != updated_comment_text and can_edit:
+        previous_body = comment.body
+        comment.body = updated_comment_text
+        comment.save()
+
+        # Decide who we will notify
+        recipient = task.author if task.is_private else CustomUser.objects.all()
+
+        # Notify about comment edit
+        Notification.send(sender=user, actor=user, recipient=recipient,
+                          verb_code=Notification.VERB_CODES.comment_edit, target=comment,
+                          previous_body=previous_body, new_body=comment.body)
+
+    return render(request, "snippets/task_comment_show.html", {
+        "comment": comment,
+    })
+
+
+@login_required
 @require_POST
 def task_acquaint(request: HttpRequest, pk: int) -> HttpResponse:
     """
