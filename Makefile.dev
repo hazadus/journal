@@ -1,0 +1,20 @@
+BACKUP_PATH = /Users/hazadus/webbackup
+BACKUP_DATE = $(shell date +%Y_%m_%d_%H-%M)
+FULL_PATH = $(BACKUP_PATH)/journal-$(BACKUP_DATE)
+REMOTE_USER = username
+REMOTE_IP = 0.0.0.0
+REMOTE_DIR = /home/projects/journal/
+
+backup:
+	 rsync -arv --exclude=.venv --exclude=.git --exclude=__pycache__ --exclude=staticfiles $(REMOTE_USER)@$(REMOTE_IP):$(REMOTE_DIR) $(FULL_PATH)
+run:
+	python -m manage runserver
+up:
+	sudo docker compose up -d
+down:
+	sudo docker compose down
+static:
+	sudo rm -rf ./collectstatic
+	python -m manage collectstatic
+report:
+	sudo docker exec journal-web python -m manage create_report

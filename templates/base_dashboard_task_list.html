@@ -10,13 +10,16 @@
     </div>
     -->
     <!-- Sort dropdown -->
-    <div class="dropdown">
-      <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle me-2" data-bs-toggle="dropdown" aria-expanded="false">
+    <div class="dropdown dropdown-task-list-order">
+      <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle task-list-dropdown me-2"
+              data-bs-toggle="dropdown" aria-expanded="false">
         <i class="fa-solid fa-sort"></i> Порядок:
         {% if order_by == "latest_comment" %}
           по последним комментариям <i class="fa-solid fa-arrow-down-9-1"></i>
         {% elif order_by == "created"%}
           по времени создания <i class="fa-solid fa-arrow-down-9-1"></i>
+        {% elif order_by == "completed"%}
+          по времени завершения <i class="fa-solid fa-arrow-down-9-1"></i>
         {% endif %}
       </button>
       <ul class="dropdown-menu text-small shadow">
@@ -33,6 +36,12 @@
           </a>
         </li>
         <li>
+          <a class="dropdown-item {% if order_by == "completed" %}active{% endif %}"
+             href="{% if order_by == "completed" %}#{% else %}{{ request.path }}?order_by=completed{% endif %}">
+            <i class="fa-solid fa-arrow-down-9-1"></i> По времени завершения
+          </a>
+        </li>
+        <li>
           <a class="dropdown-item disabled" href="#">
             <i class="fa-solid fa-arrow-down-9-1"></i> По сроку выполнения
           </a>
@@ -40,8 +49,9 @@
       </ul>
     </div>
     <!-- Filter dropdown -->
-    <div class="dropdown">
-      <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle me-2" data-bs-toggle="dropdown" aria-expanded="false">
+    <div class="dropdown dropdown-task-list-filter">
+      <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle task-list-dropdown me-2"
+              data-bs-toggle="dropdown" aria-expanded="false">
         <i class="fa-solid fa-filter"></i> Фильтр:
         {% if get_hide_private %}скрыть личные{% else %}нет{% endif %}
       </button>

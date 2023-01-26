@@ -1,0 +1,38 @@
+{% extends "base_dashboard.html" %}
+
+{% block title %}Журнал событий{% endblock title %}
+
+{% block dashboard_page_header %}
+  <h1 class="h2">
+    Журнал событий
+  </h1>
+  <div class="btn-toolbar mb-2 mb-md-0">
+    <a class="btn btn-sm btn-success" href="{% url 'journal:task_create' %}">
+      <i class="fa-solid fa-file-circle-plus"></i> Добавить задачу
+    </a>
+  </div>
+{% endblock dashboard_page_header %}
+
+<!--
+user(actor) "add comment"(verb)             comment(action_object)  task/comment(target)
+user(actor) "edited/deleted comment"(verb)  comment(action_object)  task/comment(target) + data (previous edit)
+
+user(actor) "added task"(verb)              ---(action_object)      task(target)
+user(actor) "acquainted"(verb)              ---(action_object)      task(target)
+
+-->
+
+{% block content %}
+  <!-- Timeline -->
+  <div class="timeline">
+    <!-- Left vertical line -->
+    <div class="timeline__line"></div>
+
+    <!-- The timeline items timeline -->
+    <div class="timeline__items">
+      {% include "snippets/dashboard_timeline_items.html" with notifications=notifications%}
+    </div>
+  </div>
+
+{#  include "snippets/pagination.html" with page_obj=page_obj #}
+{% endblock content %}

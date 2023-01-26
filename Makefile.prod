@@ -1,0 +1,20 @@
+update:
+	sudo docker compose down
+	git pull
+	sudo rm -rf ./collectstatic
+	sudo docker compose up -d
+	sudo docker exec journal-web python -m manage collectstatic --noinput
+	sudo docker compose down
+	sudo docker compose up -d --build
+up:
+	sudo docker compose up -d
+down:
+	sudo docker compose down
+static:
+	sudo docker compose down
+	sudo rm -rf ./collectstatic
+	sudo docker compose up -d
+	sudo docker exec journal-web python -m manage collectstatic --noinput
+	sudo docker compose down
+report:
+	sudo docker exec journal-web python -m manage create_report

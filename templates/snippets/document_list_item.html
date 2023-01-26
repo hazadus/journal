@@ -1,0 +1,34 @@
+<div class="card list-card {% if not user in document.users_acquainted.all %}card-new border-success{% else %}border-dark{% endif %} mb-2">
+  <div class="card-header">
+    {% if document.is_completed %}
+      <i class="fa-solid fa-file-circle-check me-1"
+          data-bs-toggle="tooltip" data-bs-title="Этот документ не актуален"
+          data-bs-delay='{"show":1000,"hide":0}'>
+      </i>
+    {% endif %}
+    <i class="fa-solid fa-tag"></i> <span class="text-muted">{{ document.category }}</span>
+  </div>
+  <div class="card-body">
+    <h5 class="card-title mb-0">
+      <a class="title-link" href="{{ document.get_absolute_url }}">
+        {{ document.title }}
+      </a>
+    </h5>
+    <!--
+    <p class="card-text">
+      {{ document.body|truncatechars:232 }}
+    </p>
+    -->
+  </div>
+  <div class="card-footer text-muted">
+    <span data-bs-toggle="tooltip" data-bs-title="Дата и время создания документа" data-bs-delay='{"show":1000,"hide":0}'>
+      <i class="fa-regular fa-calendar"></i> {{ document.created }}
+    </span>
+    <span data-bs-toggle="tooltip" data-bs-title="Ознакомленные пользователи" data-bs-delay='{"show":1000,"hide":0}'>
+      &middot;  <i class="fa-solid fa-user-check"></i> {{ document.users_acquainted.count }}
+      {% for user in document.users_acquainted.all %}
+        {% include "snippets/user_avatar.html" with user=user size=24 %}
+      {% endfor %}
+    </span>
+  </div>
+</div>

@@ -4,18 +4,28 @@
 
 {% block body %}
   <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6" href="{% url 'journal:task_list' %}">Журнал Дежурства</a>
+    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-center" href="{% url 'core:dashboard' %}">
+      <i class="fa-solid fa-book-bookmark" style="color: var(--bs-primary-border-subtle);"></i>
+      Журнал Дежурства
+    </a>
     <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse"
       data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <input class="form-control form-control-dark w-100 rounded-0 border-0" type="text" placeholder="Найти..."
-      aria-label="Search">
+    <input class="form-control form-control-dark w-100 rounded-0 border-0"
+           type="search" name="search" id="search"
+           placeholder="Начните печатать для поиска по задачам..."
+           hx-post="{% url 'journal:task_search_htmx' %}"
+           hx-trigger="keyup changed delay:500ms, search"
+           hx-target="#dashboard-page-content"
+           aria-label="Search">
+    <!--
     <div class="navbar-nav">
       <div class="nav-item text-nowrap">
         <a class="nav-link px-3" href="#" onclick="placeholderButton();" style="cursor: not-allowed;">Поиск</a>
       </div>
     </div>
+    -->
   </header>
 
   <div class="container-fluid">
@@ -25,11 +35,9 @@
           <!-- User profile menu -->
           <div class="dropdown ms-3">
             <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-              {% if user.avatar_img %}
-                <img src="{{ user.avatar_img.url }}" alt="" width="32" height="32" class="rounded-circle me-2">
-              {% else %}
-                <img src="{% static 'images/default_profile_pic.png' %}" alt="" width="32" height="32" class="rounded-circle me-2">
-              {% endif %}
+              <div class="me-2">
+                {% include "snippets/user_avatar.html" with user=user size=32 %}
+              </div>
               <strong>{{ user.short_name }}</strong>
             </a>
             <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
@@ -41,7 +49,7 @@
               <li><hr class="dropdown-divider"></li>
               <li>
                 <a class="dropdown-item" href="{% url 'logout' %}">
-                  <i class="fa-solid fa-arrow-right-from-bracket"></i> Выйти из учетной записи
+                  <i class="fa-solid fa-arrow-right-from-bracket"></i> Выйти из аккаунта
                 </a>
               </li>
             </ul>
@@ -49,46 +57,64 @@
           <hr>
 
           <ul class="nav flex-column">
-            <li class="nav-item">
-              <a class="nav-link" aria-current="page" onclick="placeholderButton();" style="cursor: not-allowed;">
+            <li class="nav-item {% if "/" == request.path %}nav-item-active{% endif %}">
+              <a class="nav-link {% if "/" == request.path %}active{% endif %}" aria-current="page" href="{% url 'core:dashboard' %}">
                 <i class="fa-solid fa-book"></i> Журнал
               </a>
             </li>
-            <li class="nav-item {% if "/" == request.path %}nav-item-active{% endif %}">
-              <a class="nav-link {% if "/" == request.path %}active{% endif %}" href="{% url 'journal:task_list' %}">
+            <li class="nav-item {% if "/journal/tasks/" == request.path %}nav-item-active{% endif %}">
+              <a class="nav-link {% if "/journal/tasks/" == request.path %}active{% endif %}" href="{% url 'journal:task_list' %}">
                 <i class="fa-solid fa-list-check"></i> Задачи
+                {% include "snippets/task_green_badge.html" with count=green_active_tasks.count task_type="green_active_tasks" %}
               </a>
             </li>
             <!-- Subitems -->
+            <!--
             <li class="nav-item" style="margin-left: 20px;">
               <a class="nav-link" onclick="placeholderButton();" style="cursor: not-allowed;">
                 <i class="fa-solid fa-lightbulb"></i> Новые
               </a>
             </li>
+            -->
             <li class="nav-item {% if "/tasks/private/" in request.path %}nav-item-active{% endif %}" style="margin-left: 20px;">
               <a class="nav-link {% if "/tasks/private/" in request.path %}active{% endif %}" href="{% url 'journal:private_task_list' %}">
                 <i class="fa-solid fa-lock"></i> Личные
               </a>
             </li>
+            <li class="nav-item {% if "/tasks/favorites/" in request.path %}nav-item-active{% endif %}" style="margin-left: 20px;">
+              <a class="nav-link {% if "/tasks/favorites/" in request.path %}active{% endif %}" href="{% url 'journal:favorite_task_list' %}">
+                <i class="fa-regular fa-star"></i> Избранные
+                {% include "snippets/task_green_badge.html" with count=green_favorite_tasks.count task_type="green_favorite_tasks" %}
+              </a>
+            </li>
             <li class="nav-item {% if "/tasks/completed/" in request.path %}nav-item-active{% endif %}" style="margin-left: 20px;">
               <a class="nav-link {% if "/tasks/completed/" in request.path %}active{% endif %}" href="{% url 'journal:completed_task_list' %}">
                 <i class="fa-solid fa-check-double"></i> Завершенные
+                {% include "snippets/task_green_badge.html" with count=green_completed_tasks.count task_type="green_completed_tasks" %}
               </a>
             </li>
+            {% if user.is_superuser %}
+              <li class="nav-item {% if "/tasks/table/" in request.path %}nav-item-active{% endif %}" style="margin-left: 20px;">
+                <a class="nav-link {% if "/tasks/table/" in request.path %}active{% endif %}" href="{% url 'journal:task_list_table' %}">
+                  <i class="fa-solid fa-table"></i> Таблица
+                </a>
+              </li>
+            {% endif %}
 
-            <li class="nav-item">
-              <a class="nav-link" onclick="placeholderButton();" style="cursor: not-allowed;">
+            <li class="nav-item {% if "/documents/" in request.path %}nav-item-active{% endif %}">
+              <a class="nav-link {% if "/documents/" in request.path %}active{% endif %}" href="{% url 'documents:document_list' %}">
                 <i class="fa-solid fa-file-invoice"></i> Документы
+                {% include "snippets/document_green_badge.html" with count=green_active_documents.count %}
               </a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" onclick="placeholderButton();" style="cursor: not-allowed;">
+            <li class="nav-item {% if "/tasks/search/" in request.path %}nav-item-active{% endif %}">
+              <a class="nav-link {% if "/tasks/search/" in request.path %}active{% endif %}" href="{% url 'journal:task_search' %}">
                 <i class="fa-solid fa-magnifying-glass"></i> Поиск
               </a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" onclick="placeholderButton();" style="cursor: not-allowed;">
-                <i class="fa-solid fa-chart-line"></i> Отчет
+            <li class="nav-item {% if "/journal/reports/" in request.path %}nav-item-active{% endif %}">
+              <a class="nav-link {% if "/journal/reports/" in request.path %}active{% endif %}" href="{% url 'journal:report_list' %}">
+                <i class="fa-solid fa-chart-line"></i> Отчёты
               </a>
             </li>
           </ul>
@@ -113,15 +139,19 @@
       </nav>
 
       <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-          {% block dashboard_page_header %}
-          {% endblock dashboard_page_header %}
-        </div>
+        <!-- Dashboard page content -->
+        <div id="dashboard-page-content">
+          <!-- Dashboard page header -->
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-baseline pt-3 pb-2 mb-3 border-bottom">
+            {% block dashboard_page_header %}
+            {% endblock dashboard_page_header %}
+          </div>
 
-        <!-- CONTENT -->
-        {% block content %}
-        {% endblock content %}
-        <!-- END CONTENT -->
+          <!-- CONTENT -->
+          {% block content %}
+          {% endblock content %}
+          <!-- END CONTENT -->
+        </div>
       </main>
     </div>
   </div>

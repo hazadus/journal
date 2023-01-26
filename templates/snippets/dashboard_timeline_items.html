@@ -1,0 +1,98 @@
+{% load core_filters %}
+
+{% for notify in notifications %}
+  <!-- Each timeline item -->
+  {# If there's next page, and it's the last item, add next page after it using HTMX #}
+  {% if forloop.last and page_obj.has_next %}
+    <div class="timeline__item"
+         hx-get="{% url 'core:dashboard' %}?notifications_only=1&page={{ page_obj.next_page_number }}"
+         hx-trigger="revealed" hx-swap="afterend">
+  {% else %}
+    <div class="timeline__item">
+  {% endif %}
+    <!-- The circle and title -->
+    <div class="timeline__top mb-2">
+      <!-- The circle -->
+      <div class="timeline__circle text-center">
+        {% if notify.verb_code == "favorites_add" %}
+          <i class="fa-solid fa-star"></i>
+        {% elif notify.verb_code == "task_add" %}
+          <i class="fa-solid fa-list-check"></i>
+        {% elif notify.verb_code == "task_edit" %}
+          <i class="fa-solid fa-edit"></i>
+        {% elif notify.verb_code == "task_completed" %}
+          <i class="fa-solid fa-check"></i>
+        {% elif notify.verb_code == "acquainted" %}
+          <i class="fa-solid fa-file-signature"></i>
+        {% elif notify.verb_code == "comment_add" %}
+          <i class="fa-solid fa-comment"></i>
+        {% elif notify.verb_code == "report_add" %}
+          <i class="fa-solid fa-table"></i>
+        {% endif %}
+      </div>
+
+      <!-- The title -->
+      <div class="timeline__title">
+        {% include "snippets/user_avatar.html" with user=notify.actor size=24 %}
+        {# Comment: #}
+        {% if notify.verb_code == "comment_add" %}
+          {{ notify.actor.short_name }}
+          <a href="{{ notify.action_object.get_absolute_url }}">{{ notify.verb }}</a>
+          к &laquo;<a href="{{ notify.target.get_absolute_url }}">{{ notify.target }}</a>&raquo;
+        {% elif notify.verb_code == "report_add" %}
+          {{ notify.verb }}
+          &laquo;<a href="{{ notify.target.attachment.url }}">{{ notify.target }}</a>&raquo;
+        {% else %}
+          {{ notify.actor.short_name }}
+          {{ notify.verb }}
+          &laquo;<a href="{{ notify.target.get_absolute_url }}">{{ notify.target }}</a>&raquo;
+        {% endif %}
+        &middot; <span class="timeline__title__timestamp text-muted">{{ notify.timestamp }}</span>
+      </div>
+    </div>
+    <!-- The description -->
+    <div class="timeline__desc">
+      {% if notify.verb_code == "comment_add" %}
+      {# Comment #}
+        <div class="card flex-grow-1">
+          <div class="card-body">
+            {{ notify.action_object.body|markdown|safe|linebreaks }}
+          </div>
+        </div>
+      {% elif notify.verb_code == "task_edit" %}
+      {# Task updated (with history in accordion) #}
+        <div class="accordion" id="accordionExample">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTwo">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ notify.pk }}" aria-expanded="false" aria-controls="collapseTwo">
+                Нажмите, чтобы увидеть что было изменено в задаче.
+              </button>
+            </h2>
+            <div id="collapse-{{ notify.pk }}" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+              <div class="accordion-body">
+                {% if notify.previous_title %}
+                  <p class="{% if notify.previous_body %}mb-3{% endif %}">
+                    <b>Заголовок изменен на:</b> {{ notify.new_title }}
+                    <br><br>
+                    <span class="text-muted">Прежний заголовок: {{ notify.previous_title }}</span>
+                  </p>
+                {% endif %}
+                {% if notify.previous_body %}
+                  <p>
+                    <b>Содержание задачи изменено на:</b><br>
+                    {{ notify.new_body|markdown|safe|linebreaks }}
+                    <br><br>
+                    <span class="text-muted">
+                      Прежнее содержание задачи:<br>
+                      {{ notify.previous_body|markdown|safe|linebreaks }}
+                    </span>
+                  </p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endfor %}

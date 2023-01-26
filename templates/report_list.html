@@ -1,0 +1,35 @@
+{% extends "base_dashboard.html" %}
+
+{% block title %}Отчёты{% endblock title %}
+
+{% block dashboard_page_header %}
+  <h1 class="h2">
+    Отчёты
+  </h1>
+{% endblock dashboard_page_header %}
+
+{% block content %}
+  <div class="alert alert-info">
+    <i class="fa-solid fa-circle-info"></i> Отчеты о передаче смены в формате Excel генерируются автоматически
+    ежедневно в 22:00 и включают все активные на момент задачи и комментарии к ним. В данном разделе представлен архив
+    с возможностью скачать любой файл.
+  </div>
+
+  {% if report_list %}
+    <ul style="list-style: none;">
+      {% for report in report_list %}
+        <li>
+          <i class="fa-solid fa-file-excel"></i>
+          <i class="fa-solid fa-paperclip"></i>
+          <a href="{{ report.attachment.url }}">
+            {{ report.title }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="alert alert-warning">
+      <i class="fa-solid fa-warning"></i> Не найдено ни одного отчета.
+    </div>
+  {% endif %}
+{% endblock content %}

@@ -1,5 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu+Condensed&display=swap');
+
+:root {
+    --font-family: 'Ubuntu', sans-serif;
+    --font-family-condensed: 'Ubuntu Condensed', sans-serif;
+}
+
 body {
   font-size: 16px;
+  font-family: var(--font-family);
 }
 
 /*
@@ -16,9 +25,45 @@ body {
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
 }
 
-@media (max-width: 767.98px) {
+@media (max-width: 768px) {
   .sidebar {
-    top: 5rem;
+    top: 50px;
+  }
+
+  .card-header {
+    font-family: var(--font-family-condensed);
+    padding: 8px;
+  }
+
+  .list-card .card-header {
+    display: none;
+  }
+
+  .card-title {
+    font-family: var(--font-family-condensed);
+  }
+
+  .card-body {
+    padding: 8px;
+  }
+
+  .card-footer {
+    font-family: var(--font-family-condensed);
+    padding: 8px;
+  }
+
+  .dropdown-task-list-order,
+  .dropdown-task-list-filter {
+    display: none;
+  }
+
+  .timeline__desc_avatar__avatar {
+    display: none;
+  }
+
+  .table th, td {
+    padding-left: 0;
+    padding-right: 0;
   }
 }
 
@@ -63,7 +108,7 @@ body {
 
 .form-control-dark {
   color: #fff;
-  background-color: rgba(255, 255, 255, .1);
+  background-color: rgba(255, 255, 255, .4);
   border-color: rgba(255, 255, 255, .1);
 }
 
@@ -85,7 +130,7 @@ body {
   /* Positioned at the left */
   left: 0.75rem;
   position: absolute;
-  top: 0px;
+  top: 0;
 
   /* Take full height */
   height: 100%;
@@ -94,12 +139,12 @@ body {
 .timeline__items {
   /* Reset styles */
   list-style-type: none;
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
 }
 
 .timeline__item {
-  margin-bottom: 8px;
+  margin-bottom: 25px;
 }
 
 .timeline__top {
@@ -116,17 +161,53 @@ body {
   /* Size */
   height: 1.5rem;
   width: 1.5rem;
+
+  /* Icon color */
+  color: var(--bs-secondary-color);
+
+  /* This is for icon on top of the circle to be visible */
+  z-index: 1;
 }
 
 .timeline__title {
   /* Take available width */
   flex: 1;
+  align-items: center;
+  line-height: 1rem;
   margin-left: 0.5rem;
+  font-family: var(--font-family-condensed);
+}
+
+.timeline__title a {
+  text-decoration: none;
+}
+
+@media (min-width: 1080px) {
+  .timeline__title {
+    font-size: 1.1rem;
+  }
+
+  .table-task-title-link {
+    font-size: 1.2rem;
+  }
+}
+
+.timeline__title__timestamp {
+  font-family: var(--font-family-condensed);
 }
 
 .timeline__desc {
   /* Make it align with the title */
   margin-left: 2rem;
+}
+
+.timeline__desc .card-body {
+  background-color: rgba(33, 37, 41, 0.03);
+}
+
+.timeline__desc_avatar {
+  /* For descriptions which begin with round userpic (e.g.comments) */
+  margin-left: 24px;
 }
 
 /* For like <h1><a class="title-link">...</a></h1> stuff */
@@ -166,6 +247,47 @@ body {
   color: var(--bs-primary);
 }
 
+.star-link {
+  border: 0;
+  background-color: transparent;
+  margin-right: 3px;
+  padding: 0;
+  color: var(--bs-secondary-bg);
+  text-decoration: none;
+  cursor: pointer;
+  transition: 0.5s;
+}
+
+.star-link:hover {
+  color: var(--bs-dark-bg-subtle);
+  transform: scale(1.1);
+}
+
+.star-link-favorite:hover
+{
+  color: var(--bs-warning-border-subtle);
+  transform: scale(1.1);
+}
+
+.star-link-favorite {
+  border: 0;
+  background-color: transparent;
+  margin-right: 3px;
+  padding: 0;
+  color: var(--bs-warning);
+  text-decoration: none;
+  cursor: pointer;
+  transition: 0.5s;
+}
+
+.card-body p {
+  margin: 0;
+}
+
+.accordion-body p {
+  margin: 0;
+}
+
 .card-new .card {
   border-color: var(--bs-success);
 }
@@ -175,11 +297,63 @@ body {
   background-color: var(--bs-success-bg-subtle);
 }
 
+.due-date-overdue {
+  font-weight: bold;
+  color: var(--bs-danger-text);
+}
+
+.due-date-today {
+  font-weight: bold;
+  color: var(--bs-warning-text);
+}
+
 .list-card {
-    transition: 0.5s;
+  transition: 0.5s;
 }
 
 .list-card:hover {
-    box-shadow: 0 0 10px rgb(0, 0, 0, 0.5);
-    transform: scale(1.001);
+  box-shadow: 0 0 10px rgb(0, 0, 0, 0.5);
+  transform: scale(1.001);
+}
+
+.task-card-body p {
+  font-size: 1.1rem;
+}
+
+.document-card-body p {
+  font-size: 1.1rem;
+}
+
+.task-list-dropdown {
+  font-family: var(--font-family-condensed);
+}
+
+.bubble,
+.bubble-new {
+  position: relative;
+}
+
+.bubble:after,
+.bubble-new:after{
+  content: "";
+  position: absolute;
+  top: 43px;
+  left: -4px;
+  -webkit-transform: rotate(135deg);
+  -moz-transform: rotate(135deg);
+  -o-transform: rotate(135deg);
+  -ms-transform: rotate(135deg);
+  transform: rotate(135deg);
+  border: 4px solid;
+  opacity: 1;
+  box-shadow: 1px 1px 1px var(--bs-card-border-color);
+  border-color: transparent white white transparent;
+}
+
+.bubble-new:after {
+  box-shadow: 1px 1px 1px var(--bs-success-text);
+}
+
+.table a {
+  text-decoration: none;
 }

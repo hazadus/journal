@@ -1,8 +1,11 @@
+{% load core_filters %}
+
 <div id="task_with_comments">
   <div class="card {% if not user in task.users_acquainted.all %}card-new border-success{% endif %} mb-2">
     <div class="card-header text-muted">
       <div class="d-flex flex-wrap flex-md-nowrap align-items-center">
         <div class="flex-grow-1">
+          {% include "snippets/task_list_item_favorite_button.html" with task=task %}
           {% if task.is_private %}
             <i class="fa-solid fa-lock me-1" data-bs-toggle="tooltip" data-bs-title="Личная задача, доступна только вам" data-bs-delay='{"show":1000,"hide":0}'></i>
           {% endif %}
@@ -13,8 +16,19 @@
             &middot; <i class="fa-solid fa-user"></i> {{ task.author.short_name }}
           </span>
           <!-- &middot;  <i class="fa-solid fa-user-check"></i> {{ task.users_acquainted.count }} -->
-          {% if task.due_date %}
-            &middot; <i class="fa-solid fa-calendar-day"></i> {{ task.due_date }}
+          {% if task.due_date and not task.is_completed  %}
+          &middot;
+          <span class="{% if task.is_overdue and not task.is_completed %}due-date-overdue{% elif task.is_due_today and not task.is_completed %}due-date-today{% endif %}"
+                data-bs-toggle="tooltip" data-bs-title="Установленный срок выполнения задачи" data-bs-delay='{"show":1000,"hide":0}'>
+            <i class="fa-solid fa-calendar-day"></i> {{ task.due_date }}
+          </span>
+          {% endif %}
+          {% if task.completed and task.is_completed %}
+            <span data-bs-toggle="tooltip" data-bs-title="Дата и время завершения задачи" data-bs-delay='{"show":1000,"hide":0}'>
+              &middot;
+              <i class="fa-solid fa-calendar-check"></i>
+              {{ task.completed }}
+            </span>
           {% endif %}
         </div>
         <div class="btn-toolbar mb-2 mb-md-0">
@@ -33,10 +47,10 @@
         </div>
       </div>
     </div>
-    <div class="card-body">
-      {{ task.body|linebreaks }}
+    <div class="card-body task-card-body">
+      {{ task.body|markdown|safe|linebreaks }}
       {% if task.attachment %}
-        <p>
+        <p class="mt-3">
           <i class="fa-solid fa-paperclip"></i> Файл: <a href="{{ task.attachment.url }}">
             {{ task.attachment.name }}</a>
           ({{ task.attachment.size|filesizeformat }})
