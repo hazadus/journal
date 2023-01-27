@@ -4,6 +4,7 @@ from django.views.generic import ListView, DetailView
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.contenttypes.models import ContentType
 
 from .models import Document
 from users.models import CustomUser
@@ -21,6 +22,19 @@ class DocumentDetailView(LoginRequiredMixin, DetailView):
     model = Document
     template_name = "document_detail.html"
     context_object_name = "document"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        document = context["document"]
+
+        # Get all notifications for this document
+        document_notifications = Notification.objects.filter(
+            target_object_id=document.pk,
+            target_content_type_id=ContentType.objects.get_for_model(document)
+        ).order_by("-timestamp")
+        context["document_notifications"] = document_notifications
+
+        return context
 
 
 @login_required

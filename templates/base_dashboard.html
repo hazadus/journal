@@ -76,6 +76,11 @@
               </a>
             </li>
             -->
+            <li class="nav-item {% if "/tasks/table/" in request.path %}nav-item-active{% endif %}" style="margin-left: 20px;">
+              <a class="nav-link {% if "/tasks/table/" in request.path %}active{% endif %}" href="{% url 'journal:task_list_table' %}">
+                <i class="fa-solid fa-table"></i> Таблица
+              </a>
+            </li>
             <li class="nav-item {% if "/tasks/private/" in request.path %}nav-item-active{% endif %}" style="margin-left: 20px;">
               <a class="nav-link {% if "/tasks/private/" in request.path %}active{% endif %}" href="{% url 'journal:private_task_list' %}">
                 <i class="fa-solid fa-lock"></i> Личные
@@ -93,13 +98,6 @@
                 {% include "snippets/task_green_badge.html" with count=green_completed_tasks.count task_type="green_completed_tasks" %}
               </a>
             </li>
-            {% if user.is_superuser %}
-              <li class="nav-item {% if "/tasks/table/" in request.path %}nav-item-active{% endif %}" style="margin-left: 20px;">
-                <a class="nav-link {% if "/tasks/table/" in request.path %}active{% endif %}" href="{% url 'journal:task_list_table' %}">
-                  <i class="fa-solid fa-table"></i> Таблица
-                </a>
-              </li>
-            {% endif %}
 
             <li class="nav-item {% if "/documents/" in request.path %}nav-item-active{% endif %}">
               <a class="nav-link {% if "/documents/" in request.path %}active{% endif %}" href="{% url 'documents:document_list' %}">

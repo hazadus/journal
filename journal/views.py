@@ -474,6 +474,7 @@ def task_acquaint(request: HttpRequest, pk: int) -> HttpResponse:
     """
     task = get_object_or_404(Task, pk=pk)
     user = request.user
+    is_favorite = user in task.users_favorited.all()
 
     # Acquaint
     if user not in task.users_acquainted.all():
@@ -490,6 +491,7 @@ def task_acquaint(request: HttpRequest, pk: int) -> HttpResponse:
 
     return render(request, "snippets/task_full_block.html", {  # NB: full block, 'cause we gotta update the task too!
         "task": task,
+        "is_favorite": is_favorite,
     })
 
 
@@ -613,16 +615,19 @@ class TableTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, ListView):
         if not is_completed:
             is_completed = self.request.session.get("is_completed")
 
-        if is_completed:
-            match is_completed:
-                case "true":
-                    task_list = task_list.filter(is_completed=True)
-                    self.request.session["is_completed"] = "true"
-                case "false":
-                    task_list = task_list.filter(is_completed=False)
-                    self.request.session["is_completed"] = "false"
-                case "all":
-                    self.request.session["is_completed"] = "all"
+        # Set default `is_completed` to `false` for all users
+        if not is_completed:
+            is_completed = "false"
+
+        match is_completed:
+            case "true":
+                task_list = task_list.filter(is_completed=True)
+                self.request.session["is_completed"] = "true"
+            case "false":
+                task_list = task_list.filter(is_completed=False)
+                self.request.session["is_completed"] = "false"
+            case "all":
+                self.request.session["is_completed"] = "all"
 
         is_private = self.request.GET.get("is_private")
         if not is_private:

@@ -15,4 +15,20 @@
 
 {% block content %}
   {% include "snippets/document_detail_item.html" with document=document %}
+
+  {% if user.is_superuser %}
+    <h3 class="mt-3 mb-3">
+      Ознакомление пользователей
+    </h3>
+    <!-- Timeline -->
+    <div class="timeline ms-3">
+      <!-- Left vertical line -->
+      <div class="timeline__line"></div>
+
+      <!-- The timeline items timeline -->
+      <div class="timeline__items">
+        {% include "snippets/dashboard_timeline_items.html" with notifications=document_notifications %}
+      </div>
+    </div>
+  {% endif %}
 {% endblock content %}
