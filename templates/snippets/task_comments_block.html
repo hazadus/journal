@@ -1,5 +1,6 @@
 {% load core_filters %}
 {% load journal_filters %}
+{% load bleach_tags %}
 {% load static %}
 
 <div id="comments">
@@ -87,7 +88,7 @@
                   </div>
                 </div>
                 <div class="card-body" id="comment-body-{{ comment.pk }}">
-                  {{ comment.body|markdown|safe|linebreaks }}
+                  {{ comment.body|markdown|bleach|safe|linebreaks }}
                 </div>
               </div>
             </div>
