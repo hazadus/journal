@@ -1,4 +1,5 @@
 {% load core_filters %}
+{% load bleach_tags %}
 
 {% for notify in notifications %}
   <!-- Each timeline item -->
@@ -58,7 +59,7 @@
       {# Comment #}
         <div class="card flex-grow-1">
           <div class="card-body">
-            {{ notify.action_object.body|markdown|safe|linebreaks }}
+            {{ notify.action_object.body|markdown|bleach|safe|linebreaks }}
           </div>
         </div>
       {% elif notify.verb_code == "task_edit" or notify.verb_code == "comment_edit" %}
@@ -82,11 +83,11 @@
                 {% if notify.previous_body %}
                   <p>
                     <b>Содержание изменено на:</b><br>
-                    {{ notify.new_body|markdown|safe|linebreaks }}
-                    <br><br>
+                    {{ notify.new_body|markdown|bleach|safe|linebreaks }}
+                    <br>
                     <span class="text-muted">
                       Прежнее содержание:<br>
-                      {{ notify.previous_body|markdown|safe|linebreaks }}
+                      {{ notify.previous_body|markdown|bleach|safe|linebreaks }}
                     </span>
                   </p>
                 {% endif %}

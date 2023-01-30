@@ -28,6 +28,7 @@
 - - `django-notifications-hq` - журнал активности пользователей.
 - - `XlsxWriter` - генерация отчетов в формате Excel.
 - - `Markdown` - разметка Markdown в задачах, комментариях и поручениях.
+- - `django-bleach` - очистка от HTML-тегов.
 - [Bootstrap 5](https://getbootstrap.com) / [Font Awesome](https://fontawesome.com)
 - [HTMX 1.8.4](https://htmx.org)
 - [SQLite](https://sqlite.org/index.html) - проект не рассчитывался на значительное количество одновременно работающих 
