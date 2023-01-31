@@ -13,15 +13,6 @@
   </div>
 {% endblock dashboard_page_header %}
 
-<!--
-user(actor) "add comment"(verb)             comment(action_object)  task/comment(target)
-user(actor) "edited/deleted comment"(verb)  comment(action_object)  task/comment(target) + data (previous edit)
-
-user(actor) "added task"(verb)              ---(action_object)      task(target)
-user(actor) "acquainted"(verb)              ---(action_object)      task(target)
-
--->
-
 {% block content %}
   <!-- Timeline -->
   <div class="timeline">
@@ -34,5 +25,4 @@ user(actor) "acquainted"(verb)              ---(action_object)      task(target)
     </div>
   </div>
 
-{#  include "snippets/pagination.html" with page_obj=page_obj #}
 {% endblock content %}

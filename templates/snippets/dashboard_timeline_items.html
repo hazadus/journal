@@ -31,6 +31,10 @@
           <i class="fa-solid fa-edit"></i>
         {% elif notify.verb_code == "report_add" %}
           <i class="fa-solid fa-table"></i>
+        {% elif notify.verb_code == "user_logged_in" %}
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+        {% elif notify.verb_code == "user_logged_out" %}
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
         {% endif %}
       </div>
 
@@ -45,6 +49,9 @@
         {% elif notify.verb_code == "report_add" %}
           {{ notify.verb }}
           &laquo;<a href="{{ notify.target.attachment.url }}">{{ notify.target }}</a>&raquo;
+        {% elif notify.verb_code == "user_logged_in" or notify.verb_code == "user_logged_out" %}
+          {{ notify.actor.short_name }}
+          {{ notify.verb }}
         {% else %}
           {{ notify.actor.short_name }}
           {{ notify.verb }}
