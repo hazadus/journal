@@ -31,6 +31,9 @@
               {{ task.completed }}
             </span>
           {% endif %}
+          {% if user.is_superuser %}
+            &middot; <i class="fa-solid fa-eye"></i> {{ total_views }}
+          {% endif %}
         </div>
         <div class="btn-toolbar mb-2 mb-md-0">
           {% if user.is_superuser or not task.is_completed and task.author == user %}

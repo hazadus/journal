@@ -33,6 +33,7 @@
 - [HTMX 1.8.4](https://htmx.org)
 - [SQLite](https://sqlite.org/index.html) - проект не рассчитывался на значительное количество одновременно работающих 
 пользователей, поэтому выбрана данная БД из-за её простоты, удобства отладки и резервного копирования. 
+- Redis
 - [Nginx](https://www.nginx.com) / [Gunicorn](https://gunicorn.org) 
 - [Docker Compose](https://docs.docker.com/compose/)
 - [Rollbar](https://rollbar.com)
@@ -78,6 +79,7 @@ Django apps:
 - `media/files` - файлы, загружаемые в качестве приложений к задачам и документам.
 - `media/images` - изображения профилей пользователей.
 - `media/reports` - отчеты, генерируемые командой `create_report`.
+- `data/redis` - данные БД Redis.
 - `docker/nginx/default.conf` - конфигурационный файл Nginx.
 - `docker/nginx/logs/` - логи Nginx.
 

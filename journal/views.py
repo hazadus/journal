@@ -11,6 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, TemplateView
 from django.db.models.expressions import RawSQL
 
+from django_project.spawn_redis import redis
 from users.models import CustomUser
 from core.models import Notification
 from .models import Task, Comment, Report, TaskCategory
@@ -255,6 +256,9 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
 
         if self.request.user in task.users_favorited.all():
             task.is_favorite = True
+
+        total_views = redis.incr(f"task:{task.pk}:views")
+        context["total_views"] = total_views
 
         context["task"] = task
         return context
