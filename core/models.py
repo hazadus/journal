@@ -9,7 +9,7 @@ from notifications.base.models import AbstractNotification
 
 class Notification(AbstractNotification):
     VERB_CODES = Choices("favorites_add", "task_add", "task_edit", "task_completed", "comment_add", "comment_edit",
-                         "acquainted", "report_add")
+                         "acquainted", "report_add", "user_logged_in", "user_logged_out")
 
     verb_code = models.CharField(verbose_name="Verb code", max_length=32, null=True, blank=True)
     previous_title = models.CharField(verbose_name="Previous title", max_length=256, null=True, blank=True)
@@ -58,6 +58,8 @@ class Notification(AbstractNotification):
             Notification.VERB_CODES.acquainted: "ознакамливается",
             Notification.VERB_CODES.favorites_add: "добавляет в избранное",
             Notification.VERB_CODES.report_add: "Сгенерирован отчёт",
+            Notification.VERB_CODES.user_logged_in: "входит в программный комплекс",
+            Notification.VERB_CODES.user_logged_out: "выходит из программного комплекса",
         }
 
         result = notify.send(sender=sender,
