@@ -34,6 +34,7 @@
 - [SQLite](https://sqlite.org/index.html) - проект не рассчитывался на значительное количество одновременно работающих 
 пользователей, поэтому выбрана данная БД из-за её простоты, удобства отладки и резервного копирования. 
 - Redis
+- Celery
 - [Nginx](https://www.nginx.com) / [Gunicorn](https://gunicorn.org) 
 - [Docker Compose](https://docs.docker.com/compose/)
 - [Rollbar](https://rollbar.com)

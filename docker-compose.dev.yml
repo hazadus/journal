@@ -18,6 +18,16 @@ services:
       - "ROLLBAR_ACCESS_TOKEN="
     depends_on:
       - redis
+  worker:
+    container_name: "journal-worker"
+    build: .
+    volumes:
+      - .:/code
+    command: ['celery', '--workdir=/code', '-A', 'django_project', 'worker']
+    environment:
+      - "DEBUG=True"
+      - "TELEGRAM_BOT_TOKEN="
+      - "TELEGRAM_ADMIN_ID=133637887"
   # Nginx config inspired by: https://saasitive.com/tutorial/django-celery-redis-postgres-docker-compose/
   nginx:
     container_name: "journal-nginx"

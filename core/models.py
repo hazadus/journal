@@ -4,6 +4,7 @@ from django.db import models
 
 from model_utils import Choices
 from notifications.signals import notify
+from .tasks import telegram_inform_admin
 from notifications.base.models import AbstractNotification
 
 
@@ -74,3 +75,37 @@ class Notification(AbstractNotification):
                                        previous_body=previous_body,
                                        new_title=new_title,
                                        new_body=new_body)
+
+        # Create Celery task to send Telegram message
+        # TODO: if not user.is_superuser: ...
+        match verb_code:
+            case "comment_add":
+                message = '{user} {verb} к ' \
+                          '<a href="http://45.95.234.132{url}">{target}</a>:\n"{comment}"'.format(
+                            user=actor.short_name,
+                            verb=verbs[verb_code],
+                            url=target.get_absolute_url(),
+                            target=str(target),
+                            comment=action_object.body,
+                            )
+            case "task_add" | "task_completed" | "acquainted" | "favorites_add" | "report_add":
+                message = '{user} {verb} <a href="http://45.95.234.132{url}">{target}</a>'.format(
+                    user=actor.short_name,
+                    verb=verbs[verb_code],
+                    target=str(target),
+                    url=target.get_absolute_url() if target else None
+                )
+            case "user_logged_in" | "user_logged_out":
+                message = '{user} {verb}'.format(
+                    user=actor.short_name,
+                    verb=verbs[verb_code],
+                )
+            case _:
+                message = '{user} {verb} <a href="http://45.95.234.132{url}">{target}</a>'.format(
+                    user=actor.short_name,
+                    verb=verbs[verb_code],
+                    target=str(target),
+                    url=target.get_absolute_url() if target else None
+                )
+
+        telegram_inform_admin.delay(message)

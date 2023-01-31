@@ -193,3 +193,11 @@ BLEACH_STRIP_COMMENTS = False
 REDIS_HOST = env.str("REDIS_HOST", "redis")
 REDIS_PORT = env.int("REDIS_PORT", 6379)
 REDIS_DB = env.int("REDIS_DB", 0)
+
+# Celery
+CELERY_BROKER_URL = "redis://redis:6379"
+
+# Telegram
+# These env vars must be set for worker service in docker-compose.yml
+TELEGRAM_BOT_TOKEN = env.str("TELEGRAM_BOT_TOKEN", None)
+TELEGRAM_ADMIN_ID = env.str("TELEGRAM_ADMIN_ID", None)
