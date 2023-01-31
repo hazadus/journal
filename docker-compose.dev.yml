@@ -1,5 +1,10 @@
 version: "3.9"
 services:
+  redis:
+    container_name: "journal-redis"
+    image: redis:7.0.4
+    volumes:
+      - ./data/redis:/data
   web:
     container_name: "journal-web"
     build: .
@@ -11,6 +16,8 @@ services:
       - "DEBUG=True"
       - "STATIC_ROOT=staticfiles"
       - "ROLLBAR_ACCESS_TOKEN="
+    depends_on:
+      - redis
   # Nginx config inspired by: https://saasitive.com/tutorial/django-celery-redis-postgres-docker-compose/
   nginx:
     container_name: "journal-nginx"

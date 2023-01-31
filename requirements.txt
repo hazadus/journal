@@ -13,3 +13,4 @@ XlsxWriter==3.0.7
 django_debug_toolbar==3.8.1
 Markdown==3.4.1
 django-bleach==3.0.1
+redis==4.4.2

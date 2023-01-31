@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 
+from django_project.spawn_redis import redis
 from .models import Document
 from users.models import CustomUser
 from core.models import Notification
@@ -33,6 +34,9 @@ class DocumentDetailView(LoginRequiredMixin, DetailView):
             target_content_type_id=ContentType.objects.get_for_model(document)
         ).order_by("-timestamp")
         context["document_notifications"] = document_notifications
+
+        total_views = redis.incr(f"document:{document.pk}:views")
+        context["total_views"] = total_views
 
         return context
 

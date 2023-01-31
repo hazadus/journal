@@ -12,6 +12,9 @@
           <span data-bs-toggle="tooltip" data-bs-title="Автор документа" data-bs-delay='{"show":1000,"hide":0}'>
             &middot; <i class="fa-solid fa-user"></i> {{ document.author.short_name }}
           </span>
+          {% if user.is_superuser %}
+            &middot; <i class="fa-solid fa-eye"></i> {{ total_views }}
+          {% endif %}
           &middot;  <i class="fa-solid fa-user-check"></i> {{ document.users_acquainted.count }}
           {% for user in document.users_acquainted.all %}
             {% include "snippets/user_avatar.html" with user=user size=24 %}
