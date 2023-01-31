@@ -1,10 +1,13 @@
+import locale
+
 from django.utils import timezone
+from django.db.models.functions import TruncMonth
 from django.http import HttpRequest, HttpResponse
 from django.views.decorators.http import require_POST
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q, Case, When, Value, OuterRef, Subquery, Count
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, TemplateView
 from django.db.models.expressions import RawSQL
 
@@ -576,6 +579,27 @@ class ReportListView(LoginRequiredMixin, ListView):
     model = Report
     template_name = "report_list.html"
     context_object_name = "report_list"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        report_list = context["report_list"]
+
+        report_list = report_list.annotate(month=TruncMonth("created"))
+        months = sorted(set(report_list.values_list("month", flat=True)), reverse=True)
+
+        # Created dict with keys like "Янв, 2023" and lists of reports as key values
+        reports_by_month = {}
+        for month in months:
+            reports = report_list.filter(
+                created__year=month.year,
+                created__month=month.month
+            )
+            locale.setlocale(locale.LC_ALL, "ru_RU")
+            dict_key = month.strftime("%b, %Y").capitalize()
+            reports_by_month[dict_key] = list(reports)
+
+        context["reports_by_month"] = reports_by_month
+        return context
 
 
 class TableTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, ListView):
