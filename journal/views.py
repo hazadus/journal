@@ -598,7 +598,7 @@ class ReportListView(LoginRequiredMixin, ListView):
                 created__year=month.year,
                 created__month=month.month
             )
-            locale.setlocale(locale.LC_ALL, "ru_RU")
+            # locale.setlocale(locale.LC_ALL, "ru_RU")
             dict_key = month.strftime("%b, %Y").capitalize()
             reports_by_month[dict_key] = list(reports)
 
