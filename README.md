@@ -34,6 +34,7 @@
 - [SQLite](https://sqlite.org/index.html) - проект не рассчитывался на значительное количество одновременно работающих 
 пользователей, поэтому выбрана данная БД из-за её простоты, удобства отладки и резервного копирования. 
 - Redis
+- Celery
 - [Nginx](https://www.nginx.com) / [Gunicorn](https://gunicorn.org) 
 - [Docker Compose](https://docs.docker.com/compose/)
 - [Rollbar](https://rollbar.com)
@@ -64,7 +65,10 @@
 переменные окружения в файле `docker-compose.yml`:
 
 `SECRET_KEY`: стандартный secret key для Django.
+`HOST_NAME`: адрес сайта вида `http://127.0.0.1` (без `/` на конце).
 `ROLLBAR_ACCESS_TOKEN`: токен [Rollbar](https://rollbar.com), необходимо получить на их сайте.
+`TELEGRAM_BOT_TOKEN`: токен телеграм-бота для информирования.
+`TELEGRAM_ADMIN_ID`: ID админа в телеграм, который будет получать уведомления о событиях на сайте.
 
 ## Структура проекта Django
 
@@ -88,7 +92,7 @@ Django apps:
 Тесты запускаются стандартной для Django командой:
 
 ```bash
-  python -m manage test
+  docker exec journal-web python -m manage test
 ```
 
 
