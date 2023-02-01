@@ -14,6 +14,7 @@ services:
     environment:
       - "SECRET_KEY="
       - "DEBUG=True"
+      - "HOST_NAME=http://127.0.0.1"
       - "STATIC_ROOT=staticfiles"
       - "ROLLBAR_ACCESS_TOKEN="
     depends_on:
@@ -25,7 +26,10 @@ services:
       - .:/code
     command: ['celery', '--workdir=/code', '-A', 'django_project', 'worker']
     environment:
+      - "SECRET_KEY="
       - "DEBUG=True"
+      - "HOST_NAME=http://127.0.0.1"
+      - "ROLLBAR_ACCESS_TOKEN="
       - "TELEGRAM_BOT_TOKEN="
       - "TELEGRAM_ADMIN_ID=133637887"
   # Nginx config inspired by: https://saasitive.com/tutorial/django-celery-redis-postgres-docker-compose/

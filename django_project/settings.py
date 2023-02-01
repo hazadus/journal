@@ -32,9 +32,11 @@ if DEBUG:
     hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
     INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1", "10.0.2.2"]
 
+HOST_NAME = env.str("HOST_NAME", "http://127.0.0.1")
+
 CSRF_TRUSTED_ORIGINS = [
     "http://*.127.0.0.1",
-    "http://45.95.234.132",
+    HOST_NAME,
 ]
 
 # Application definition
@@ -70,8 +72,12 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django_project.rollbar_middleware.CustomRollbarNotifierMiddleware",  # 3rd
 ]
+
+if not DEBUG:
+    MIDDLEWARE.append(
+        "django_project.rollbar_middleware.CustomRollbarNotifierMiddleware",  # 3rd
+    )
 
 ROOT_URLCONF = "django_project.urls"
 
