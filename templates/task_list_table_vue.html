@@ -1,0 +1,26 @@
+{% extends "base_dashboard.html" %}
+
+{% load static %}
+
+{% block title %}Задачи: табличный вид (Vue){% endblock title %}
+
+{% block dashboard_page_header %}
+  <h1 class="h2">
+    Задачи: табличный вид (Vue)
+  </h1>
+  <div class="btn-toolbar mb-2 mb-md-0">
+    <a class="btn btn-sm btn-success" href="{% url 'journal:task_create' %}">
+      <i class="fa-solid fa-file-circle-plus"></i> Добавить задачу
+    </a>
+  </div>
+{% endblock dashboard_page_header %}
+
+{% block content %}
+  <div id="app"></div>
+{% endblock content %}
+
+{% block footer_scripts %}
+  <script type="text/javascript" src="{% static 'vue/tasks-table-view/js/chunk-vendors.js' %}"></script>
+  <script type="text/javascript" src="{% static 'vue/tasks-table-view/js/app.js' %}"></script>
+  <link href="{% static 'vue/tasks-table-view/css/app.css' %}" rel="stylesheet">
+{% endblock footer_scripts %}

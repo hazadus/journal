@@ -3,7 +3,7 @@ from django.urls import path
 from .views import (TaskListView, PrivateTaskListView, CompletedTaskListView, TaskDetailView, TaskCreateView,
                     TaskUpdateView, comment_add, comment_delete, comment_archive, comment_edit, comment_show,
                     comment_edit_save, task_acquaint, SearchView, task_search, FavoriteTaskListView,
-                    task_toggle_favorite, task_green_badge, ReportListView, TableTaskListView)
+                    task_toggle_favorite, task_green_badge, ReportListView, TableTaskListView, TableTaskListVueView)
 
 app_name = "journal"
 
@@ -13,6 +13,7 @@ urlpatterns = [
     path("tasks/favorites/", FavoriteTaskListView.as_view(), name="favorite_task_list"),
     path("tasks/completed/", CompletedTaskListView.as_view(), name="completed_task_list"),
     path("tasks/table/", TableTaskListView.as_view(), name="task_list_table"),
+    path("tasks/table/vue/", TableTaskListVueView.as_view(), name="task_list_table_vue"),
     path("task/<int:pk>/", TaskDetailView.as_view(), name="task_detail"),
     path("task/create/", TaskCreateView.as_view(), name="task_create"),
     path("task/update/<int:pk>/", TaskUpdateView.as_view(), name="task_update"),

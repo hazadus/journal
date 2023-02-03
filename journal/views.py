@@ -678,3 +678,26 @@ class TableTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, ListView):
         context["is_completed"] = is_completed
         context["is_private"] = is_private
         return context
+
+
+class TableTaskListVueView(LoginRequiredMixin, TaskListAnnotateMixin, ListView):
+    model = Task
+    template_name = "task_list_table_vue.html"
+    context_object_name = "task_list"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        task_list = context["task_list"]
+
+        # Exclude private tasks of other users
+        task_list = task_list.exclude(
+            ~Q(author=self.request.user) & Q(is_private=True)
+        )
+
+        task_list = task_list.order_by("is_acquainted", "-is_favorite", "is_completed", "-completed", "-created")
+
+        categories = TaskCategory.objects.all()
+
+        context["task_list"] = task_list
+        context["categories"] = categories
+        return context

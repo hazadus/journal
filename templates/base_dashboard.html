@@ -19,13 +19,6 @@
            hx-trigger="keyup changed delay:500ms, search"
            hx-target="#dashboard-page-content"
            aria-label="Search">
-    <!--
-    <div class="navbar-nav">
-      <div class="nav-item text-nowrap">
-        <a class="nav-link px-3" href="#" onclick="placeholderButton();" style="cursor: not-allowed;">Поиск</a>
-      </div>
-    </div>
-    -->
   </header>
 
   <div class="container-fluid">
@@ -68,19 +61,20 @@
                 {% include "snippets/task_green_badge.html" with count=green_active_tasks.count task_type="green_active_tasks" %}
               </a>
             </li>
+
             <!-- Subitems -->
-            <!--
-            <li class="nav-item" style="margin-left: 20px;">
-              <a class="nav-link" onclick="placeholderButton();" style="cursor: not-allowed;">
-                <i class="fa-solid fa-lightbulb"></i> Новые
-              </a>
-            </li>
-            -->
-            <li class="nav-item {% if "/tasks/table/" in request.path %}nav-item-active{% endif %}" style="margin-left: 20px;">
-              <a class="nav-link {% if "/tasks/table/" in request.path %}active{% endif %}" href="{% url 'journal:task_list_table' %}">
+            <li class="nav-item {% if "/journal/tasks/table/" == request.path %}nav-item-active{% endif %}" style="margin-left: 20px;">
+              <a class="nav-link {% if "/journal/tasks/table/" == request.path %}active{% endif %}" href="{% url 'journal:task_list_table' %}">
                 <i class="fa-solid fa-table"></i> Таблица
               </a>
             </li>
+            {% if user.is_superuser %}
+            <li class="nav-item {% if "/tasks/table/vue/" in request.path %}nav-item-active{% endif %}" style="margin-left: 20px;">
+              <a class="nav-link {% if "/tasks/table/vue/" in request.path %}active{% endif %}" href="{% url 'journal:task_list_table_vue' %}">
+                <i class="fa-solid fa-table"></i> Таблица (Vue)
+              </a>
+            </li>
+            {% endif %}
             <li class="nav-item {% if "/tasks/private/" in request.path %}nav-item-active{% endif %}" style="margin-left: 20px;">
               <a class="nav-link {% if "/tasks/private/" in request.path %}active{% endif %}" href="{% url 'journal:private_task_list' %}">
                 <i class="fa-solid fa-lock"></i> Личные
