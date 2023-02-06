@@ -40,6 +40,7 @@
           "comments_count": {{ task.comments_count }},
           "new_comments_count": {% if task.new_comments_count %}{{ task.new_comments_count }}{% else %}0{% endif %},
           "created": new Date("{{ task.created.isoformat }}"),
+          "completed": {% if task.is_completed %}new Date("{{ task.completed.isoformat }}"){% else %}""{% endif %},
         },
       {% endfor %}
     ];
