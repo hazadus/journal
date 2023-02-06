@@ -176,7 +176,7 @@ NOTIFICATIONS_NOTIFICATION_MODEL = "core.Notification"
 # Django Bleach stuff
 # Which HTML tags are allowed
 BLEACH_ALLOWED_TAGS = [
-    "p", "b", "i", "u", "em", "strong", "a", "code", "img", "s",
+    "p", "b", "i", "u", "em", "strong", "a", "code", "img", "s", "ol", "ul", "li", "br"
 ]
 
 # Which HTML attributes are allowed
