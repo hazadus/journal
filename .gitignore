@@ -12,3 +12,6 @@ docker-compose.yml
 *.rdb
 *.log
 Makefile
+/static/vue/tasks-table-view/index.html
+/static/vue/tasks-table-view/*.js
+/static/vue/tasks-table-view/*.json

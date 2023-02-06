@@ -21,6 +21,30 @@
 
 {% block footer_scripts %}
   <script type="text/javascript" src="{% static 'vue/tasks-table-view/js/chunk-vendors.js' %}"></script>
+  <script type="text/javascript">
+    // TODO: serialize all fields
+    // TODO: move this to helper function
+    // TODO: add dates
+    const taskList = [
+      {% for task in task_list %}
+        {
+          "pk": "{{ task.pk }}",
+          "title": "{{ task.title|escapejs }}",
+          "category": "{{ task.category.title|escapejs }}",
+          "category_id": "{{ task.category.pk }}",
+          "url": "{{ task.get_absolute_url }}",
+          "is_favorite": {% if task.is_favorite %}true{% else %}false{% endif %},
+          "is_private": {% if task.is_private %}true{% else %}false{% endif %},
+          "is_acquainted": {% if task.is_acquainted %}true{% else %}false{% endif %},
+          "is_completed": {% if task.is_completed %}true{% else %}false{% endif %},
+          "comments_count": {{ task.comments_count }},
+          "new_comments_count": {% if task.new_comments_count %}{{ task.new_comments_count }}{% else %}0{% endif %},
+          "created": new Date("{{ task.created.isoformat }}"),
+        },
+      {% endfor %}
+    ];
+    const categoriesList = {{ categories_list|safe }};
+  </script>
   <script type="text/javascript" src="{% static 'vue/tasks-table-view/js/app.js' %}"></script>
   <link href="{% static 'vue/tasks-table-view/css/app.css' %}" rel="stylesheet">
 {% endblock footer_scripts %}

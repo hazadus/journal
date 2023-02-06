@@ -1,6 +1,7 @@
 import locale
 
 from django.utils import timezone
+from django.utils.html import escapejs
 from django.db.models.functions import TruncMonth
 from django.http import HttpRequest, HttpResponse
 from django.views.decorators.http import require_POST
@@ -692,12 +693,15 @@ class TableTaskListVueView(LoginRequiredMixin, TaskListAnnotateMixin, ListView):
         # Exclude private tasks of other users
         task_list = task_list.exclude(
             ~Q(author=self.request.user) & Q(is_private=True)
-        )
+        ).order_by("is_acquainted", "-is_favorite", "is_completed", "-completed", "-created")
 
-        task_list = task_list.order_by("is_acquainted", "-is_favorite", "is_completed", "-completed", "-created")
-
-        categories = TaskCategory.objects.all()
+        categories_list = []
+        for category in TaskCategory.objects.all():
+            categories_list.append({
+                "id": str(category.pk),
+                "title": escapejs(category.title),
+            })
 
         context["task_list"] = task_list
-        context["categories"] = categories
+        context["categories_list"] = categories_list
         return context
