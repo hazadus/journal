@@ -5,13 +5,13 @@
         Всего задач: {{ tasksAll.length }}, отображается: {{ filteredTasks.length }}.
       </h4>
       <div class="btn-toolbar mb-2 mb-md-0">
-        <a class="btn btn-sm btn-primary" @click="showOptions = !showOptions">
+        <a class="btn btn-sm btn-primary" @click="viewOptions.showOptions = !viewOptions.showOptions">
           <i class="fa-solid fa-gears"></i> Настройки
         </a>
       </div>
     </div>
 
-    <div class="row mb-3 border-top pt-3" v-if="showOptions">
+    <div class="row mb-3 border-top pt-3" v-if="viewOptions.showOptions">
       <div class="col-3">
         <h5>Фильтры</h5>
         <input type="checkbox" v-model="tasksFilters.showActive" id="check-show-active"> <label for="check-show-active">В работе</label><br>
@@ -22,10 +22,10 @@
 
       <div class="col-3">
         <h5>Что показывать</h5>
-        <input type="checkbox" v-model="showCategory" id="check-show-category"> <label for="check-show-category">Категории</label><br>
-        <input type="checkbox" v-model="showCommentsCount" id="check-show-comments-count"> <label for="check-show-comments-count">Количество комментов</label><br>
-        <input type="checkbox" v-model="showCreatedDate" id="check-show-created-date"> <label for="check-show-created-date">Дата создания</label><br>
-        <input type="checkbox" v-model="showCompletedDate" id="check-show-completed-date"> <label for="check-show-completed-date">Дата завершения</label><br>
+        <input type="checkbox" v-model="viewOptions.showCategory" id="check-show-category"> <label for="check-show-category">Категории</label><br>
+        <input type="checkbox" v-model="viewOptions.showCommentsCount" id="check-show-comments-count"> <label for="check-show-comments-count">Количество комментов</label><br>
+        <input type="checkbox" v-model="viewOptions.showCreatedDate" id="check-show-created-date"> <label for="check-show-created-date">Дата создания</label><br>
+        <input type="checkbox" v-model="viewOptions.showCompletedDate" id="check-show-completed-date"> <label for="check-show-completed-date">Дата завершения</label><br>
       </div>
 
       <div class="col-6">
@@ -34,7 +34,7 @@
           <input type="checkbox" v-model="categoriesVisibleIds" :id="'category' + category.id" :value="category.id"> <label :for="'category' + category.id" class="category-label">{{ category.title }}</label><br>
         </span>
         <button @click="categoriesVisibleIds = []" class="btn btn-sm btn-primary me-1">Убрать все</button>
-        <button @click="loadCategoriesIds" class="btn btn-sm btn-primary">Показать все</button>
+        <button @click="copyAllCategoryIdsToVisible" class="btn btn-sm btn-primary">Показать все</button>
       </div>
     </div>
   </div>
@@ -51,10 +51,10 @@
         <th>
           Задача
         </th>
-        <th v-if="showCreatedDate" class="table-column-date text-center">
+        <th v-if="viewOptions.showCreatedDate" class="table-column-date text-center">
           Создана
         </th>
-        <th v-if="showCompletedDate" class="table-column-date text-center">
+        <th v-if="viewOptions.showCompletedDate" class="table-column-date text-center">
           Завершена
         </th>
       </tr>
@@ -73,19 +73,19 @@
             <a :href="task.url">
               {{ task.title }}
             </a>
-            <span v-if="showCommentsCount" class="text-muted category-title">
+            <span v-if="viewOptions.showCommentsCount" class="text-muted category-title">
               <i class="fa-solid fa-comments"></i> {{ task.comments_count }}<span v-if="task.new_comments_count"> &middot; {{ task.new_comments_count }}</span>
             </span>
-            <span v-if="showCategory" class="text-muted category-title">
+            <span v-if="viewOptions.showCategory" class="text-muted category-title">
               <i class="fa-solid fa-tag"></i> {{ task.category }}
             </span>
           </td>
-          <td v-if="showCreatedDate" class="table-column-date text-center">
+          <td v-if="viewOptions.showCreatedDate" class="table-column-date text-center">
             <span class="text-muted category-title">
               {{ formatDateTime(task.created) }}
             </span>
           </td>
-          <td v-if="showCompletedDate" class="table-column-date text-center">
+          <td v-if="viewOptions.showCompletedDate" class="table-column-date text-center">
             <span class="text-muted category-title">
               {{ task.is_completed ? formatDateTime(task.completed) : '' }}
             </span>
@@ -106,30 +106,41 @@ export default {
       tasksAll: taskList,
       // eslint-disable-next-line
       categoriesAll: categoriesList,
-      categoriesVisibleIds: JSON.parse(localStorage.getItem('categoriesVisibleIds') || '[]') || [],
-      // TODO: save these filters to localStorage
+      // List of visible categories in task list
+      categoriesVisibleIds: [],
+      // Default task filters. Will be loaded from localStorage in mounted()
       tasksFilters: {
         showActive: true,
         showCompleted: false,
         showPrivate: true,
         showFavoritesOnly: false,
       },
-      showOptions: true,
-      showCategory: localStorage.getItem('showCategory') === 'true',
-      showCommentsCount: true,
-      showCreatedDate: false,
-      showCompletedDate: false,
+      // Defaul view options. Will be loaded from localStorage in mounted()
+      viewOptions: {
+        showOptions: true,        // show options pane
+        showCategory: false,      // show category name
+        showCommentsCount: true,  // show comments count
+        showCreatedDate: false,   // show creation date
+        showCompletedDate: false, // show completion date
+      },
     }
   },
   watch: {
-    showCategory: {
-      handler(showCategory) {
-        localStorage.setItem('showCategory', showCategory.toString())
-      },
-    },
     categoriesVisibleIds: {
       handler(categoriesVisibleIds) {
         localStorage.setItem('categoriesVisibleIds', JSON.stringify(categoriesVisibleIds))
+      },
+      deep: true
+    },
+    viewOptions: {
+      handler(viewOptions) {
+        localStorage.setItem('viewOptions', JSON.stringify(viewOptions))
+      },
+      deep: true
+    },
+    tasksFilters: {
+      handler(tasksFilters) {
+        localStorage.setItem('tasksFilters', JSON.stringify(tasksFilters))
       },
       deep: true
     },
@@ -160,18 +171,36 @@ export default {
     }
   },
   methods: {
-    loadCategoriesIds() {
-      // TODO: refactor - rename this function.
+    copyAllCategoryIdsToVisible() {
+      // Copies all category IDs from category list passed from backend to the list of visible categories,
       for (let i=0; i<this.categoriesAll.length; i++) {
         this.categoriesVisibleIds.push(this.categoriesAll[i].id);
       }
     },
-    formatDateTime(date) {
+    formatDateTime(dateIsoFormatString) {
+      // Format date like "06.02.2023 20:05" from python `date.isoformat` string.
+      let date = new Date(dateIsoFormatString);
       return date.toLocaleDateString("ru-RU") + " " + date.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
     },
   },
   mounted() {
     // do stuff on mount, e.g. load some data from localStorage.
+    let viewOptions = JSON.parse(localStorage.getItem('viewOptions'));
+    if (viewOptions) {
+      this.viewOptions = viewOptions;
+    }
+
+    let tasksFilters = JSON.parse(localStorage.getItem('tasksFilters'));
+    if (tasksFilters) {
+      this.tasksFilters = tasksFilters;
+    }
+
+    let categoriesVisibleIds = JSON.parse(localStorage.getItem('categoriesVisibleIds'));
+    if (categoriesVisibleIds) {
+      this.categoriesVisibleIds = categoriesVisibleIds;
+    } else {
+      this.copyAllCategoryIdsToVisible();
+    }
   },
 }
 </script>
