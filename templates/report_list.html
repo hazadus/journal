@@ -13,42 +13,26 @@
 {% block content %}
   <div class="alert alert-info">
     <i class="fa-solid fa-circle-info"></i> Отчеты о передаче смены в формате Excel генерируются автоматически
-    ежедневно в 22:00 и включают все активные на момент задачи и комментарии к ним. В данном разделе представлен архив
-    с возможностью скачать любой файл.
+    ежедневно в 22:00 и включают все активные на момент задачи и комментарии к ним, а также задачи, завершенные в отчетные
+    сутки. В данном разделе представлен архив с возможностью скачать любой файл.
   </div>
 
-  {% if user.is_superuser %}
-    <div class="alert alert-success">
-      <ul>
-        {% for key in reports_by_month.keys %}
-          <li>
-            {{ key }}
-            <ul style="list-style: none; padding: 0;">
-              {% for report in reports_by_month|get_dict_item_by_key:key %}
-                <li>
-                  <i class="fa-solid fa-file-excel"></i>
-                  <i class="fa-solid fa-paperclip"></i>
-                  <a href="{{ report.attachment.url }}">
-                    {{ report.title }}
-                  </a>
-                </li>
-              {% endfor %}
-            </ul>
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
-  {% endif %}
-
   {% if report_list %}
-    <ul style="list-style: none;">
-      {% for report in report_list %}
+    <ul>
+      {% for key in reports_by_month.keys %}
         <li>
-          <i class="fa-solid fa-file-excel"></i>
-          <i class="fa-solid fa-paperclip"></i>
-          <a href="{{ report.attachment.url }}">
-            {{ report.title }}
-          </a>
+          {{ key }}
+          <ul style="list-style: none; padding: 0;">
+            {% for report in reports_by_month|get_dict_item_by_key:key %}
+              <li>
+                <i class="fa-solid fa-file-excel"></i>
+                <i class="fa-solid fa-paperclip"></i>
+                <a href="{{ report.attachment.url }}">
+                  {{ report.title }}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
         </li>
       {% endfor %}
     </ul>

@@ -1,5 +1,5 @@
 {% load core_filters %}
 
 <div class="card-body" id="comment-body-{{ comment.pk }}">
-  {{ comment.body|markdown|safe|linebreaks }}
+  {{ comment.body|markdown|safe }}
 </div>

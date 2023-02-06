@@ -66,7 +66,7 @@
       {# Comment #}
         <div class="card flex-grow-1">
           <div class="card-body">
-            {{ notify.action_object.body|markdown|bleach|safe|linebreaks }}
+            {{ notify.action_object.body|markdown|bleach|safe }}
           </div>
         </div>
       {% elif notify.verb_code == "task_edit" or notify.verb_code == "comment_edit" %}
@@ -90,11 +90,11 @@
                 {% if notify.previous_body %}
                   <p>
                     <b>Содержание изменено на:</b><br>
-                    {{ notify.new_body|markdown|bleach|safe|linebreaks }}
+                    {{ notify.new_body|markdown|bleach|safe }}
                     <br>
                     <span class="text-muted">
                       Прежнее содержание:<br>
-                      {{ notify.previous_body|markdown|bleach|safe|linebreaks }}
+                      {{ notify.previous_body|markdown|bleach|safe }}
                     </span>
                   </p>
                 {% endif %}

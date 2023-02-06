@@ -31,7 +31,7 @@
       </div>
     </div>
     <div class="card-body document-card-body">
-      {{ document.body|markdown|bleach|safe|linebreaks }}
+      {{ document.body|markdown|bleach|safe }}
       {% if document.attachment %}
         <p class="mt-3">
           <i class="fa-solid fa-paperclip"></i> Файл: <a href="{{ document.attachment.url }}">
