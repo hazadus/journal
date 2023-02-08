@@ -17,7 +17,9 @@
 {% endblock dashboard_page_header %}
 
 {% block content %}
-  <div id="app"></div>
+  <div id="app">
+    {% csrf_token %}
+  </div>
 {% endblock content %}
 
 {% block footer_scripts %}
@@ -25,7 +27,7 @@
   <script type="text/javascript">
     const taskList = [
       {% for task in task_list %}
-        {{ task|task_to_js_object|safe }}
+        {{ task|task_to_js_object|safe }},
       {% endfor %}
     ];
     const categoriesList = {{ categories_list|safe }};

@@ -12,10 +12,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, TemplateView
 from django.db.models.expressions import RawSQL
 
-from django_project.spawn_redis import redis
 from users.models import CustomUser
 from core.models import Notification
+from django_project.spawn_redis import redis
 from .models import Task, Comment, Report, TaskCategory
+from journal.utils import task_to_js_object, task_queryset_to_json
 
 
 class TaskListAnnotateMixin(ListView):
@@ -704,4 +705,24 @@ class TableTaskListVueView(LoginRequiredMixin, TaskListAnnotateMixin, ListView):
 
         context["task_list"] = task_list
         context["categories_list"] = categories_list
+
+        json_only = self.request.GET.get("json_only")
+        if json_only == "true":
+            context["task_list_json"] = task_queryset_to_json(tasks=task_list)
+
         return context
+
+    def get(self, request, *args, **kwargs):
+        """
+        TODO: docstrings
+        """
+        json_only = request.GET.get("json_only")
+        result = super().get(request, *args, **kwargs)
+
+        if json_only == "true":
+            context = self.get_context_data(**kwargs)
+            json = context["task_list_json"]
+            # TODO: use filters passed from frontend
+            return HttpResponse(json)
+        else:
+            return result

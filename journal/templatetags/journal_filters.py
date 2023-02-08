@@ -1,5 +1,6 @@
 from django import template
-from django.utils.html import escapejs
+
+from journal.utils import task_to_js_object as _task_to_js_object
 
 register = template.Library()
 
@@ -56,21 +57,4 @@ def is_users_favorite(value, arg):
 
 @register.filter(name="task_to_js_object")
 def task_to_js_object(value):
-    task = value
-    return f'''
-    {{
-        "pk": "{task.pk}",
-        "title": "{escapejs(task.title)}",
-        "category": "{escapejs(task.category)}",
-        "category_id": "{task.category.id}",
-        "url": "{ task.get_absolute_url() }",
-        "is_favorite": {"true" if task.is_favorite else "false"},
-        "is_private": {"true" if task.is_private else "false"},
-        "is_acquainted": {"true" if task.is_acquainted else "false"},
-        "is_completed": {"true" if task.is_completed else "false"},
-        "comments_count": { task.comments_count },
-        "new_comments_count": { task.new_comments_count if task.new_comments_count else "0" },
-        "created": "{ task.created.isoformat() }",
-        "completed": "{ task.completed.isoformat() if task.is_completed else "" }",
-    }},
-    '''.replace("\n", "")
+    return _task_to_js_object(value)

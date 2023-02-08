@@ -5,9 +5,12 @@
         Всего задач: {{ tasksAll.length }}, отображается: {{ filteredTasks.length }}.
       </h4>
       <div class="btn-toolbar mb-2 mb-md-0">
-        <a class="btn btn-sm btn-primary" @click="viewOptions.showOptions = !viewOptions.showOptions">
+        <button class="btn btn-sm btn-warning me-3" @click="fetchAllTasks">
+          Fetch
+        </button>
+        <button class="btn btn-sm btn-primary" @click="viewOptions.showOptions = !viewOptions.showOptions">
           <i class="fa-solid fa-gears"></i> Настройки
-        </a>
+        </button>
       </div>
     </div>
 
@@ -123,6 +126,7 @@ export default {
         showCreatedDate: false,   // show creation date
         showCompletedDate: false, // show completion date
       },
+      polling: null,
     }
   },
   watch: {
@@ -182,6 +186,39 @@ export default {
       let date = new Date(dateIsoFormatString);
       return date.toLocaleDateString("ru-RU") + " " + date.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
     },
+    fetchAllTasks() {
+      // TODO: build universal url
+      const url = `http://127.0.0.1/journal/tasks/table/vue/?json_only=true`;
+
+      // TODO: pass sort order to backend
+      // TODO: pass filters to backend
+      let queryParam = this.tasksFilters;
+
+      return window.axios
+        .get(url, {
+          params: queryParam,
+        })
+        .then((response) => {
+          // `response.data` contains JS object made from fetched JSON
+          this.tasksAll = response.data.task_list;
+          return response.data;
+        })
+        .catch(function (error) {
+          console.log("error res -->", error);
+          throw error;
+        });
+    },
+    pollData () {
+      this.polling = setInterval(() => {
+        this.fetchAllTasks();
+      }, 5000)
+    }
+  },
+  created() {
+    this.pollData();
+  },
+  beforeUnmount() {
+    clearInterval(this.polling);
   },
   mounted() {
     // do stuff on mount, e.g. load some data from localStorage.
