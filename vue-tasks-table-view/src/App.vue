@@ -187,8 +187,7 @@ export default {
       return date.toLocaleDateString("ru-RU") + " " + date.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
     },
     fetchAllTasks() {
-      // TODO: build universal url
-      const url = `http://127.0.0.1/journal/tasks/table/vue/?json_only=true`;
+      const url = window.location.origin + `/journal/tasks/table/vue/?json_only=true`;
 
       // TODO: pass sort order to backend
       // TODO: pass filters to backend
