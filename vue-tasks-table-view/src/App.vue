@@ -73,6 +73,7 @@
             <i class="fa-regular fa-lock" v-if="task.is_private"></i>
           </td>
           <td>
+            <i v-if="task.is_completed" class="fa-solid fa-check-double"></i>
             <a :href="task.url">
               {{ task.title }}
             </a>
@@ -104,9 +105,8 @@ export default {
   name: 'App',
   data() {
     return {
-      // `task_list` and `categoriesList` are generated in Django template in `footer_scripts` block.
-      // eslint-disable-next-line
-      tasksAll: taskList,
+      tasksAll: [],
+      // `categoriesList` is generated in Django template in `footer_scripts` block.
       // eslint-disable-next-line
       categoriesAll: categoriesList,
       // List of visible categories in task list
@@ -151,6 +151,7 @@ export default {
   },
   computed: {
     filteredTasks() {
+      // TODO: re-fetch data from backend with filters?
       let filtered = this.tasksAll;
 
       if (!this.tasksFilters.showCompleted) {
@@ -214,6 +215,7 @@ export default {
     }
   },
   created() {
+    this.fetchAllTasks();
     this.pollData();
   },
   beforeUnmount() {

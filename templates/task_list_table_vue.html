@@ -25,11 +25,6 @@
 {% block footer_scripts %}
   <script type="text/javascript" src="{% static 'vue/tasks-table-view/js/chunk-vendors.js' %}"></script>
   <script type="text/javascript">
-    const taskList = [
-      {% for task in task_list %}
-        {{ task|task_to_js_object|safe }},
-      {% endfor %}
-    ];
     const categoriesList = {{ categories_list|safe }};
   </script>
   <script type="text/javascript" src="{% static 'vue/tasks-table-view/js/app.js' %}"></script>
