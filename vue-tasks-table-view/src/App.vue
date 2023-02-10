@@ -5,39 +5,43 @@
         Всего задач: {{ tasksAll.length }}, отображается: {{ filteredTasks.length }}.
       </h4>
       <div class="btn-toolbar mb-2 mb-md-0">
-        <button class="btn btn-sm btn-warning me-3" @click="fetchAllTasks">
-          Fetch
-        </button>
         <button class="btn btn-sm btn-primary" @click="viewOptions.showOptions = !viewOptions.showOptions">
           <i class="fa-solid fa-gears"></i> Настройки
         </button>
       </div>
     </div>
 
-    <div class="row mb-3 border-top pt-3" v-if="viewOptions.showOptions">
-      <div class="col-3">
-        <h5>Фильтры</h5>
-        <input type="checkbox" v-model="tasksFilters.showActive" id="check-show-active"> <label for="check-show-active">В работе</label><br>
-        <input type="checkbox" v-model="tasksFilters.showPrivate" id="check-show-private"> <label for="check-show-private">Личные</label><br>
-        <input type="checkbox" v-model="tasksFilters.showCompleted" id="check-show-completed"> <label for="check-show-completed">Завершенные</label><br>
-        <input type="checkbox" v-model="tasksFilters.showFavoritesOnly" id="check-show-favorite-only"> <label for="check-show-favorite-only">Только избранные</label><br>
+    <div class="row mb-3 border-top pt-3 mt-3" v-if="viewOptions.showOptions">
+      <!-- TODO: make columns responsive -->
+      <div class="col-2">
+        <h5 class="options-title mb-1 pb-1 border-bottom">Фильтры</h5>
+        <input type="checkbox" v-model="tasksFilters.showActive" id="check-show-active"> <label for="check-show-active" class="options-checkbox-label">В работе</label><br>
+        <input type="checkbox" v-model="tasksFilters.showPrivate" id="check-show-private"> <label for="check-show-private" class="options-checkbox-label">Личные</label><br>
+        <input type="checkbox" v-model="tasksFilters.showCompleted" id="check-show-completed"> <label for="check-show-completed" class="options-checkbox-label">Завершенные</label><br>
+        <input type="checkbox" v-model="tasksFilters.showFavoritesOnly" id="check-show-favorite-only"> <label for="check-show-favorite-only" class="options-checkbox-label">Только избранные</label><br>
       </div>
 
-      <div class="col-3">
-        <h5>Что показывать</h5>
-        <input type="checkbox" v-model="viewOptions.showCategory" id="check-show-category"> <label for="check-show-category">Категории</label><br>
-        <input type="checkbox" v-model="viewOptions.showCommentsCount" id="check-show-comments-count"> <label for="check-show-comments-count">Количество комментов</label><br>
-        <input type="checkbox" v-model="viewOptions.showCreatedDate" id="check-show-created-date"> <label for="check-show-created-date">Дата создания</label><br>
-        <input type="checkbox" v-model="viewOptions.showCompletedDate" id="check-show-completed-date"> <label for="check-show-completed-date">Дата завершения</label><br>
+      <div class="col-2">
+        <h5 class="options-title mb-1 pb-1 border-bottom">Упорядочить</h5>
+        <OrderBySelector @orderChanged="(newOrder) => this.orderByFields = newOrder" />
+      </div>
+
+      <div class="col-2">
+        <h5 class="options-title mb-1 pb-1 border-bottom">Отображение</h5>
+        <input type="checkbox" v-model="viewOptions.autoUpdate" id="check-auto-update"> <label for="check-auto-update" class="options-checkbox-label">Автообновление</label><br>
+        <input type="checkbox" v-model="viewOptions.showCategory" id="check-show-category"> <label for="check-show-category" class="options-checkbox-label">Категории</label><br>
+        <input type="checkbox" v-model="viewOptions.showCommentsCount" id="check-show-comments-count"> <label for="check-show-comments-count" class="options-checkbox-label">Комментарии</label><br>
+        <input type="checkbox" v-model="viewOptions.showCreatedDate" id="check-show-created-date"> <label for="check-show-created-date" class="options-checkbox-label">Дата создания</label><br>
+        <input type="checkbox" v-model="viewOptions.showCompletedDate" id="check-show-completed-date"> <label for="check-show-completed-date" class="options-checkbox-label">Дата завершения</label><br>
       </div>
 
       <div class="col-6">
-        <h5>Категории</h5>
+        <h5 class="options-title mb-1 pb-1 border-bottom">Категории</h5>
         <span v-for="category in categoriesAll" :key="category.id">
-          <input type="checkbox" v-model="categoriesVisibleIds" :id="'category' + category.id" :value="category.id"> <label :for="'category' + category.id" class="category-label">{{ category.title }}</label><br>
+          <input type="checkbox" v-model="categoriesVisibleIds" :id="'category' + category.id" :value="category.id"> <label :for="'category' + category.id" class="options-checkbox-label">{{ category.title }}</label><br>
         </span>
-        <button @click="categoriesVisibleIds = []" class="btn btn-sm btn-primary me-1">Убрать все</button>
-        <button @click="copyAllCategoryIdsToVisible" class="btn btn-sm btn-primary">Показать все</button>
+        <button @click="categoriesVisibleIds = []" class="btn btn-sm btn-primary me-1 mt-2">Убрать все</button>
+        <button @click="copyAllCategoryIdsToVisible" class="btn btn-sm btn-primary mt-2">Показать все</button>
       </div>
     </div>
   </div>
@@ -101,8 +105,13 @@
 </template>
 
 <script>
+import OrderBySelector from './components/OrderBySelector.vue'
+
 export default {
   name: 'App',
+  components: {
+    OrderBySelector
+  },
   data() {
     return {
       tasksAll: [],
@@ -111,6 +120,8 @@ export default {
       categoriesAll: categoriesList,
       // List of visible categories in task list
       categoriesVisibleIds: [],
+      // List of fields to order by on backend
+      orderByFields: [],
       // Default task filters. Will be loaded from localStorage in mounted()
       tasksFilters: {
         showActive: true,
@@ -120,6 +131,8 @@ export default {
       },
       // Defaul view options. Will be loaded from localStorage in mounted()
       viewOptions: {
+        autoUpdate: true,         // re-fetch data from backend from time to time
+        pollDataTimeout: 5000,    // update period, ms
         showOptions: true,        // show options pane
         showCategory: false,      // show category name
         showCommentsCount: true,  // show comments count
@@ -133,6 +146,13 @@ export default {
     categoriesVisibleIds: {
       handler(categoriesVisibleIds) {
         localStorage.setItem('categoriesVisibleIds', JSON.stringify(categoriesVisibleIds))
+      },
+      deep: true
+    },
+    orderByFields: {
+      handler() {
+        // Refetch all tasks on order change
+        this.fetchAllTasks();
       },
       deep: true
     },
@@ -151,7 +171,6 @@ export default {
   },
   computed: {
     filteredTasks() {
-      // TODO: re-fetch data from backend with filters?
       let filtered = this.tasksAll;
 
       if (!this.tasksFilters.showCompleted) {
@@ -188,11 +207,14 @@ export default {
       return date.toLocaleDateString("ru-RU") + " " + date.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
     },
     fetchAllTasks() {
-      const url = window.location.origin + `/journal/tasks/table/vue/?json_only=true`;
+      const url = window.location.origin + `/journal/tasks/table/vue/`;
 
-      // TODO: pass sort order to backend
-      // TODO: pass filters to backend
-      let queryParam = this.tasksFilters;
+      // Pass sort order to backend like:
+      // "GET /journal/tasks/table/vue/?jsonOnly=true&orderByFields=-is_favorite,-is_completed,-is_acquainted,-created,-completed HTTP/1.0" 200 34121
+      let queryParam = {
+        jsonOnly: 'true',
+        orderByFields: this.orderByFields.toString(),
+      };
 
       return window.axios
         .get(url, {
@@ -204,14 +226,16 @@ export default {
           return response.data;
         })
         .catch(function (error) {
-          console.log("error res -->", error);
+          console.log("Axios.get error:", error);
           throw error;
         });
     },
     pollData () {
       this.polling = setInterval(() => {
-        this.fetchAllTasks();
-      }, 5000)
+        if (this.viewOptions.autoUpdate) {
+          this.fetchAllTasks();
+        }
+      }, this.viewOptions.pollDataTimeout)
     }
   },
   created() {
@@ -243,7 +267,15 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+.options-title {
+  font-family: var(--font-family-condensed);
+}
+
+.options-checkbox-label {
+  font-family: var(--font-family-condensed);
+}
+
 .table-tasks {
  font-family: var(--font-family-condensed);
 }
@@ -251,10 +283,6 @@ export default {
 .category-title {
   display: inline-block;
   margin: 0 0 0 10px;
-}
-
-.category-label {
- font-family: var(--font-family-condensed);
 }
 
 .table-column-date {

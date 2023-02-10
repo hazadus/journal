@@ -27,7 +27,7 @@ def task_to_js_object(task):
 
 def task_queryset_to_json(tasks: QuerySet):
     """
-    TODO: docstrings
+    TODO: docstrings + add category list into json / generate json in view, make this utility only
     """
     task_list_js = ""
 
