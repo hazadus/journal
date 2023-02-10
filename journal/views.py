@@ -15,7 +15,7 @@ from django.db.models.expressions import RawSQL
 from users.models import CustomUser
 from core.models import Notification
 from django_project.spawn_redis import redis
-from journal.utils import task_queryset_to_json
+from journal.utils import create_task_list_json
 from .models import Task, Comment, Report, TaskCategory
 
 
@@ -719,14 +719,16 @@ class TableTaskListVueView(LoginRequiredMixin, TaskListAnnotateMixin, ListView):
         if json_only == "true":
             context = self.get_context_data(**kwargs)
             task_list = context["task_list"]
+            order_by_args = []
 
             # TODO: use sort order passed from frontend - review/refactor
             order_by_fields = self.request.GET.get("orderByFields")
             if order_by_fields:
                 order_by_args = order_by_fields.split(",")
-                task_list = task_list.order_by(*order_by_args)
 
-            json = task_queryset_to_json(tasks=task_list)
+            json = create_task_list_json(
+                tasks=task_list, categories=TaskCategory.objects.all(), order_by_args=order_by_args
+            )
 
             return HttpResponse(json)
         else:

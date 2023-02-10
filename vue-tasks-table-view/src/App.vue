@@ -114,10 +114,9 @@ export default {
   },
   data() {
     return {
+      // These two arrays are filled by fetchAllTasks()
       tasksAll: [],
-      // `categoriesList` is generated in Django template in `footer_scripts` block.
-      // eslint-disable-next-line
-      categoriesAll: categoriesList,
+      categoriesAll: [],
       // List of visible categories in task list
       categoriesVisibleIds: [],
       // List of fields to order by on backend
@@ -223,6 +222,7 @@ export default {
         .then((response) => {
           // `response.data` contains JS object made from fetched JSON
           this.tasksAll = response.data.task_list;
+          this.categoriesAll = response.data.category_list;
           return response.data;
         })
         .catch(function (error) {

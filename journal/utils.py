@@ -25,9 +25,21 @@ def task_to_js_object(task):
     '''.replace("\n", "")
 
 
+def category_to_js_object(category):
+    """
+    TODO: docstrings
+    """
+    return f'''
+    {{
+        "id": "{category.pk}",
+        "title": "{escapejs(category.title)}"
+    }}
+    '''.replace("\n", "")
+
+
 def task_queryset_to_json(tasks: QuerySet):
     """
-    TODO: docstrings + add category list into json / generate json in view, make this utility only
+    TODO: docstrings
     """
     task_list_js = ""
 
@@ -35,5 +47,38 @@ def task_queryset_to_json(tasks: QuerySet):
         task_list_js += task_to_js_object(task=task) + ","
 
     # Cut trailing comma to make json valid
-    json = f'{{ "task_list": [ {task_list_js[:-1]} ] }}'
+    json = f'"task_list": [ {task_list_js[:-1]} ]'
+    return json
+
+
+def category_queryset_to_json(categories: QuerySet):
+    """
+    TODO: docstrings
+    """
+    category_list_js = ""
+
+    for category in categories:
+        category_list_js += category_to_js_object(category=category) + ","
+
+    # Cut trailing comma to make json valid
+    json = f'"category_list": [ {category_list_js[:-1]} ]'
+    return json
+
+
+def create_task_list_json(tasks: QuerySet, categories: QuerySet, order_by_args: list) -> str:
+    """
+    TODO: add category list into json
+    Creates JSON for Vue frontend consisting of:
+    {
+        "task_list": [...], - all tasks
+        "category_list": [...] - all categories
+    }
+    """
+    if len(order_by_args):
+        tasks = tasks.order_by(*order_by_args)
+
+    task_list_json = task_queryset_to_json(tasks=tasks)
+    category_list_json = category_queryset_to_json(categories=categories)
+    json = f'{{ {task_list_json}, {category_list_json} }}'
+
     return json
