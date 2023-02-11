@@ -1,10 +1,15 @@
 from django.db.models import QuerySet
 from django.utils.html import escapejs
 
+from .models import Task, TaskCategory
 
-def task_to_js_object(task):
+
+def task_to_js_object(task: Task) -> str:
     """
-    TODO: docstrings
+    Serializes single Task to JSON object.
+    Note that not all fields are serialized.
+    Task instances must be annotated with following fields: is_favorite, is_acquainted, comments_count,
+    new_comments_count. It is done in `TaskListAnnotateMixin`.
     """
     return f'''
     {{
@@ -25,9 +30,10 @@ def task_to_js_object(task):
     '''.replace("\n", "")
 
 
-def category_to_js_object(category):
+def category_to_js_object(category: TaskCategory) -> str:
     """
-    TODO: docstrings
+    Serializes single TaskCategory to JSON object.
+    Note that not all fields are serialized.
     """
     return f'''
     {{
@@ -37,9 +43,11 @@ def category_to_js_object(category):
     '''.replace("\n", "")
 
 
-def task_queryset_to_json(tasks: QuerySet):
+def task_queryset_to_json(tasks: QuerySet) -> str:
     """
-    TODO: docstrings
+    Serializes Task QuerySet to JSON object.
+    QuerySet must be annotated with following fields: is_favorite, is_acquainted, comments_count,
+    new_comments_count. It is done in `TaskListAnnotateMixin`.
     """
     task_list_js = ""
 
@@ -51,9 +59,9 @@ def task_queryset_to_json(tasks: QuerySet):
     return json
 
 
-def category_queryset_to_json(categories: QuerySet):
+def category_queryset_to_json(categories: QuerySet) -> str:
     """
-    TODO: docstrings
+    Serializes TaskCategory QuerySet to JSON object.
     """
     category_list_js = ""
 
@@ -67,12 +75,18 @@ def category_queryset_to_json(categories: QuerySet):
 
 def create_task_list_json(tasks: QuerySet, categories: QuerySet, order_by_args: list) -> str:
     """
-    TODO: add category list into json
-    Creates JSON for Vue frontend consisting of:
+    Generates tasks list, categories list JSON data for Vue frontend in `TableTaskListVueView`.
+
+    JSON structure:
     {
-        "task_list": [...], - all tasks
-        "category_list": [...] - all categories
+        "task_list": [ { ... }, ...], - all tasks
+        "category_list": [ { "id": "1", "title": "Category" }, ...] - all categories
     }
+
+    :param tasks: Task QuerySet to convert to JSON
+    :param categories: TaskCategory QuerySet to convert to JSON
+    :param order_by_args: list of Task model fields to pass to `order_by()` method to sort `tasks` QuerySet before
+                        JSON is generated. It should be like ["-created", "is_favorite", "is_acquainted"].
     """
     if len(order_by_args):
         tasks = tasks.order_by(*order_by_args)

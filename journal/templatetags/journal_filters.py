@@ -1,7 +1,5 @@
 from django import template
 
-from journal.utils import task_to_js_object as _task_to_js_object
-
 register = template.Library()
 
 
@@ -53,8 +51,3 @@ def is_users_favorite(value, arg):
         return False
 
     return True
-
-
-@register.filter(name="task_to_js_object")
-def task_to_js_object(value):
-    return _task_to_js_object(value)

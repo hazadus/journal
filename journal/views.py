@@ -1,7 +1,4 @@
-import locale
-
 from django.utils import timezone
-from django.utils.html import escapejs
 from django.db.models.functions import TruncMonth
 from django.http import HttpRequest, HttpResponse
 from django.views.decorators.http import require_POST
@@ -696,22 +693,14 @@ class TableTaskListVueView(LoginRequiredMixin, TaskListAnnotateMixin, ListView):
             ~Q(author=self.request.user) & Q(is_private=True)
         ).order_by("is_acquainted", "-is_favorite", "is_completed", "-completed", "-created")
 
-        categories_list = []
-        for category in TaskCategory.objects.all():
-            categories_list.append({
-                "id": str(category.pk),
-                "title": escapejs(category.title),
-            })
-
         context["task_list"] = task_list
-        context["categories_list"] = categories_list
 
         return context
 
     def get(self, request, *args, **kwargs):
         """
-        TODO: docstrings
-        "GET .../?json_only=true&orderByFields=-is_favorite,-is_completed,-is_acquainted,-created,-completed
+        Returns full page, or JSON data only if requested with `jsonOnly=true` GET parameter.
+        GET .../?jsonOnly=true&orderByFields=-is_favorite,-is_completed,-is_acquainted,-created,-completed
         """
         json_only = request.GET.get("jsonOnly")
         result = super().get(request, *args, **kwargs)
@@ -721,7 +710,7 @@ class TableTaskListVueView(LoginRequiredMixin, TaskListAnnotateMixin, ListView):
             task_list = context["task_list"]
             order_by_args = []
 
-            # TODO: use sort order passed from frontend - review/refactor
+            # Use sorting parameters passed from frontend
             order_by_fields = self.request.GET.get("orderByFields")
             if order_by_fields:
                 order_by_args = order_by_fields.split(",")

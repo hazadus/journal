@@ -1,11 +1,13 @@
-// OrderBySelector
-//
-// This component is used to build fields list for Django's `order_by()` ORM method using drag and drop
-// and ascending/descending trigger button for each field.
-//
-// References:
-// https://github.com/SortableJS/vue.draggable.next
-// https://github.com/SortableJS/vue.draggable.next/blob/master/example/components/two-lists.vue
+/**
+** OrderBySelector
+**
+** This component is used to build fields list for Django's `order_by()` ORM method using drag and drop
+** and ascending/descending trigger button for each field.
+**
+** References:
+** https://github.com/SortableJS/vue.draggable.next
+** https://github.com/SortableJS/vue.draggable.next/blob/master/example/components/two-lists.vue
+**/
 <template>
   <div>
     <div>
