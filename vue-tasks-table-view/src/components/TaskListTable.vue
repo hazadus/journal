@@ -68,7 +68,7 @@
     </thead>
 
     <tbody>
-      <template v-for="task in filteredTasks" :key="task.pk">
+      <template v-for="task in filteredTasks" :key="task.id">
         <tr :class="task.is_acquainted ? '' : 'table-success'">
           <td>
             <i class="fa-regular fa-star" v-if="task.is_favorite"></i>
@@ -78,14 +78,14 @@
           </td>
           <td>
             <i v-if="task.is_completed" class="fa-solid fa-check-double"></i>
-            <a :href="task.url">
+            <a :href="`/journal/task/${task.id}/`">
               {{ task.title }}
             </a>
             <span v-if="viewOptions.showCommentsCount" class="text-muted category-title">
               <i class="fa-solid fa-comments"></i> {{ task.comments_count }}<span v-if="task.new_comments_count"> &middot; {{ task.new_comments_count }}</span>
             </span>
             <span v-if="viewOptions.showCategory" class="text-muted category-title">
-              <i class="fa-solid fa-tag"></i> {{ task.category }}
+              <i class="fa-solid fa-tag"></i> {{ task.category_title }}
             </span>
           </td>
           <td v-if="viewOptions.showCreatedDate" class="table-column-date text-center">
@@ -196,7 +196,7 @@ export default {
         filtered = filtered.filter((task) => !task.is_private);
       }
 
-      filtered = filtered.filter((task) => this.categoriesVisibleIds.includes(task.category_id));
+      filtered = filtered.filter((task) => this.categoriesVisibleIds.includes(task.category));
 
       return filtered;
     }

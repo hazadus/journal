@@ -4,6 +4,7 @@ from .views import (TaskListView, PrivateTaskListView, CompletedTaskListView, Ta
                     TaskUpdateView, comment_add, comment_delete, comment_archive, comment_edit, comment_show,
                     comment_edit_save, task_acquaint, SearchView, task_search, FavoriteTaskListView,
                     task_toggle_favorite, task_green_badge, ReportListView, TableTaskListView, TableTaskListVueView)
+from .api import TaskListApi, TaskCategoryListApi
 
 app_name = "journal"
 
@@ -29,4 +30,7 @@ urlpatterns = [
     path("reports/", ReportListView.as_view(), name="report_list"),
     path("tasks/htmx/search/", task_search, name="task_search_htmx"),
     path("tasks/htmx/green_badge/<str:task_type>/", task_green_badge, name="task_green_badge_htmx"),
+    # API views
+    path("tasks/api/v1/task_list/", TaskListApi.as_view(), name="api_task_list"),
+    path("tasks/api/v1/category_list/", TaskCategoryListApi.as_view(), name="api_task_category_list"),
 ]

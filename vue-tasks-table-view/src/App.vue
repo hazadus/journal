@@ -46,13 +46,28 @@ export default {
     },
   },
   methods: {
+    fetchAllCategories() {
+      const url = window.location.origin + `/journal/tasks/api/v1/category_list/`;
+
+      return window.axios
+        .get(url, {
+          params: {},
+        })
+        .then((response) => {
+          this.categoriesAll = response.data;
+          return response.data;
+        })
+        .catch(function (error) {
+          console.log("Axios.get error:", error);
+          throw error;
+        });
+    },
     fetchAllTasks() {
-      const url = window.location.origin + `/journal/tasks/table/vue/`;
+      const url = window.location.origin + `/journal/tasks/api/v1/task_list/`;
 
       // Pass sort order to backend like:
-      // /?jsonOnly=true&orderByFields=-is_favorite,-is_completed,-is_acquainted,-created,-completed
+      // ?orderByFields=-is_favorite,-is_completed,-is_acquainted,-created,-completed
       let queryParam = {
-        jsonOnly: 'true',
         orderByFields: this.orderByFields.toString(),
       };
 
@@ -61,9 +76,7 @@ export default {
           params: queryParam,
         })
         .then((response) => {
-          // `response.data` contains JS object made from fetched JSON
-          this.tasksAll = response.data.task_list;
-          this.categoriesAll = response.data.category_list;
+          this.tasksAll = response.data;
           return response.data;
         })
         .catch(function (error) {
@@ -80,6 +93,7 @@ export default {
     }
   },
   created() {
+    this.fetchAllCategories();
     this.fetchAllTasks();
     this.pollData();
   },

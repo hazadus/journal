@@ -1,4 +1,5 @@
 from django.utils import timezone
+from django.db.models.expressions import RawSQL
 from django.db.models.functions import TruncMonth
 from django.http import HttpRequest, HttpResponse
 from django.views.decorators.http import require_POST
@@ -7,12 +8,10 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Case, When, Value, OuterRef, Subquery, Count
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, TemplateView
-from django.db.models.expressions import RawSQL
 
 from users.models import CustomUser
 from core.models import Notification
 from django_project.spawn_redis import redis
-from journal.utils import create_task_list_json
 from .models import Task, Comment, Report, TaskCategory
 
 
@@ -86,8 +85,6 @@ class TaskListAnnotateMixin(ListView):
                 default=Value(True)
             )
         ).select_related("category")
-        # ).order_by("is_acquainted", "is_completed", "-completed", "-created") \
-        #     .select_related("category")
 
         context[self.context_object_name] = task_list
         return context
@@ -679,46 +676,5 @@ class TableTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, ListView):
         return context
 
 
-class TableTaskListVueView(LoginRequiredMixin, TaskListAnnotateMixin, ListView):
-    model = Task
+class TableTaskListVueView(LoginRequiredMixin, TemplateView):
     template_name = "task_list_table_vue.html"
-    context_object_name = "task_list"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        task_list = context["task_list"]
-
-        # Exclude private tasks of other users
-        task_list = task_list.exclude(
-            ~Q(author=self.request.user) & Q(is_private=True)
-        ).order_by("is_acquainted", "-is_favorite", "is_completed", "-completed", "-created")
-
-        context["task_list"] = task_list
-
-        return context
-
-    def get(self, request, *args, **kwargs):
-        """
-        Returns full page, or JSON data only if requested with `jsonOnly=true` GET parameter.
-        GET .../?jsonOnly=true&orderByFields=-is_favorite,-is_completed,-is_acquainted,-created,-completed
-        """
-        json_only = request.GET.get("jsonOnly")
-        result = super().get(request, *args, **kwargs)
-
-        if json_only == "true":
-            context = self.get_context_data(**kwargs)
-            task_list = context["task_list"]
-            order_by_args = []
-
-            # Use sorting parameters passed from frontend
-            order_by_fields = self.request.GET.get("orderByFields")
-            if order_by_fields:
-                order_by_args = order_by_fields.split(",")
-
-            json = create_task_list_json(
-                tasks=task_list, categories=TaskCategory.objects.all(), order_by_args=order_by_args
-            )
-
-            return HttpResponse(json)
-        else:
-            return result
