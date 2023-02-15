@@ -14,7 +14,7 @@
       <h6 class="options-title">Сортировать по:</h6>
       <draggable :list="fieldsSelected" itemKey="id" group="fields" class="drop-area">
         <template #item="{ element }">
-          <div>
+          <div class="drop-item">
             {{ element.name }}
             <button class="button-ascending" @click="element.ascending = !element.ascending">
               {{ element.ascending ? '&#9650;' : '&#9660;' }}
@@ -28,7 +28,7 @@
       <h6 class="options-title">Доступные поля:</h6>
       <draggable :list="fieldsAvailable" itemKey="id" group="fields" class="drop-area">
         <template #item="{ element }">
-          <div>
+          <div class="drop-item">
             {{ element.name }}
           </div>
         </template>
@@ -121,5 +121,9 @@ export default {
   font-family: var(--font-family-condensed);
   font-weight: 300;
   border-radius: 3px;
+}
+
+.drop-item {
+  cursor: grab;
 }
 </style>

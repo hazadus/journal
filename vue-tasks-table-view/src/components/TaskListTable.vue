@@ -77,8 +77,8 @@
             <i class="fa-regular fa-lock" v-if="task.is_private"></i>
           </td>
           <td>
-            <i v-if="task.is_completed" class="fa-solid fa-check-double"></i>
-            <a :href="`/journal/task/${task.id}/`">
+            <i v-if="task.is_completed" class="fa-solid fa-check"></i>
+            <a :href="`/journal/task/${task.id}/`" class="task-title-link">
               {{ task.title }}
             </a>
             <span v-if="viewOptions.showCommentsCount" class="text-muted category-title">
@@ -249,15 +249,20 @@ export default {
 }
 
 .table-tasks {
- font-family: var(--font-family-condensed);
+  font-family: var(--font-family-condensed);
+  font-weight: 300;
+}
+
+.table-column-date {
+  width: 130px;
+}
+
+.task-title-link {
+  font-size: 17px;
 }
 
 .category-title {
   display: inline-block;
   margin: 0 0 0 10px;
-}
-
-.table-column-date {
-  width: 130px;
 }
 </style>
