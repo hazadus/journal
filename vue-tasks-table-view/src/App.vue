@@ -1,5 +1,20 @@
 <template>
+  <!--
+  ** NB: `v-else-if="categoriesAll.length"` is here because we want to render the component only when categories are
+  ** already fetched from backend, or else they won't be available as props in component's `mounted()` method.
+  ** This will lead to the situation when on the first load (when nothing is stored in localStorage)
+  ** the list of visible categories inside the component will be empty, and no tasks will be displayed.
+  -->
+  <div v-if="!tasksAll.length || !categoriesAll.length" class="d-flex align-items-center">
+    <div class="spinner-border text-primary me-3" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <div>
+      Идёт загрузка &mdash; пожалуйста, подождите!
+    </div>
+  </div>
   <TaskListTable
+      v-else-if="categoriesAll.length"
       :tasks="tasksAll"
       :categories="categoriesAll"
       :default-fetch-options="fetchOptions"

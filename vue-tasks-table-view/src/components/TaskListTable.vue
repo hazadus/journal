@@ -12,8 +12,7 @@
     </div>
 
     <div class="row mb-3 border-top pt-3 mt-3" v-if="viewOptions.showOptions">
-      <!-- TODO: make columns responsive -->
-      <div class="col-2">
+      <div class="col-6 col-lg-2">
         <h5 class="options-title mb-1 pb-1 border-bottom">Фильтры</h5>
         <input type="checkbox" v-model="tasksFilters.showActive" id="check-show-active"> <label for="check-show-active" class="options-checkbox-label">В работе</label><br>
         <input type="checkbox" v-model="tasksFilters.showPrivate" id="check-show-private"> <label for="check-show-private" class="options-checkbox-label">Личные</label><br>
@@ -21,12 +20,12 @@
         <input type="checkbox" v-model="tasksFilters.showFavoritesOnly" id="check-show-favorite-only"> <label for="check-show-favorite-only" class="options-checkbox-label">Только избранные</label><br>
       </div>
 
-      <div class="col-2">
+      <div class="col-6 col-lg-2">
         <h5 class="options-title mb-1 pb-1 border-bottom">Упорядочить</h5>
         <OrderBySelector @orderChanged="(newOrder) => this.orderByFields = newOrder" />
       </div>
 
-      <div class="col-2">
+      <div class="col-6 col-lg-2">
         <h5 class="options-title mb-1 pb-1 border-bottom">Отображение</h5>
         <input type="checkbox" v-model="fetchOptions.autoUpdate" id="check-auto-update"> <label for="check-auto-update" class="options-checkbox-label">Автообновление</label><br>
         <input type="checkbox" v-model="viewOptions.showCategory" id="check-show-category"> <label for="check-show-category" class="options-checkbox-label">Категории</label><br>
@@ -35,9 +34,9 @@
         <input type="checkbox" v-model="viewOptions.showCompletedDate" id="check-show-completed-date"> <label for="check-show-completed-date" class="options-checkbox-label">Дата завершения</label><br>
       </div>
 
-      <div class="col-6">
+      <div class="col-6 col-lg-6">
         <h5 class="options-title mb-1 pb-1 border-bottom">Категории</h5>
-        <span v-for="category in this.categories" :key="category.id">
+        <span v-for="category in this.categories" :key="category.id" class="category-checkbox-block">
           <input type="checkbox" v-model="categoriesVisibleIds" :id="'category' + category.id" :value="category.id"> <label :for="'category' + category.id" class="options-checkbox-label">{{ category.title }}</label><br>
         </span>
         <button @click="categoriesVisibleIds = []" class="btn btn-sm btn-primary me-1 mt-2">Убрать все</button>
@@ -46,62 +45,69 @@
     </div>
   </div>
 
-  <table class="table table-hover table-tasks text-nowrap">
-    <thead>
-      <tr>
-        <th scope="col" class="text-center" style="width: 30px;">
-          <i class="fa-regular fa-star"></i>
-        </th>
-        <th scope="col" class="text-center" style="width: 30px;">
-          <i class="fa-regular fa-lock"></i>
-        </th>
-        <th>
-          Задача
-        </th>
-        <th v-if="viewOptions.showCreatedDate" class="table-column-date text-center">
-          Создана
-        </th>
-        <th v-if="viewOptions.showCompletedDate" class="table-column-date text-center">
-          Завершена
-        </th>
-      </tr>
-    </thead>
-
-    <tbody>
-      <template v-for="task in filteredTasks" :key="task.id">
-        <tr :class="task.is_acquainted ? '' : 'table-success'">
-          <td>
-            <i class="fa-regular fa-star" v-if="task.is_favorite"></i>
-          </td>
-          <td>
-            <i class="fa-regular fa-lock" v-if="task.is_private"></i>
-          </td>
-          <td>
-            <i v-if="task.is_completed" class="fa-solid fa-check"></i>
-            <a :href="`/journal/task/${task.id}/`" class="task-title-link">
-              {{ task.title }}
-            </a>
-            <span v-if="viewOptions.showCommentsCount" class="text-muted category-title">
-              <i class="fa-solid fa-comments"></i> {{ task.comments_count }}<span v-if="task.new_comments_count"> &middot; {{ task.new_comments_count }}</span>
-            </span>
-            <span v-if="viewOptions.showCategory" class="text-muted category-title">
-              <i class="fa-solid fa-tag"></i> {{ task.category_title }}
-            </span>
-          </td>
-          <td v-if="viewOptions.showCreatedDate" class="table-column-date text-center">
-            <span class="text-muted category-title">
-              {{ formatDateTime(task.created) }}
-            </span>
-          </td>
-          <td v-if="viewOptions.showCompletedDate" class="table-column-date text-center">
-            <span class="text-muted category-title">
-              {{ task.is_completed ? formatDateTime(task.completed) : '' }}
-            </span>
-          </td>
+  <div class="table-tasks-wrapper">
+    <table class="table table-hover table-tasks text-nowrap">
+      <thead>
+        <tr>
+          <th scope="col" class="text-center" style="width: 30px;">
+            <i class="fa-regular fa-star"></i>
+          </th>
+          <th scope="col" class="text-center" style="width: 30px;">
+            <i class="fa-regular fa-lock"></i>
+          </th>
+          <th>
+            Задача
+          </th>
+          <th v-if="viewOptions.showCreatedDate" class="table-column-date text-center">
+            Создана
+          </th>
+          <th v-if="viewOptions.showCompletedDate" class="table-column-date text-center">
+            Завершена
+          </th>
         </tr>
-      </template>
-    </tbody>
-  </table>
+      </thead>
+
+      <tbody>
+        <template v-for="task in filteredTasks" :key="task.id">
+          <tr :class="task.is_acquainted ? '' : 'table-success'">
+            <td>
+              <i class="fa-regular fa-star" v-if="task.is_favorite"></i>
+            </td>
+            <td>
+              <i class="fa-regular fa-lock" v-if="task.is_private"></i>
+            </td>
+            <td>
+              <i v-if="task.is_completed" class="fa-solid fa-check"></i>
+              <a :href="`/journal/task/${task.id}/`" class="task-title-link">
+                {{ task.title }}
+              </a>
+              <span v-if="viewOptions.showCommentsCount" class="text-muted category-title">
+                <i class="fa-solid fa-comments"></i> {{ task.comments_count }}<span v-if="task.new_comments_count"> &middot; {{ task.new_comments_count }}</span>
+              </span>
+              <span v-if="task.attachment" class="ms-1">
+                <a :href="task.attachment" class="text-muted">
+                  <i class="fa-solid fa-paperclip"></i>
+                </a>
+              </span>
+              <span v-if="viewOptions.showCategory" class="text-muted category-title">
+                <i class="fa-solid fa-tag"></i> {{ task.category_title }}
+              </span>
+            </td>
+            <td v-if="viewOptions.showCreatedDate" class="table-column-date text-center">
+              <span class="text-muted category-title">
+                {{ formatDateTime(task.created) }}
+              </span>
+            </td>
+            <td v-if="viewOptions.showCompletedDate" class="table-column-date text-center">
+              <span class="text-muted category-title">
+                {{ task.is_completed ? formatDateTime(task.completed) : '' }}
+              </span>
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </div>
 </template>
 
 <script>
@@ -229,11 +235,11 @@ export default {
       this.tasksFilters = tasksFilters;
     }
 
-    let categoriesVisibleIds = JSON.parse(localStorage.getItem('categoriesVisibleIds'));
-    if (categoriesVisibleIds) {
-      this.categoriesVisibleIds = categoriesVisibleIds;
-    } else {
+    let categoriesVisibleIdsItem = localStorage.getItem('categoriesVisibleIds');
+    if (categoriesVisibleIdsItem == null) {
       this.copyAllCategoryIdsToVisible();
+    } else {
+      this.categoriesVisibleIds = JSON.parse(categoriesVisibleIdsItem);
     }
   },
 }
@@ -248,6 +254,17 @@ export default {
   font-family: var(--font-family-condensed);
 }
 
+.category-checkbox-block {
+  display: block;
+  /* Keep category titles on one line on small screens */
+  overflow-x: hidden;
+  white-space: nowrap;
+}
+
+.table-tasks-wrapper {
+  overflow-x: scroll;
+}
+
 .table-tasks {
   font-family: var(--font-family-condensed);
   font-weight: 300;
@@ -258,7 +275,13 @@ export default {
 }
 
 .task-title-link {
-  font-size: 17px;
+  font-size: 18px;
+}
+
+@media (max-width: 768px) {
+  .task-title-link {
+    font-size: 16px;
+  }
 }
 
 .category-title {
