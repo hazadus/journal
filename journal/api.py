@@ -1,32 +1,29 @@
 from django.db.models.expressions import RawSQL
-from rest_framework.mixins import ListModelMixin
-from rest_framework.generics import GenericAPIView
 from django.db.models import Q, Case, When, Value, OuterRef, Subquery, Count
+from rest_framework.generics import GenericAPIView, RetrieveAPIView, ListAPIView
 
 from users.models import CustomUser
 from .models import Task, Comment, TaskCategory
-from .serializers import TaskSerializer, TaskCategorySerializer
+from .serializers import TaskSerializer, TaskDetailSerializer, TaskCategorySerializer, CommentSerializer
 
 
-class TaskCategoryListApi(ListModelMixin, GenericAPIView):
+class TaskCategoryListAPI(ListAPIView):
     """
-    List all task categories
+    List all task categories.
     """
     queryset = TaskCategory.objects.all()
     serializer_class = TaskCategorySerializer
 
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
 
-
-class TaskListApi(ListModelMixin, GenericAPIView):
+class TaskListAnnotateMixin(GenericAPIView):
     """
-    List all tasks
-    Sorting example: ?orderByFields=-is_favorite,-is_completed,-is_acquainted,-created,-completed
-    """
-    queryset = Task.objects.all()
-    serializer_class = TaskSerializer
+    Annotates Task QuerySet with additional fields depending on logged in user:
+    - comments_count, category_title, new_comments_count, is_favorite, is_acquainted, author first/second/last name,
+      author avatar url.
 
+    Field list for order_by() should be passed via orderByFields GET parameter.
+    Ordering example: ?orderByFields=-is_favorite,-is_completed,-is_acquainted,-created,-completed
+    """
     def get_queryset(self):
         task_list = Task.objects.all()
 
@@ -45,11 +42,44 @@ class TaskListApi(ListModelMixin, GenericAPIView):
             comments_count=Count("comments", filter=Q(comments__is_archived=False))
         )
 
+        # Add category title
         task_list = task_list.annotate(
             category_title=Subquery(
                 TaskCategory.objects.filter(
                     Q(id=OuterRef("category_id"))
                 ).values("title")
+            )
+        )
+
+        # Add author info directly to comments:
+        task_list = task_list.annotate(
+            author_last_name=Subquery(
+                CustomUser.objects.filter(
+                    Q(pk=OuterRef("author_id"))
+                ).values("last_name")
+            )
+        )
+        task_list = task_list.annotate(
+            author_first_name=Subquery(
+                CustomUser.objects.filter(
+                    Q(pk=OuterRef("author_id"))
+                ).values("first_name")
+            )
+        )
+        task_list = task_list.annotate(
+            author_second_name=Subquery(
+                CustomUser.objects.filter(
+                    Q(pk=OuterRef("author_id"))
+                ).values("second_name")
+            )
+        )
+
+        # Add author's avatar URL like: "images/v.skutin_profile_pic.jpg"
+        task_list = task_list.annotate(
+            author_avatar_url=Subquery(
+                CustomUser.objects.filter(
+                    Q(pk=OuterRef("author_id"))
+                ).values("avatar_img")
             )
         )
 
@@ -119,5 +149,93 @@ class TaskListApi(ListModelMixin, GenericAPIView):
 
         return task_list
 
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
+
+class TaskListAPI(TaskListAnnotateMixin, ListAPIView):
+    """
+    List all tasks. Less detailed data (no body, no author info).
+    """
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+
+
+class TaskDetailAPI(TaskListAnnotateMixin, RetrieveAPIView):
+    """
+    Get one task by its pk. Detailed info including body, author first/second/last name, avatar url.
+    """
+    queryset = Task.objects.all()
+    serializer_class = TaskDetailSerializer
+
+
+class CommentListAPI(ListAPIView):
+    """
+    List all comments, or filter by task ID. Ordered by "created" by default.
+    Comment QuerySets gets annotated with `is_acquainted` boolean field depending on currently logged in user.
+
+    GET parameters:
+        taskId - get comments for task width ID equal to taskId
+    """
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        # Filter non-archived comments only:
+        comment_list = Comment.objects.filter(is_archived=False)
+
+        task_id = self.request.GET.get("taskId")
+        if task_id:
+            comment_list = comment_list.filter(task_id=task_id)
+
+        # `user_acquainted` will be equal to user's `username` if he's acquainted with the comment.
+        # Otherwise, it'll be None.
+        comment_list = comment_list.annotate(
+            user_acquainted=Subquery(
+                CustomUser.objects.filter(
+                    Q(comments_acquainted__in=OuterRef("pk")) &
+                    Q(comments_acquainted__users_acquainted__exact=self.request.user.pk)
+                ).values("username")
+            )
+        )
+
+        # Annotate with `is_acquainted` field using previously generated `user_acquainted`:
+        comment_list = comment_list.annotate(
+            is_acquainted=Case(
+                When(
+                    Q(user_acquainted=None), then=Value(False)  # User is not aquainted if there's None.
+                ),
+                default=Value(True)
+            )
+        )
+
+        # Add author info directly to comments:
+        comment_list = comment_list.annotate(
+            author_last_name=Subquery(
+                CustomUser.objects.filter(
+                    Q(pk=OuterRef("author_id"))
+                ).values("last_name")
+            )
+        )
+        comment_list = comment_list.annotate(
+            author_first_name=Subquery(
+                CustomUser.objects.filter(
+                    Q(pk=OuterRef("author_id"))
+                ).values("first_name")
+            )
+        )
+        comment_list = comment_list.annotate(
+            author_second_name=Subquery(
+                CustomUser.objects.filter(
+                    Q(pk=OuterRef("author_id"))
+                ).values("second_name")
+            )
+        )
+
+        # Add author's avatar URL like: "images/v.skutin_profile_pic.jpg"
+        comment_list = comment_list.annotate(
+            author_avatar_url=Subquery(
+                CustomUser.objects.filter(
+                    Q(pk=OuterRef("author_id"))
+                ).values("avatar_img")
+            )
+        )
+
+        return comment_list
