@@ -37,7 +37,7 @@
       <div class="col-6 col-lg-6">
         <h5 class="options-title mb-1 pb-1 border-bottom">Категории</h5>
         <span v-for="category in this.categories" :key="category.id" class="category-checkbox-block">
-          <input type="checkbox" v-model="categoriesVisibleIds" :id="'category' + category.id" :value="category.id"> <label :for="'category' + category.id" class="options-checkbox-label">{{ category.title }}</label><br>
+          <input type="checkbox" v-model="categoriesVisibleIds" :id="'category' + category.id" :value="category.id"> <label :for="'category' + category.id" class="options-checkbox-label" @click.alt.prevent="categoriesVisibleIds=[category.id]">{{ category.title }}</label><br>
         </span>
         <button @click="categoriesVisibleIds = []" class="btn btn-sm btn-primary me-1 mt-2">Убрать все</button>
         <button @click="copyAllCategoryIdsToVisible" class="btn btn-sm btn-primary mt-2">Показать все</button>
@@ -70,14 +70,16 @@
       <tbody>
         <template v-for="task in filteredTasks" :key="task.id">
           <tr :class="task.is_acquainted ? '' : 'table-success'">
-            <td>
+            <td class="cell-favorite">
               <i class="fa-regular fa-star" v-if="task.is_favorite"></i>
             </td>
-            <td>
+            <td class="text-muted">
               <i class="fa-regular fa-lock" v-if="task.is_private"></i>
             </td>
             <td>
-              <i v-if="task.is_completed" class="fa-solid fa-check"></i>
+              <span v-if="task.is_completed" class="task-completed-mark">
+                <i class="fa-solid fa-check"></i>
+              </span>
               <a :href="`/journal/task/${task.id}/`" class="task-title-link">
                 {{ task.title }}
               </a>
@@ -262,12 +264,21 @@ export default {
 }
 
 .table-tasks-wrapper {
-  overflow-x: scroll;
+  overflow-x: auto;
 }
 
 .table-tasks {
   font-family: var(--font-family-condensed);
   font-weight: 300;
+}
+
+.cell-favorite {
+  color: var(--bs-warning);
+}
+
+.task-completed-mark {
+  margin: 0 5px 0 0;
+  color: var(--bs-success);
 }
 
 .table-column-date {
