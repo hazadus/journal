@@ -6,18 +6,9 @@
       </h4>
     </div>
 
-    <!--
-    orderByFields passed from OrderBySelector->OptionsPanel->here (from bottom to top);
-    -->
     <OptionsPanel
         v-if="viewOptions.showOptions"
         :categories="categories"
-        :categories-visible-ids="categoriesVisibleIds"
-        @update:categoriesVisibleIds="(newCategoriesVisibleIds) => this.$emit('update:categoriesVisibleIds', newCategoriesVisibleIds)"
-        :view-options="viewOptions"
-        :tasks-filters="tasksFilters"
-        :fetch-options="fetchOptions"
-        @order-by-fields-changed="(newOrder) => this.$emit('orderChanged', newOrder)"
     />
   </div>
 
@@ -91,6 +82,7 @@
 <script>
 import OptionsPanel from "@/components/OptionsPanel.vue";
 import {useFormatDateTime} from "@/utils";
+import {viewOptions} from "@/stores/viewOptions";
 
 export default {
   name: "TaskListTable",
@@ -101,15 +93,12 @@ export default {
     tasks: Array,
     filteredTasks: Array,
     categories: Array,
-    categoriesVisibleIds: Array,
-    fetchOptions: Object,
-    viewOptions: Object,
-    tasksFilters: Object,
   },
-  emits: [
-    'orderChanged',
-    'update:categoriesVisibleIds',
-  ],
+  data() {
+    return {
+      viewOptions,
+    }
+  },
   methods: {
     useFormatDateTime,
   },

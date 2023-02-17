@@ -39,17 +39,17 @@
 
 <script>
 import draggable from "vuedraggable";
+import {fetchOptions} from "@/stores/fetchOptions";
 
 export default {
   components: {
     draggable
   },
   props: {
-    orderBy: Array
   },
-  emits: ['orderChanged'],
   data() {
     return {
+      fetchOptions,
       fieldsSelected: [
         { name: "Новое", id: 1, sortField: "is_acquainted", ascending: true },
         { name: "Избранное", id: 2, sortField: "is_favorite", ascending: false },
@@ -67,7 +67,7 @@ export default {
       handler(fieldsSelected) {
         localStorage.setItem('fieldsSelected', JSON.stringify(fieldsSelected))
         // Here's the main purpose of this component: pass resulting field list to the parent:
-        this.$emit('orderChanged', this.orderByFields)
+        fetchOptions.orderByFields = this.orderByFields;
       },
       deep: true
     },
@@ -82,9 +82,9 @@ export default {
     orderByFields() {
       // Returns list of fields for Django's `order_by()` ORM method, in desired order and with
       // descending flag ("-") if necessary.
-      let keys = []
-      this.fieldsSelected.forEach((item) => { keys.push(item.ascending ? item.sortField : '-' + item.sortField) })
-      return keys
+      let keys = [];
+      this.fieldsSelected.forEach((item) => { keys.push(item.ascending ? item.sortField : '-' + item.sortField) });
+      return keys;
     }
   },
   mounted() {

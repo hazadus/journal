@@ -31,12 +31,6 @@
     <div class="alert alert-secondary" v-if="viewOptions.showOptions">
       <OptionsPanel
           :categories="categories"
-          :categories-visible-ids="categoriesVisibleIds"
-          @update:categoriesVisibleIds="(newCategoriesVisibleIds) => this.$emit('update:categoriesVisibleIds', newCategoriesVisibleIds)"
-          :view-options="viewOptions"
-          :tasks-filters="tasksFilters"
-          :fetch-options="fetchOptions"
-          @order-by-fields-changed="(newOrder) => this.$emit('orderChanged', newOrder)"
       />
     </div>
     <div class="task-detail" v-else>
@@ -78,6 +72,7 @@
 <script>
 import OptionsPanel from "@/components/OptionsPanel.vue";
 import {useFormatDateTime} from "@/utils";
+import {viewOptions} from "@/stores/viewOptions";
 
 export default {
   name: "TaskListSidebar",
@@ -88,17 +83,10 @@ export default {
     tasks: Array,
     filteredTasks: Array,
     categories: Array,
-    categoriesVisibleIds: Array,
-    fetchOptions: Object,
-    viewOptions: Object,
-    tasksFilters: Object,
   },
-  emits: [
-    'orderChanged',
-    'update:categoriesVisibleIds',
-  ],
   data () {
     return {
+      viewOptions,
       selectedItem: null,
       detailItem: null,
       comments: null,
