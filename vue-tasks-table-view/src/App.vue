@@ -4,7 +4,7 @@
       Задачи: табличный вид (Vue)
     </h1>
     <div class="btn-toolbar mb-2 mb-md-0">
-      <button @click="isTableView = !isTableView" class="btn btn-sm btn-warning me-3">
+      <button @click="isTableView = !isTableView" class="btn btn-sm btn-warning me-1">
         <template v-if="isTableView">
           <i class="fa-solid fa-columns"></i> Колонки
         </template>
@@ -12,13 +12,16 @@
           <i class="fa-solid fa-table"></i> Таблица
         </template>
       </button>
+      <button class="btn btn-sm btn-primary me-1" @click="viewOptions.showOptions = !viewOptions.showOptions">
+        <i class="fa-solid fa-gears"></i> Настройки
+      </button>
       <a class="btn btn-sm btn-success" href="/journal/task/create/">
         <i class="fa-solid fa-file-circle-plus"></i> Добавить задачу
       </a>
     </div>
   </div>
   <!--
-  ** NB: `v-else-if="categoriesAll.length"` is here because we want to render the component only when categories are
+  ** NB: `v-else` is here because we want to render the component only when categories are
   ** already fetched from backend, or else they won't be available as props in component's `mounted()` method.
   ** This will lead to the situation when on the first load (when nothing is stored in localStorage)
   ** the list of visible categories inside the component will be empty, and no tasks will be displayed.
@@ -35,14 +38,24 @@
     <TaskListTable
         v-if="isTableView"
         :tasks="tasksAll"
+        :filtered-tasks="filteredTasks"
         :categories="categoriesAll"
-        :default-fetch-options="fetchOptions"
-        @fetchOptionsChanged="(newFetchOptions) => this.fetchOptions = newFetchOptions"
+        v-model:categories-visible-ids="categoriesVisibleIds"
+        v-model:view-options="viewOptions"
+        :tasks-filters="tasksFilters"
+        v-model:fetch-options="fetchOptions"
         @orderChanged="(newOrder) => this.orderByFields = newOrder"
     />
     <TaskListSidebar
         v-else
         :tasks="tasksAll"
+        :filtered-tasks="filteredTasks"
+        :categories="categoriesAll"
+        v-model:categories-visible-ids="categoriesVisibleIds"
+        v-model:view-options="viewOptions"
+        :tasks-filters="tasksFilters"
+        v-model:fetch-options="fetchOptions"
+        @orderChanged="(newOrder) => this.orderByFields = newOrder"
     />
   </template>
 </template>
@@ -61,8 +74,10 @@ export default {
     return {
       tasksAll: [],
       categoriesAll: [],
+      // List of visible categories in task list
+      categoriesVisibleIds: [],
       // Show as table or 3-column view
-      isTableView: false,
+      isTableView: true,
       // Ordering options
       orderByFields: [],
       // Fetch options
@@ -71,6 +86,46 @@ export default {
         pollDataTimeout: 5000,    // update period, ms
       },
       polling: null,
+      // Default task filters. Will be loaded from localStorage in mounted()
+      tasksFilters: {
+        showActive: true,
+        showCompleted: false,
+        showPrivate: true,
+        showFavoritesOnly: false,
+      },
+      // Defaul view options. Will be loaded from localStorage in mounted()
+      viewOptions: {
+        showOptions: true,        // show options pane
+        showCategory: false,      // show category name
+        showCommentsCount: true,  // show comments count
+        showCreatedDate: false,   // show creation date
+        showCompletedDate: false, // show completion date
+      },
+    }
+  },
+  computed: {
+    filteredTasks() {
+      let filtered = this.tasksAll;
+
+      if (!this.tasksFilters.showCompleted) {
+        filtered = filtered.filter((task) => !task.is_completed);
+      }
+
+      if (!this.tasksFilters.showActive) {
+        filtered = filtered.filter((task) => task.is_completed);
+      }
+
+      if (this.tasksFilters.showFavoritesOnly) {
+        filtered = filtered.filter((task) => task.is_favorite);
+      }
+
+      if (!this.tasksFilters.showPrivate) {
+        filtered = filtered.filter((task) => !task.is_private);
+      }
+
+      filtered = filtered.filter((task) => this.categoriesVisibleIds.includes(task.category));
+
+      return filtered;
     }
   },
   watch: {
@@ -87,6 +142,24 @@ export default {
       },
       deep: true
     },
+    categoriesVisibleIds: {
+      handler(categoriesVisibleIds) {
+        localStorage.setItem('categoriesVisibleIds', JSON.stringify(categoriesVisibleIds))
+      },
+      deep: true
+    },
+    viewOptions: {
+      handler(viewOptions) {
+        localStorage.setItem('viewOptions', JSON.stringify(viewOptions))
+      },
+      deep: true
+    },
+    tasksFilters: {
+      handler(tasksFilters) {
+        localStorage.setItem('tasksFilters', JSON.stringify(tasksFilters))
+      },
+      deep: true
+    },
   },
   methods: {
     fetchAllCategories() {
@@ -98,6 +171,17 @@ export default {
         })
         .then((response) => {
           this.categoriesAll = response.data;
+
+          // Check options only after categories are fetched
+          let categoriesVisibleIdsItem = localStorage.getItem('categoriesVisibleIds');
+          if (categoriesVisibleIdsItem == null) {
+            for (let i = 0; i < this.categoriesAll.length; i++) {
+              this.categoriesVisibleIds.push(this.categoriesAll[i].id);
+            }
+          } else {
+            this.categoriesVisibleIds = JSON.parse(categoriesVisibleIdsItem);
+          }
+
           return response.data;
         })
         .catch(function (error) {
@@ -148,6 +232,17 @@ export default {
     let fetchOptions = JSON.parse(localStorage.getItem('fetchOptions'));
     if (fetchOptions) {
       this.fetchOptions = fetchOptions;
+    }
+
+    // do stuff on mount, e.g. load some data from localStorage.
+    let viewOptions = JSON.parse(localStorage.getItem('viewOptions'));
+    if (viewOptions) {
+      this.viewOptions = viewOptions;
+    }
+
+    let tasksFilters = JSON.parse(localStorage.getItem('tasksFilters'));
+    if (tasksFilters) {
+      this.tasksFilters = tasksFilters;
     }
   },
 }
