@@ -24,4 +24,4 @@ if (token) {
     console.error('CSRF token not found: https://docs.djangoproject.com/en/3.0/ref/csrf/#ajax');
 }
 
-createApp(App).mount('#app')
+createApp(App).mount('#dashboard-page-content')

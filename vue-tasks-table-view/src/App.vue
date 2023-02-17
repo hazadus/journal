@@ -1,4 +1,22 @@
 <template>
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-baseline pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+      Задачи: табличный вид (Vue)
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+      <button @click="isTableView = !isTableView" class="btn btn-sm btn-warning me-3">
+        <template v-if="isTableView">
+          <i class="fa-solid fa-columns"></i> Колонки
+        </template>
+        <template v-else>
+          <i class="fa-solid fa-table"></i> Таблица
+        </template>
+      </button>
+      <a class="btn btn-sm btn-success" href="/journal/task/create/">
+        <i class="fa-solid fa-file-circle-plus"></i> Добавить задачу
+      </a>
+    </div>
+  </div>
   <!--
   ** NB: `v-else-if="categoriesAll.length"` is here because we want to render the component only when categories are
   ** already fetched from backend, or else they won't be available as props in component's `mounted()` method.
@@ -13,28 +31,38 @@
       Идёт загрузка &mdash; пожалуйста, подождите!
     </div>
   </div>
-  <TaskListTable
-      v-else-if="categoriesAll.length"
-      :tasks="tasksAll"
-      :categories="categoriesAll"
-      :default-fetch-options="fetchOptions"
-      @fetchOptionsChanged="(newFetchOptions) => this.fetchOptions = newFetchOptions"
-      @orderChanged="(newOrder) => this.orderByFields = newOrder"
-  />
+  <template v-else>
+    <TaskListTable
+        v-if="isTableView"
+        :tasks="tasksAll"
+        :categories="categoriesAll"
+        :default-fetch-options="fetchOptions"
+        @fetchOptionsChanged="(newFetchOptions) => this.fetchOptions = newFetchOptions"
+        @orderChanged="(newOrder) => this.orderByFields = newOrder"
+    />
+    <TaskListSidebar
+        v-else
+        :tasks="tasksAll"
+    />
+  </template>
 </template>
 
 <script>
 import TaskListTable from "@/components/TaskListTable.vue";
+import TaskListSidebar from "@/components/TaskListSidebar.vue";
 
 export default {
   name: 'App',
   components: {
-    TaskListTable
+    TaskListTable,
+    TaskListSidebar
   },
   data() {
     return {
       tasksAll: [],
       categoriesAll: [],
+      // Show as table or 3-column view
+      isTableView: false,
       // Ordering options
       orderByFields: [],
       // Fetch options

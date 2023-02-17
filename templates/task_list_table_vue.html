@@ -1,28 +1,18 @@
 {% extends "base_dashboard.html" %}
 
 {% load static %}
-{% load journal_filters %}
 
 {% block title %}Задачи: табличный вид (Vue){% endblock title %}
 
-{% block dashboard_page_header %}
-  <h1 class="h2">
-    Задачи: табличный вид (Vue)
-  </h1>
-  <div class="btn-toolbar mb-2 mb-md-0">
-    <a class="btn btn-sm btn-success" href="{% url 'journal:task_create' %}">
-      <i class="fa-solid fa-file-circle-plus"></i> Добавить задачу
-    </a>
-  </div>
-{% endblock dashboard_page_header %}
-
 {% block content %}
-  <div id="app">
+  {# Put CSRF token for Axios into template #}
+  <div id="csrf">
     {% csrf_token %}
   </div>
 {% endblock content %}
 
 {% block footer_scripts %}
+  {# Vue app will be mounted into #dashboard-page-content div of "base_dashboard.html" (see main.js) #}
   <script type="text/javascript" src="{% static 'vue/tasks-table-view/js/chunk-vendors.js' %}"></script>
   <script type="text/javascript" src="{% static 'vue/tasks-table-view/js/app.js' %}"></script>
   <link href="{% static 'vue/tasks-table-view/css/app.css' %}" rel="stylesheet">
