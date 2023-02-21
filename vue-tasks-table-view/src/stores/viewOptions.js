@@ -7,7 +7,7 @@ export const viewOptions = reactive({
   showCommentsCount: true,  // show comments count
   showCreatedDate: false,   // show creation date
   showCompletedDate: false, // show completion date
-  categoriesVisibleIds: [],
+  categoriesVisibleIds: null,  // `null` to detect an initial moment when we need to copy all category ids here
 
   set(newOptions) {
     this.isTableView = newOptions.isTableView;

@@ -140,7 +140,8 @@ export default {
             viewOptions.set(storedViewOptions);
           }
 
-          if (viewOptions.categoriesVisibleIds == null) {
+          // `null` is initial value, means we need to fill the array for the first time:
+          if (viewOptions.categoriesVisibleIds === null) {
             viewOptions.copyAllCategoryIdsToVisible(this.categoriesAll);
           }
 

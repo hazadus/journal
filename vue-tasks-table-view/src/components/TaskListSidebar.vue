@@ -8,7 +8,7 @@
         </div>
       </div>
 
-      <!-- Comments list -->
+      <!-- Tasks list -->
       <div class="task-list list-group list-group-flush">
         <a v-for="task in this.filteredTasks"
            :key="task.id" href="#"
@@ -16,14 +16,19 @@
            class="task-list-item list-group-item list-group-item-action py-3 lh-sm"
            :class="{ 'active': isTaskListItemActive(task), 'bg-success-subtle': isTaskListItemBgSuccessClass(task), }">
           <div class="d-flex w-100 align-items-center justify-content-between">
-            <span class="task-list-item-title"
+            <span class="task-list-item-title flex-grow-1"
                   :class="task.is_acquainted ? '' : 'task-list-item-title-new'">
+              <span v-if="task.is_completed" class="task-completed-mark">
+                <i class="fa-solid fa-check"></i>
+              </span>
               {{ sanitize(task.title) }}
             </span>
             <i class="fa-regular fa-star" v-if="task.is_favorite"></i>
-            <i class="fa-regular fa-lock" v-if="task.is_private"></i>
+            <span class="text-muted" v-if="task.is_private">
+              <i class="fa-regular fa-lock"></i>
+            </span>
           </div>
-          <div class="task-list-item-category mb-1 small text-muted"
+          <div class="task-list-item-category mb-1 small"
                v-if="viewOptions.showCategory">
             <i class="fa-regular fa-tag"></i> {{ task.category_title }}
           </div>
@@ -127,6 +132,11 @@
               </div>
             </div>
           </template>
+
+          <!-- Task completed alert -->
+          <div class="alert alert-success" v-if="detailItem.is_completed">
+            <i class="fa-solid fa-file-circle-check"></i> Задача завершена.
+          </div>
 
         </template>
       </template>
@@ -254,12 +264,6 @@ export default {
   border-right: 1px solid #e4e4e4;
 }
 
-@media (max-width: 1400px) {
-  .tasks {
-    width: 300px;
-  }
-}
-
 .task-list {
   height: calc(100vh - 185px);
   overflow-y: auto;
@@ -267,9 +271,11 @@ export default {
 
 .task-list-item {
   font-family: var(--font-family-condensed);
+  border-bottom: 1px solid #e4e4e4 !important;
 }
 
 .task-list-item-title {
+  font-size: 18px;
   margin-bottom: 10px;
 }
 
@@ -278,9 +284,33 @@ export default {
 }
 
 .task-list-item-category {
-  font-size: 12px;
+  font-size: 14px;
+  color: var(--bs-light-text);
   overflow-x: hidden;
   white-space: nowrap;
+}
+
+.active .task-list-item-category {
+  color: white;
+}
+
+@media (max-width: 1400px) {
+  .tasks {
+    width: 300px;
+  }
+
+  .task-list-item-title {
+    font-size: 14px;
+  }
+
+  .task-list-item-category {
+    font-size: 12px;
+  }
+}
+
+.task-completed-mark {
+  margin: 0 3px 0 0;
+  color: var(--bs-success);
 }
 
 .task-detail {
