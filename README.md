@@ -29,8 +29,6 @@
 - - `XlsxWriter` - генерация отчетов в формате Excel.
 - - `Markdown` - разметка Markdown в задачах, комментариях и поручениях.
 - - `django-bleach` - очистка от HTML-тегов.
-- [Bootstrap 5](https://getbootstrap.com) / [Font Awesome](https://fontawesome.com)
-- [HTMX 1.8.4](https://htmx.org)
 - [SQLite](https://sqlite.org/index.html) - проект не рассчитывался на значительное количество одновременно работающих 
 пользователей, поэтому выбрана данная БД из-за её простоты, удобства отладки и резервного копирования. 
 - Redis
@@ -38,6 +36,13 @@
 - [Nginx](https://www.nginx.com) / [Gunicorn](https://gunicorn.org) 
 - [Docker Compose](https://docs.docker.com/compose/)
 - [Rollbar](https://rollbar.com)
+- Frontend
+- - [Bootstrap 5](https://getbootstrap.com) / [Font Awesome](https://fontawesome.com)
+- - [HTMX 1.8.4](https://htmx.org)
+- - [Vue 3](https://vuejs.org) - используется в табличном виде задач используется для создания удобного реактивного интерфейса.
+- - [Axios](https://github.com/axios/axios)
+- - [Marked.js](https://marked.js.org)
+- - [DOMPurify](https://github.com/cure53/DOMPurify)
 
 
 ## Деплой
@@ -79,6 +84,8 @@ Django apps:
 - `core`
 
 Директории и файлы:
+- `vue-tasks-table-view` - приложение на Vue для варианта табличного вида списка задач
+- `static/vue/task-table-view` - сюда генерятся файлы при сборке приложения Vue командой `npm run build`.
 - `db.sqlite3` - файл БД.
 - `media/files` - файлы, загружаемые в качестве приложений к задачам и документам.
 - `media/images` - изображения профилей пользователей.

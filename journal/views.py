@@ -1,6 +1,5 @@
-import locale
-
 from django.utils import timezone
+from django.db.models.expressions import RawSQL
 from django.db.models.functions import TruncMonth
 from django.http import HttpRequest, HttpResponse
 from django.views.decorators.http import require_POST
@@ -9,11 +8,10 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Case, When, Value, OuterRef, Subquery, Count
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, TemplateView
-from django.db.models.expressions import RawSQL
 
-from django_project.spawn_redis import redis
 from users.models import CustomUser
 from core.models import Notification
+from django_project.spawn_redis import redis
 from .models import Task, Comment, Report, TaskCategory
 
 
@@ -87,8 +85,6 @@ class TaskListAnnotateMixin(ListView):
                 default=Value(True)
             )
         ).select_related("category")
-        # ).order_by("is_acquainted", "is_completed", "-completed", "-created") \
-        #     .select_related("category")
 
         context[self.context_object_name] = task_list
         return context
@@ -678,3 +674,7 @@ class TableTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, ListView):
         context["is_completed"] = is_completed
         context["is_private"] = is_private
         return context
+
+
+class TableTaskListVueView(LoginRequiredMixin, TemplateView):
+    template_name = "task_list_table_vue.html"

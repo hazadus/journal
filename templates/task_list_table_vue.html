@@ -1,0 +1,19 @@
+{% extends "base_dashboard.html" %}
+
+{% load static %}
+
+{% block title %}Задачи: табличный вид (Vue){% endblock title %}
+
+{% block content %}
+  {# Put CSRF token for Axios into template #}
+  <div id="csrf">
+    {% csrf_token %}
+  </div>
+{% endblock content %}
+
+{% block footer_scripts %}
+  {# Vue app will be mounted into #dashboard-page-content div of "base_dashboard.html" (see main.js) #}
+  <script type="text/javascript" src="{% static 'vue/tasks-table-view/js/chunk-vendors.js' %}"></script>
+  <script type="text/javascript" src="{% static 'vue/tasks-table-view/js/app.js' %}"></script>
+  <link href="{% static 'vue/tasks-table-view/css/app.css' %}" rel="stylesheet">
+{% endblock footer_scripts %}

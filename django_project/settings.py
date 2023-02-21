@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "notifications",
     "debug_toolbar",
     "django_bleach",
+    "rest_framework",
     # Local
     "core.apps.CoreConfig",
     "users.apps.UsersConfig",
@@ -207,3 +208,11 @@ CELERY_BROKER_URL = "redis://redis:6379"
 # These env vars must be set for worker service in docker-compose.yml
 TELEGRAM_BOT_TOKEN = env.str("TELEGRAM_BOT_TOKEN", None)
 TELEGRAM_ADMIN_ID = env.str("TELEGRAM_ADMIN_ID", None)
+
+# Django REST Framework
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        # Allow only authenticated users to get
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
