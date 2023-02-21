@@ -1,5 +1,7 @@
 from django.db.models.expressions import RawSQL
 from django.db.models import Q, Case, When, Value, OuterRef, Subquery, Count
+
+from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, RetrieveAPIView, ListAPIView
 
 from users.models import CustomUser
@@ -156,6 +158,50 @@ class TaskListAPI(TaskListAnnotateMixin, ListAPIView):
     """
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
+
+
+class TaskListStatsAPI(TaskListAnnotateMixin, ListAPIView):
+    """
+    Returns some tasks stats for currently logged  in user.
+    """
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+
+    def get(self, request, *args, **kwargs):
+        """
+        Generates task stats for currently logged in user, using annotation mixin.
+        By "new" we mean tasks logged in user is not acquainted with, or tasks which have comments logged in user
+        is not acquainted with.
+
+        total_new_tasks: total number of "new" tasks.
+        active_new_tasks: number of incomplete "new" tasks.
+        favorite_new_tasks: number of "new" tasks favorited by user.
+        completed_new_tasks: number of completed "new" tasks.
+        """
+        total_new_tasks = self.get_queryset().filter(
+            is_acquainted=False, is_archived=False
+        ).count()
+
+        active_new_tasks = self.get_queryset().filter(
+            is_acquainted=False, is_completed=False, is_archived=False
+        ).count()
+
+        # Favorite tasks are those with `is_favorite != None`, according to our annotation.
+        favorite_new_tasks = self.get_queryset().filter(
+            Q(is_acquainted=False) & ~Q(is_favorite=None) & Q(is_archived=False)
+        ).count()
+
+        completed_new_tasks = self.get_queryset().filter(
+            Q(is_acquainted=False) & Q(is_completed=True) & Q(is_archived=False)
+        ).count()
+
+        stats = {
+            "total_new_tasks": total_new_tasks,
+            "active_new_tasks": active_new_tasks,
+            "favorite_new_tasks": favorite_new_tasks,
+            "completed_new_tasks": completed_new_tasks,
+        }
+        return Response(stats)
 
 
 class TaskDetailAPI(TaskListAnnotateMixin, RetrieveAPIView):

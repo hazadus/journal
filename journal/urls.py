@@ -3,8 +3,8 @@ from django.urls import path
 from .views import (TaskListView, PrivateTaskListView, CompletedTaskListView, TaskDetailView, TaskCreateView,
                     TaskUpdateView, comment_add, comment_delete, comment_archive, comment_edit, comment_show,
                     comment_edit_save, task_acquaint, SearchView, task_search, FavoriteTaskListView,
-                    task_toggle_favorite, task_green_badge, ReportListView, TableTaskListView, TableTaskListVueView)
-from .api import TaskListAPI, TaskCategoryListAPI, TaskDetailAPI, CommentListAPI
+                    task_toggle_favorite, ReportListView, TableTaskListView, TableTaskListVueView)
+from .api import TaskListAPI, TaskListStatsAPI, TaskCategoryListAPI, TaskDetailAPI, CommentListAPI
 
 app_name = "journal"
 
@@ -29,8 +29,8 @@ urlpatterns = [
     path("tasks/search/", SearchView.as_view(), name="task_search"),
     path("reports/", ReportListView.as_view(), name="report_list"),
     path("tasks/htmx/search/", task_search, name="task_search_htmx"),
-    path("tasks/htmx/green_badge/<str:task_type>/", task_green_badge, name="task_green_badge_htmx"),
     # API views
+    path("tasks/api/v1/stats/", TaskListStatsAPI.as_view(), name="api_task_stats"),
     path("tasks/api/v1/task_list/", TaskListAPI.as_view(), name="api_task_list"),
     path("tasks/api/v1/task/<int:pk>/", TaskDetailAPI.as_view(), name="api_task_detail"),
     path("tasks/api/v1/category_list/", TaskCategoryListAPI.as_view(), name="api_task_category_list"),
