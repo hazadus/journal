@@ -41,6 +41,9 @@
 - - [HTMX 1.8.4](https://htmx.org)
 - - [Vue 3](https://vuejs.org) - используется в табличном виде задач используется для создания удобного реактивного интерфейса.
 - - [Axios](https://github.com/axios/axios)
+- - [Marked.js](https://marked.js.org)
+- - [DOMPurify](https://github.com/cure53/DOMPurify)
+
 
 ## Деплой
 

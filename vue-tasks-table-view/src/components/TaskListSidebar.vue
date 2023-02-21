@@ -59,7 +59,7 @@
               </div>
             </div>
             <div class="card-body task-card-body">
-              <span v-html="detailItem.body"></span>
+              <span v-html="markdownToHtml(detailItem.body)"></span>
               <p v-if="detailItem.attachment" class="mt-3">
                 <i class="fa-solid fa-paperclip"></i> Файл: <a :href="detailItem.attachment">
                   {{ detailItem.attachment }}</a>
@@ -110,7 +110,7 @@
                             </div>
                           </div>
                           <div class="card-body" :id="'comment-body-' + comment.id">
-                            {{ comment.body }}
+                            <span v-html="markdownToHtml(comment.body)"></span>
                           </div>
                         </div>
                       </div>
@@ -132,6 +132,9 @@ import {useFormatDateTime} from "@/utils";
 import {useAuthorAvatarURL} from "@/utils";
 import {useAuthorShortName} from "@/utils";
 import {viewOptions} from "@/stores/viewOptions";
+
+import {marked} from 'marked';
+import * as DOMPurify from 'dompurify';
 
 export default {
   name: "TaskListSidebar",
@@ -155,6 +158,10 @@ export default {
     useFormatDateTime,
     useAuthorAvatarURL,
     useAuthorShortName,
+    markdownToHtml(markedDownContent) {
+      // Sanitizes `markedDownContent` and converts markdown to HTML.
+      return DOMPurify.sanitize(marked(markedDownContent));
+    },
     fetchSelectedTask() {
         const url = `/journal/tasks/api/v1/task/${this.selectedItem.id}/`;
 
