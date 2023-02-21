@@ -8,21 +8,24 @@
         </div>
       </div>
 
+      <!-- Comments list -->
       <div class="task-list list-group list-group-flush">
         <a v-for="task in this.filteredTasks"
            :key="task.id" href="#"
            @click="this.selectedItem = task"
            class="task-list-item list-group-item list-group-item-action py-3 lh-sm"
-           :class="{ active: selectedItem && selectedItem.id === task.id }">
+           :class="{ 'active': isTaskListItemActive(task), 'bg-success-subtle': isTaskListItemBgSuccessClass(task), }">
           <div class="d-flex w-100 align-items-center justify-content-between">
-            <strong class="mb-1">
-              {{ task.title }}
-            </strong>
+            <span class="task-list-item-title"
+                  :class="task.is_acquainted ? '' : 'task-list-item-title-new'">
+              {{ sanitize(task.title) }}
+            </span>
             <i class="fa-regular fa-star" v-if="task.is_favorite"></i>
             <i class="fa-regular fa-lock" v-if="task.is_private"></i>
           </div>
-          <div class="col-10 mb-1 small">
-            {{ task.category_title }}
+          <div class="task-list-item-category mb-1 small text-muted"
+               v-if="viewOptions.showCategory">
+            <i class="fa-regular fa-tag"></i> {{ task.category_title }}
           </div>
         </a>
       </div>
@@ -40,11 +43,12 @@
       <template v-else>
         <template v-if="detailItem">
           <h3>
-            {{ detailItem.title }}
+            {{ sanitize(detailItem.title) }}
           </h3>
 
           <!-- Task Detail card -->
-          <div class="card mb-2">
+          <div class="card mb-2"
+               :class="detailItem.is_acquainted ? '' : 'card-new border-success'">
             <div class="card-header text-muted">
               <div class="d-flex flex-wrap flex-md-nowrap align-items-center">
                 <div class="flex-grow-1">
@@ -55,6 +59,9 @@
                       &middot; <i class="fa-solid fa-calendar-check"></i>
                       {{ useFormatDateTime(detailItem.completed) }}
                   </template>
+                  &middot; <a class="text-muted" :href="`/journal/task/${detailItem.id}/`" target="_blank">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                  </a>
                 </div>
               </div>
             </div>
@@ -62,17 +69,13 @@
               <span v-html="markdownToHtml(detailItem.body)"></span>
               <p v-if="detailItem.attachment" class="mt-3">
                 <i class="fa-solid fa-paperclip"></i> Файл: <a :href="detailItem.attachment">
-                  {{ detailItem.attachment }}</a>
+                  {{ decodeURI(detailItem.attachment) }}</a>
               </p>
             </div>
           </div>
 
-
+          <!-- Comments block -->
           <template v-if="comments">
-            <h4>
-              Комментарии
-            </h4>
-
             <!-- Timeline -->
             <div class="timeline">
               <!-- Left vertical line -->
@@ -99,10 +102,15 @@
                       <div class="d-flex">
                         <!-- Comment author's avatar -->
                         <div class="timeline__desc_avatar__avatar mt-3 me-2">
-                          <img :src="useAuthorAvatarURL(comment)" width="48" height="48" class="rounded-circle" alt="User picture">
+                          <img class="rounded-circle"
+                               :src="useAuthorAvatarURL(comment)"
+                               :alt="'Фото ' + useAuthorShortName(comment)"
+                               width="48"
+                               height="48">
                         </div>
                         <!-- Comment card -->
-                        <div class="card flex-grow-1">
+                        <div class="card flex-grow-1"
+                             :class="comment.is_acquainted ? 'bubble' : 'card-new border-success bubble-new'">
                           <div class="card-header d-flex text-muted">
                             <!-- Comment info -->
                             <div class="flex-grow-1">
@@ -128,13 +136,15 @@
 
 <script>
 import OptionsPanel from "@/components/OptionsPanel.vue";
-import {useFormatDateTime} from "@/utils";
-import {useAuthorAvatarURL} from "@/utils";
-import {useAuthorShortName} from "@/utils";
 import {viewOptions} from "@/stores/viewOptions";
+import {useFormatDateTime, useAuthorAvatarURL, useAuthorShortName} from "@/utils";
 
 import {marked} from 'marked';
 import * as DOMPurify from 'dompurify';
+
+marked.setOptions({
+  breaks: true,
+});
 
 export default {
   name: "TaskListSidebar",
@@ -158,9 +168,25 @@ export default {
     useFormatDateTime,
     useAuthorAvatarURL,
     useAuthorShortName,
+    isTaskListItemActive(task) {
+      return this.selectedItem && this.selectedItem.id === task.id;
+    },
+    isTaskListItemBgSuccessClass(task) {
+      // Returns true if task list item should have `bg-success-subtle` class -
+      // when task.is_acquainted is false, and task is not selected by user.
+      if (this.isTaskListItemActive(task)) {
+        return false;
+      } else {
+        return !task.is_acquainted ? true : false;
+      }
+    },
     markdownToHtml(markedDownContent) {
       // Sanitizes `markedDownContent` and converts markdown to HTML.
       return DOMPurify.sanitize(marked(markedDownContent));
+    },
+    sanitize(content) {
+      // Returns sanitized `content`.
+      return DOMPurify.sanitize(content);
     },
     fetchSelectedTask() {
         const url = `/journal/tasks/api/v1/task/${this.selectedItem.id}/`;
@@ -241,6 +267,20 @@ export default {
 
 .task-list-item {
   font-family: var(--font-family-condensed);
+}
+
+.task-list-item-title {
+  margin-bottom: 10px;
+}
+
+.task-list-item-title-new {
+  font-weight: 600;
+}
+
+.task-list-item-category {
+  font-size: 12px;
+  overflow-x: hidden;
+  white-space: nowrap;
 }
 
 .task-detail {
