@@ -6,3 +6,19 @@ export function useFormatDateTime(dateIsoFormatString) {
     minute: "2-digit"
   });
 }
+
+export function useAuthorAvatarURL(entity) {
+  // Returns URL of `entity` author. Entity must be either a comment or a task.
+  // If there's no URL, a link to default profile pic will be returned.
+  if (entity.author_avatar_url) {
+    return '/media/' + entity.author_avatar_url;
+  } else {
+    return '/static/images/default_profile_pic.png';
+  }
+}
+
+export function useAuthorShortName(entity) {
+  // Returns author's name in "Иванов И.И." format
+  // `entity` must be either a comment or a task.
+  return `${entity.author_last_name} ${entity.author_first_name.slice(0, 1)}.${entity.author_second_name.slice(0, 1)}.`;
+}

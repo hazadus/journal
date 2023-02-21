@@ -28,43 +28,100 @@
       </div>
     </div>
 
-    <div class="alert alert-secondary" v-if="viewOptions.showOptions">
+    <div class="alert alert-secondary flex-grow-1 m-1" v-if="viewOptions.showOptions">
       <OptionsPanel
           :categories="categories"
       />
     </div>
     <div class="task-detail" v-else>
-      <template v-if="selectedItem">
+      <span v-if="!selectedItem">
+        Выберите задачу слева
+      </span>
+      <template v-else>
         <template v-if="detailItem">
           <h3>
             {{ detailItem.title }}
           </h3>
-          <div class="m-2">
-            <p>
-              Автор: {{ detailItem.author_last_name }} {{ detailItem.author_first_name }} {{ detailItem.author_second_name }},
-              {{ useFormatDateTime(detailItem.created) }}
-            </p>
-            <span v-html="detailItem.body"></span>
+
+          <!-- Task Detail card -->
+          <div class="card mb-2">
+            <div class="card-header text-muted">
+              <div class="d-flex flex-wrap flex-md-nowrap align-items-center">
+                <div class="flex-grow-1">
+                  <i v-if="detailItem.is_private" class="fa-solid fa-lock me-1"></i>
+                  <i class="fa-regular fa-calendar"></i> {{ useFormatDateTime(detailItem.created) }}
+                  &middot; <i class="fa-solid fa-user"></i> {{ useAuthorShortName(detailItem) }}
+                  <template v-if="detailItem.is_completed">
+                      &middot; <i class="fa-solid fa-calendar-check"></i>
+                      {{ useFormatDateTime(detailItem.completed) }}
+                  </template>
+                </div>
+              </div>
+            </div>
+            <div class="card-body task-card-body">
+              <span v-html="detailItem.body"></span>
+              <p v-if="detailItem.attachment" class="mt-3">
+                <i class="fa-solid fa-paperclip"></i> Файл: <a :href="detailItem.attachment">
+                  {{ detailItem.attachment }}</a>
+              </p>
+            </div>
           </div>
 
-          <h4>
-            Комментарии
-          </h4>
+
           <template v-if="comments">
-            <ul>
-              <li v-for="comment in comments" :key="comment.id">
-                {{ comment.author_last_name }} {{ comment.author_first_name }} {{ comment.author_second_name }}
-                &middot; {{ useFormatDateTime(comment.created) }}<br>
-                {{ comment.body }}
-              </li>
-            </ul>
+            <h4>
+              Комментарии
+            </h4>
+
+            <!-- Timeline -->
+            <div class="timeline">
+              <!-- Left vertical line -->
+              <div class="timeline__line"></div>
+
+              <!-- The timeline items timeline -->
+              <div class="timeline__items">
+                  <!-- Each timeline item -->
+                  <div v-for="comment in comments" :key="comment.id" class="timeline__item mb-3">
+                    <!-- The circle and title -->
+                    <div class="timeline__top mb-2">
+                      <!-- The circle -->
+                      <div class="timeline__circle text-center">
+                        <i class="fa-solid fa-comment"></i>
+                      </div>
+
+                      <!-- The title -->
+                      <div class="timeline__title" :id="'comment-' + comment.id">
+                        Добавлен комментарий:
+                      </div>
+                    </div>
+                    <!-- The description which has round userpic -->
+                    <div class="timeline__desc_avatar">
+                      <div class="d-flex">
+                        <!-- Comment author's avatar -->
+                        <div class="timeline__desc_avatar__avatar mt-3 me-2">
+                          <img :src="useAuthorAvatarURL(comment)" width="48" height="48" class="rounded-circle" alt="User picture">
+                        </div>
+                        <!-- Comment card -->
+                        <div class="card flex-grow-1">
+                          <div class="card-header d-flex text-muted">
+                            <!-- Comment info -->
+                            <div class="flex-grow-1">
+                              <i class="fa-solid fa-user"></i> {{ useAuthorShortName(comment) }}, {{ useFormatDateTime(comment.created) }}
+                            </div>
+                          </div>
+                          <div class="card-body" :id="'comment-body-' + comment.id">
+                            {{ comment.body }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+            </div>
           </template>
 
         </template>
       </template>
-      <span v-else>
-        Выберите задачу слева
-      </span>
     </div>
   </div>
 </template>
@@ -72,6 +129,8 @@
 <script>
 import OptionsPanel from "@/components/OptionsPanel.vue";
 import {useFormatDateTime} from "@/utils";
+import {useAuthorAvatarURL} from "@/utils";
+import {useAuthorShortName} from "@/utils";
 import {viewOptions} from "@/stores/viewOptions";
 
 export default {
@@ -94,6 +153,8 @@ export default {
   },
   methods: {
     useFormatDateTime,
+    useAuthorAvatarURL,
+    useAuthorShortName,
     fetchSelectedTask() {
         const url = `/journal/tasks/api/v1/task/${this.selectedItem.id}/`;
 
@@ -136,7 +197,15 @@ export default {
         this.fetchSelectedTaskComments();
       }
     },
-  }
+  },
+  mounted() {
+    // `Select` first item of the list on page load.
+    if (!this.selectedItem) {
+      if (this.tasks.length) {
+        this.selectedItem = this.tasks[0];
+      }
+    }
+  },
 }
 </script>
 
