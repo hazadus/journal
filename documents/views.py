@@ -62,16 +62,3 @@ def document_acquaint(request: HttpRequest, pk: int) -> HttpResponse:
     return render(request, "snippets/document_detail_item.html", {
         "document": document,
     })
-
-
-@login_required
-def documents_green_badge(request: HttpRequest) -> HttpResponse:
-    """
-    Returns green badges for sidebar with "new" ("green") documents counter.
-    HTMX view, badge polls this view and updates itself.
-    """
-    count = Document.get_green_active_documents(request.user).count()
-
-    return render(request, "snippets/document_green_badge.html", {
-        "count": count,
-    })

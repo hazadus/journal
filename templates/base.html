@@ -22,19 +22,48 @@
   <script src="{% static 'bootstrap-5.3.0-alpha1-dist/js/bootstrap.bundle.min.js' %}"></script>
   <script src="{% static 'js/htmx-1.8.4.min.js' %}"></script>
   <script>
-    function placeholderButton() {
-      alert('Пока ещё эта кнопка не работает!')
+    let badgeActiveNewTaskCount = document.getElementById('badge-active-new-task-count');
+    let badgeFavoriteNewTaskCount = document.getElementById('badge-favorite-new-task-count');
+    let badgeCompletedNewTaskCount = document.getElementById('badge-completed-new-task-count');
+
+    function updateNewTaskCountBadges() {
+      // Fetches count of "new" tasks for logged in user from DRF API and updates the badges
+      let url = '{% url "journal:api_task_stats" %}';
+      let options = {
+        method: 'GET',
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        mode: 'same-origin',
+      }
+
+      fetch(url, options).then(response => response.json()).then(stats => {
+        badgeActiveNewTaskCount.innerHTML = stats.active_new_tasks;
+        badgeActiveNewTaskCount.style.visibility = stats.active_new_tasks === 0 ? 'hidden' : 'visible';
+
+        badgeFavoriteNewTaskCount.innerHTML = stats.favorite_new_tasks;
+        badgeFavoriteNewTaskCount.style.visibility = stats.favorite_new_tasks === 0 ? 'hidden' : 'visible';
+
+        badgeCompletedNewTaskCount.innerHTML = stats.completed_new_tasks;
+        badgeCompletedNewTaskCount.style.visibility = stats.completed_new_tasks === 0 ? 'hidden' : 'visible';
+      });
     }
 
     document.addEventListener('DOMContentLoaded', () => {
       // Init HTMX
       document.body.addEventListener('htmx:configRequest', (event) => {
         event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
-      })
+      });
+
+      // Initial update of badges
+      updateNewTaskCountBadges();
+
+      // Create timer to update badges every 12 seconds
+      setInterval(() => {
+        updateNewTaskCountBadges();
+      }, 12000);
 
       // Init Bootstrap tooltips
-      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
 
       {% block domready %}
       {% endblock domready %}
