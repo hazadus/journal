@@ -12,9 +12,35 @@ export default {
   props: {
     task: Object,
   },
+  emits: ['toggled'],
+  data() {
+    return {
+      isFetching: false,
+    }
+  },
   methods: {
     onClick(task) {
-      alert(task.title);
+      const url = `/journal/tasks/api/v1/task/${task.id}/favorite/`;
+
+      if (!this.isFetching) {
+        this.isFetching = true;
+
+        return window.axios
+          .get(url, {
+            params: {},
+          })
+          .then((response) => {
+            this.$emit('toggled', response.data);
+            return response.data;
+          })
+          .catch(function (error) {
+            console.error("Axios.get error:", error);
+            throw error;
+          })
+          .finally(() => {
+            this.isFetching = false;
+          });
+      }
     },
   }
 }

@@ -2,9 +2,11 @@ from django.db.models.expressions import RawSQL
 from django.db.models import Q, Case, When, Value, OuterRef, Subquery, Count
 
 from rest_framework.response import Response
-from rest_framework.generics import GenericAPIView, RetrieveAPIView, ListAPIView
+from rest_framework.decorators import api_view
+from rest_framework.generics import GenericAPIView, RetrieveAPIView, ListAPIView, get_object_or_404
 
 from users.models import CustomUser
+from core.models import Notification
 from .models import Task, Comment, TaskCategory
 from .serializers import TaskSerializer, TaskDetailSerializer, TaskCategorySerializer, CommentSerializer
 
@@ -210,6 +212,36 @@ class TaskDetailAPI(TaskListAnnotateMixin, RetrieveAPIView):
     """
     queryset = Task.objects.all()
     serializer_class = TaskDetailSerializer
+
+
+@api_view(http_method_names=['GET'])
+def task_toggle_favorite_api(request, pk: int) -> Response:
+    """
+    Toggle "favorite" status for a task for current user.
+    """
+    user = request.user
+    task = get_object_or_404(Task, pk=pk)
+
+    # Add or remove from logged in user's favorites
+    if user not in task.users_favorited.all():
+        task.users_favorited.add(user)
+        is_favorite = True
+
+        Notification.send(sender=user,
+                          actor=user,
+                          recipient=CustomUser.objects.filter(is_superuser=True),
+                          verb_code=Notification.VERB_CODES.favorites_add,
+                          target=task)
+    else:
+        task.users_favorited.remove(user)
+        is_favorite = False
+
+    response = {
+        "id": task.pk,
+        "username": user.username,
+        "is_favorite": is_favorite,
+    }
+    return Response(response)
 
 
 class CommentListAPI(ListAPIView):

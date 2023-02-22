@@ -38,7 +38,14 @@
         <template v-for="task in filteredTasks" :key="task.id">
           <tr :class="task.is_acquainted ? '' : 'table-success'">
             <td>
-              <TaskFavoriteButton :task="task" />
+              <TaskFavoriteButton
+                  :task="task"
+                  @toggled="(response) => {
+                    task.is_favorite = response.is_favorite;
+                    // Require refetch to update ordering
+                    this.$emit('favoriteToggled');
+                  }"
+              />
             </td>
             <td class="text-muted">
               <i class="fa-regular fa-lock" v-if="task.is_private"></i>
@@ -96,6 +103,7 @@ export default {
     filteredTasks: Array,
     categories: Array,
   },
+  emits: ['favoriteToggled'],
   data() {
     return {
       viewOptions,

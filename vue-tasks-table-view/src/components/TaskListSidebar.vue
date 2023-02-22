@@ -23,7 +23,17 @@
               </span>
               {{ sanitize(task.title) }}
             </span>
-            <TaskFavoriteButton :task="task" />
+            <TaskFavoriteButton
+                :task="task"
+                @toggled="(response) => {
+                  task.is_favorite = response.is_favorite;
+                  if (detailItem && detailItem.id === task.id) {
+                    detailItem.is_favorite = response.is_favorite;
+                  }
+                  // Require refetch to update ordering
+                  this.$emit('favoriteToggled');
+                }"
+            />
             <span class="text-muted" v-if="task.is_private">
               <i class="fa-regular fa-lock"></i>
             </span>
@@ -63,7 +73,13 @@
                 <div class="flex-grow-1">
                   <TaskFavoriteButton
                       :task="detailItem"
-                      style="margin: 0 5px 0 0;"/>
+                      @toggled="(response) => {
+                        detailItem.is_favorite = response.is_favorite;
+                        // Require refetch to update ordering
+                        this.$emit('favoriteToggled');
+                      }"
+                      style="margin: 0 5px 0 0;"
+                  />
                   <i v-if="detailItem.is_private" class="fa-solid fa-lock me-1"></i>
                   <i class="fa-regular fa-calendar"></i> {{ useFormatDateTime(detailItem.created) }}
                   &middot; <i class="fa-solid fa-user"></i> {{ useAuthorShortName(detailItem) }}
@@ -175,6 +191,7 @@ export default {
     filteredTasks: Array,
     categories: Array,
   },
+  emits: ['favoriteToggled'],
   data () {
     return {
       viewOptions,
