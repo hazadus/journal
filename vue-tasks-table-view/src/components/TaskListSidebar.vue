@@ -28,9 +28,13 @@
               <i class="fa-regular fa-lock"></i>
             </span>
           </div>
-          <div class="task-list-item-category mb-1 small"
-               v-if="viewOptions.showCategory">
-            <i class="fa-regular fa-tag"></i> {{ task.category_title }}
+          <div class="task-list-item-info mb-1 small">
+            <span v-if="viewOptions.showCommentsCount" class="task-list-item-info-comment-count">
+              <i class="fa-solid fa-comments"></i> {{ task.comments_count }}<template v-if="task.new_comments_count"> &middot; {{ task.new_comments_count }}</template>
+            </span>
+            <template v-if="viewOptions.showCategory">
+              <i class="fa-regular fa-tag"></i> {{ task.category_title }}
+            </template>
           </div>
         </a>
       </div>
@@ -187,7 +191,7 @@ export default {
       if (this.isTaskListItemActive(task)) {
         return false;
       } else {
-        return !task.is_acquainted ? true : false;
+        return !task.is_acquainted;
       }
     },
     markdownToHtml(markedDownContent) {
@@ -283,15 +287,19 @@ export default {
   font-weight: 600;
 }
 
-.task-list-item-category {
+.task-list-item-info {
   font-size: 14px;
   color: var(--bs-light-text);
   overflow-x: hidden;
   white-space: nowrap;
 }
 
-.active .task-list-item-category {
+.active .task-list-item-info {
   color: white;
+}
+
+.task-list-item-info-comment-count {
+  margin: 0 5px 0 0;
 }
 
 @media (max-width: 1400px) {
@@ -303,7 +311,7 @@ export default {
     font-size: 14px;
   }
 
-  .task-list-item-category {
+  .task-list-item-info {
     font-size: 12px;
   }
 }

@@ -54,10 +54,10 @@ export default {
         { name: "Новое", id: 1, sortField: "is_acquainted", ascending: true },
         { name: "Избранное", id: 2, sortField: "is_favorite", ascending: false },
         { name: "В работе", id: 3, sortField: "is_completed", ascending: true },
-        { name: "Дата завершения", id: 4, sortField: "completed", ascending: false },
+        { name: "Завершено", id: 4, sortField: "completed", ascending: false },
       ],
       fieldsAvailable: [
-        { name: "Дата создания", id: 5, sortField: "created", ascending: true },
+        { name: "Создано", id: 5, sortField: "created", ascending: true },
         { name: "Личное", id: 6, sortField: "is_private", ascending: true },
       ]
     };
