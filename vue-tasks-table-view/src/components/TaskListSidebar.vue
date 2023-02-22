@@ -161,6 +161,12 @@
             <i class="fa-solid fa-file-circle-check"></i> Задача завершена.
           </div>
 
+          <!-- "Add new comment" block-->
+          <NewCommentEditor
+              v-if="!detailItem.is_completed"
+              :task="detailItem"
+          />
+
         </template>
       </template>
     </div>
@@ -170,6 +176,7 @@
 <script>
 import OptionsPanel from "@/components/OptionsPanel.vue";
 import TaskFavoriteButton from "@/components/TaskFavoriteButton.vue";
+import NewCommentEditor from "@/components/NewCommentEditor.vue";
 import {viewOptions} from "@/stores/viewOptions";
 import {useFormatDateTime, useAuthorAvatarURL, useAuthorShortName} from "@/utils";
 
@@ -185,6 +192,7 @@ export default {
   components: {
     OptionsPanel,
     TaskFavoriteButton,
+    NewCommentEditor,
   },
   props: {
     tasks: Array,
