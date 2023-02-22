@@ -23,14 +23,28 @@
               </span>
               {{ sanitize(task.title) }}
             </span>
-            <i class="fa-regular fa-star" v-if="task.is_favorite"></i>
+            <TaskFavoriteButton
+                :task="task"
+                @toggled="(response) => {
+                  task.is_favorite = response.is_favorite;
+                  if (detailItem && detailItem.id === task.id) {
+                    detailItem.is_favorite = response.is_favorite;
+                  }
+                  // Require refetch to update ordering
+                  this.$emit('favoriteToggled');
+                }"
+            />
             <span class="text-muted" v-if="task.is_private">
               <i class="fa-regular fa-lock"></i>
             </span>
           </div>
-          <div class="task-list-item-category mb-1 small"
-               v-if="viewOptions.showCategory">
-            <i class="fa-regular fa-tag"></i> {{ task.category_title }}
+          <div class="task-list-item-info mb-1 small">
+            <span v-if="viewOptions.showCommentsCount" class="task-list-item-info-comment-count">
+              <i class="fa-solid fa-comments"></i> {{ task.comments_count }}<template v-if="task.new_comments_count"> &middot; {{ task.new_comments_count }}</template>
+            </span>
+            <template v-if="viewOptions.showCategory">
+              <i class="fa-regular fa-tag"></i> {{ task.category_title }}
+            </template>
           </div>
         </a>
       </div>
@@ -57,6 +71,15 @@
             <div class="card-header text-muted">
               <div class="d-flex flex-wrap flex-md-nowrap align-items-center">
                 <div class="flex-grow-1">
+                  <TaskFavoriteButton
+                      :task="detailItem"
+                      @toggled="(response) => {
+                        detailItem.is_favorite = response.is_favorite;
+                        // Require refetch to update ordering
+                        this.$emit('favoriteToggled');
+                      }"
+                      style="margin: 0 5px 0 0;"
+                  />
                   <i v-if="detailItem.is_private" class="fa-solid fa-lock me-1"></i>
                   <i class="fa-regular fa-calendar"></i> {{ useFormatDateTime(detailItem.created) }}
                   &middot; <i class="fa-solid fa-user"></i> {{ useAuthorShortName(detailItem) }}
@@ -146,6 +169,7 @@
 
 <script>
 import OptionsPanel from "@/components/OptionsPanel.vue";
+import TaskFavoriteButton from "@/components/TaskFavoriteButton.vue";
 import {viewOptions} from "@/stores/viewOptions";
 import {useFormatDateTime, useAuthorAvatarURL, useAuthorShortName} from "@/utils";
 
@@ -159,13 +183,15 @@ marked.setOptions({
 export default {
   name: "TaskListSidebar",
   components: {
-    OptionsPanel
+    OptionsPanel,
+    TaskFavoriteButton,
   },
   props: {
     tasks: Array,
     filteredTasks: Array,
     categories: Array,
   },
+  emits: ['favoriteToggled'],
   data () {
     return {
       viewOptions,
@@ -187,7 +213,7 @@ export default {
       if (this.isTaskListItemActive(task)) {
         return false;
       } else {
-        return !task.is_acquainted ? true : false;
+        return !task.is_acquainted;
       }
     },
     markdownToHtml(markedDownContent) {
@@ -283,15 +309,19 @@ export default {
   font-weight: 600;
 }
 
-.task-list-item-category {
+.task-list-item-info {
   font-size: 14px;
   color: var(--bs-light-text);
   overflow-x: hidden;
   white-space: nowrap;
 }
 
-.active .task-list-item-category {
+.active .task-list-item-info {
   color: white;
+}
+
+.task-list-item-info-comment-count {
+  margin: 0 5px 0 0;
 }
 
 @media (max-width: 1400px) {
@@ -303,7 +333,7 @@ export default {
     font-size: 14px;
   }
 
-  .task-list-item-category {
+  .task-list-item-info {
     font-size: 12px;
   }
 }

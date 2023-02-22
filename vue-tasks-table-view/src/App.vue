@@ -40,12 +40,14 @@
         :tasks="tasksAll"
         :filtered-tasks="filteredTasks"
         :categories="categoriesAll"
+        @favorite-toggled="fetchAllTasks"
     />
     <TaskListSidebar
         v-else
         :tasks="tasksAll"
         :filtered-tasks="filteredTasks"
         :categories="categoriesAll"
+        @favorite-toggled="fetchAllTasks"
     />
   </template>
 </template>
