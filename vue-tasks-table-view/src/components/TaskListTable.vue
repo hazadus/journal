@@ -37,8 +37,8 @@
       <tbody>
         <template v-for="task in filteredTasks" :key="task.id">
           <tr :class="task.is_acquainted ? '' : 'table-success'">
-            <td class="cell-favorite">
-              <i class="fa-regular fa-star" v-if="task.is_favorite"></i>
+            <td>
+              <TaskFavoriteButton :task="task" />
             </td>
             <td class="text-muted">
               <i class="fa-regular fa-lock" v-if="task.is_private"></i>
@@ -81,13 +81,15 @@
 
 <script>
 import OptionsPanel from "@/components/OptionsPanel.vue";
+import TaskFavoriteButton from "@/components/TaskFavoriteButton.vue";
 import {useFormatDateTime} from "@/utils";
 import {viewOptions} from "@/stores/viewOptions";
 
 export default {
   name: "TaskListTable",
   components: {
-    OptionsPanel
+    OptionsPanel,
+    TaskFavoriteButton,
   },
   props: {
     tasks: Array,
@@ -113,10 +115,6 @@ export default {
 .table-tasks {
   font-family: var(--font-family-condensed);
   font-weight: 300;
-}
-
-.cell-favorite {
-  color: var(--bs-warning);
 }
 
 .task-completed-mark {

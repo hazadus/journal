@@ -23,7 +23,7 @@
               </span>
               {{ sanitize(task.title) }}
             </span>
-            <i class="fa-regular fa-star" v-if="task.is_favorite"></i>
+            <TaskFavoriteButton :task="task" />
             <span class="text-muted" v-if="task.is_private">
               <i class="fa-regular fa-lock"></i>
             </span>
@@ -61,6 +61,9 @@
             <div class="card-header text-muted">
               <div class="d-flex flex-wrap flex-md-nowrap align-items-center">
                 <div class="flex-grow-1">
+                  <TaskFavoriteButton
+                      :task="detailItem"
+                      style="margin: 0 5px 0 0;"/>
                   <i v-if="detailItem.is_private" class="fa-solid fa-lock me-1"></i>
                   <i class="fa-regular fa-calendar"></i> {{ useFormatDateTime(detailItem.created) }}
                   &middot; <i class="fa-solid fa-user"></i> {{ useAuthorShortName(detailItem) }}
@@ -150,6 +153,7 @@
 
 <script>
 import OptionsPanel from "@/components/OptionsPanel.vue";
+import TaskFavoriteButton from "@/components/TaskFavoriteButton.vue";
 import {viewOptions} from "@/stores/viewOptions";
 import {useFormatDateTime, useAuthorAvatarURL, useAuthorShortName} from "@/utils";
 
@@ -163,7 +167,8 @@ marked.setOptions({
 export default {
   name: "TaskListSidebar",
   components: {
-    OptionsPanel
+    OptionsPanel,
+    TaskFavoriteButton,
   },
   props: {
     tasks: Array,
