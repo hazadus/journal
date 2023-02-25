@@ -8,7 +8,8 @@
         </div>
         <div class="flex-grow-1">
           <textarea class="form-control"
-                    name="comment_text" rows="3"
+                    v-model="newCommentText"
+                    rows="3"
           ></textarea>
         </div>
       </div>
@@ -33,6 +34,12 @@
       </div>
     </div>
   </form>
+
+  <div>
+    <h5>Предварительный просмотр</h5>
+    <span v-html="markdownToHtml">
+    </span>
+  </div>
 </template>
 
 <script>
@@ -40,7 +47,17 @@ export default {
   name: "NewCommentEditor",
   props: {
     task: Object,
-  }
+  },
+  data() {
+    return {
+      newCommentText: "",
+    }
+  },
+  computed: {
+    markdownToHtml() {
+      return this.markdown(this.newCommentText);
+    },
+  },
 }
 </script>
 

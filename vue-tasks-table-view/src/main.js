@@ -1,5 +1,5 @@
-import { createApp } from 'vue'
-import App from './App.vue'
+import { createApp } from 'vue';
+import App from './App.vue';
 
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
@@ -19,9 +19,33 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 let token = document.getElementsByName("csrfmiddlewaretoken");
 
 if (token) {
-    window.axios.defaults.headers.common['X-CSRFToken'] = token[0].value;
+  window.axios.defaults.headers.common['X-CSRFToken'] = token[0].value;
 } else {
-    console.error('CSRF token not found: https://docs.djangoproject.com/en/3.0/ref/csrf/#ajax');
+  console.error('CSRF token not found: https://docs.djangoproject.com/en/3.0/ref/csrf/#ajax');
 }
 
-createApp(App).mount('#dashboard-page-content')
+// Add markdown as global
+import {marked} from 'marked';
+import * as DOMPurify from 'dompurify';
+
+marked.setOptions({
+  breaks: true,
+});
+
+// Can be accessed anywhere in the components as `this.markdown`, `this.sanitizeHtml`.
+const markedMixin = {
+  methods: {
+    markdown: function (input) {
+      // Return marked down & sanitized input as raw HTML
+      return DOMPurify.sanitize(marked(input));
+    },
+    sanitizeHtml: function (input) {
+      // Return sanitized input
+      return DOMPurify.sanitize(input);
+    },
+  },
+};
+
+const app = createApp(App);
+app.mixin(markedMixin);
+app.mount('#dashboard-page-content');

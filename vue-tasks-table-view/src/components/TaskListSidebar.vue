@@ -180,13 +180,6 @@ import NewCommentEditor from "@/components/NewCommentEditor.vue";
 import {viewOptions} from "@/stores/viewOptions";
 import {useFormatDateTime, useAuthorAvatarURL, useAuthorShortName} from "@/utils";
 
-import {marked} from 'marked';
-import * as DOMPurify from 'dompurify';
-
-marked.setOptions({
-  breaks: true,
-});
-
 export default {
   name: "TaskListSidebar",
   components: {
@@ -226,11 +219,11 @@ export default {
     },
     markdownToHtml(markedDownContent) {
       // Sanitizes `markedDownContent` and converts markdown to HTML.
-      return DOMPurify.sanitize(marked(markedDownContent));
+      return this.markdown(markedDownContent);
     },
     sanitize(content) {
       // Returns sanitized `content`.
-      return DOMPurify.sanitize(content);
+      return this.sanitizeHtml(content);
     },
     fetchSelectedTask() {
         const url = `/journal/tasks/api/v1/task/${this.selectedItem.id}/`;
