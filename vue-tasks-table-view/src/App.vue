@@ -186,7 +186,6 @@ export default {
   },
   created() {
     this.fetchAllCategories();
-    this.fetchAllTasks();
     this.pollData();
   },
   beforeUnmount() {
@@ -203,6 +202,9 @@ export default {
     if (storedTaskFilters) {
       taskFilters.set(storedTaskFilters);
     }
+
+    // We need `fetchOptions.orderByFields` loaded before fetching tasks, so first call is here:
+    this.fetchAllTasks();
   },
 }
 </script>

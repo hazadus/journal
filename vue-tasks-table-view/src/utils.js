@@ -22,3 +22,8 @@ export function useAuthorShortName(entity) {
   // `entity` must be either a comment or a task.
   return `${entity.author_last_name} ${entity.author_first_name.slice(0, 1)}.${entity.author_second_name.slice(0, 1)}.`;
 }
+
+export function useLinesCount(text) {
+  // Returns number of lines in `text`
+  return text.split(/\r\n|\r|\n/).length;
+}
