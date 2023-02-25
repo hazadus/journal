@@ -7,6 +7,7 @@ import notifications.urls
 
 urlpatterns = [
     path("", include("core.urls")),
+    path("users/", include("users.urls")),
     path("journal/", include("journal.urls")),
     path("documents/", include("documents.urls")),
     path("adminpanel/", admin.site.urls),
