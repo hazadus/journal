@@ -6,13 +6,17 @@ REMOTE_IP = 0.0.0.0
 REMOTE_DIR = /home/projects/journal/
 
 backup:
-	 rsync -arv --exclude=.venv --exclude=.git --exclude=__pycache__ --exclude=staticfiles $(REMOTE_USER)@$(REMOTE_IP):$(REMOTE_DIR) $(FULL_PATH)
-run:
-	python -m manage runserver
+	rsync -arv --exclude=.venv --exclude=.git --exclude=__pycache__ --exclude=staticfiles $(REMOTE_USER)@$(REMOTE_IP):$(REMOTE_DIR) $(FULL_PATH)
 up:
-	sudo docker compose up -d
+	docker compose up -d
+	docker exec journal-web coverage run --source='.' -m manage test
+	docker exec journal-web coverage html
+	docker compose logs --follow
+test:
+	docker exec journal-web coverage run --source='.' -m manage test
+	docker exec journal-web coverage html
 down:
-	sudo docker compose down
+	docker compose down
 static:
 	sudo rm -rf ./collectstatic
 	python -m manage collectstatic
