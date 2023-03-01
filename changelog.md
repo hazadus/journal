@@ -1,3 +1,6 @@
+29.02.2023, Ср
+    - 08:20 - Добавлены настройки `.coveragerc`. Test coverage: 76% total.
+
 28.02.2023, Вт
     - 14:46 - Добавлена `coverage.py`, запускается командой `make up` перед запуском проекта.
     - 16:49 - Test coverage: 73% total, `documents/views.py`: 97% -> 100%.

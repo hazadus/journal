@@ -99,6 +99,7 @@ Django apps:
 - `data/redis` - данные БД Redis.
 - `docker/nginx/default.conf` - конфигурационный файл Nginx.
 - `docker/nginx/logs/` - логи Nginx.
+- `.coveragerc` - настройки `coverage.py`
 - `htmlcov/` - отчеты `coverage.py` (генерируются при запуске `make up`, `make test`).
 
 ## Запуск тестов
