@@ -1,0 +1,11 @@
+[tool.interrogate]
+ignore-init-module = true
+ignore-module = true
+exclude = [
+    "manage.py",
+    "core/migrations", "core/apps.py",
+    "documents/migrations", "documents/admin.py", "documents/apps.py",
+    "journal/migrations", "journal/admin.py", "journal/apps.py",
+    "users/migrations", "users/admin.py", "users/apps.py",
+]
+ignore-regex = ["Meta", "__str__", "setUpTestData"]

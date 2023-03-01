@@ -1,5 +1,7 @@
 29.02.2023, Ср
     - 08:20 - Добавлены настройки `.coveragerc`. Test coverage: 76% total.
+    - 22:50 - В проект добавлен инструмент `interrogation` с настройками в `pyproject.toml`.
+            Docstrings coverage - 42.5%.
 
 28.02.2023, Вт
     - 14:46 - Добавлена `coverage.py`, запускается командой `make up` перед запуском проекта.
