@@ -9,7 +9,7 @@ register = template.Library()
 @register.filter()
 @stringfilter
 def markdown(value):
-    return md.markdown(value, extensions=["markdown.extensions.nl2br"])
+    return md.markdown(value, extensions=["markdown.extensions.nl2br", "tables"])
 
 
 @register.filter

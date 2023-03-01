@@ -1,3 +1,20 @@
+29.02.2023, Ср
+    - 08:20 - Добавлены настройки `.coveragerc`. Test coverage: 76% total.
+
+28.02.2023, Вт
+    - 14:46 - Добавлена `coverage.py`, запускается командой `make up` перед запуском проекта.
+    - 16:49 - Test coverage: 73% total, `documents/views.py`: 97% -> 100%.
+    - 20:00 - Test coverage: 73% total, `core/templatetags/core_filters.py`: 97% -> 100%.
+    - 23:10 - Test coverage: 74% total, `users/models.py`: 92% -> 100%
+    - 23:25 - Test coverage: 75% total, `users/signals.py`: 90% -> 100%
+
+27.02.2023, Пн
+    - 14:00 - Прописаны стили `@media print`, лишнее убрано с печати.
+            Ограничена `max-width: 100%;` для изображений внутри "документов", задач, комментариев.
+            Выравнен размер шрифтов в `<p>`, `<ol>`, `<ul>` в задачах, комментариях, документах.
+            Включена поддержка таблиц в фильтре `markdown()` (`core_filters.py`) и соответствующие теги добавлены в
+            исключения Bleach.
+
 25.02.2023, Сб
     - 13:00 - `marked`, `DOMPurify` вынесены в mixin к App.
 

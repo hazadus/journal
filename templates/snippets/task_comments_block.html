@@ -105,7 +105,7 @@
     {% if not task|is_user_acquainted:user %}
       {# NB: Some code duplication here, gotta refactor eventually... #}
       <div class="btn-toolbar mb-2 mb-md-0 justify-content-end">
-        <button class="btn btn-sm btn-primary me-2"
+        <button class="btn btn-sm btn-primary me-2 mb-3"
                 hx-post="{% url 'journal:task_acquaint' task.pk %}"
                 hx-trigger="click"
                 hx-target="#task_with_comments"
@@ -115,7 +115,7 @@
       </div>
     {% endif %}
   {% else %}
-    <form hx-post="{% url 'journal:task_comment_add' task.pk %}" hx-target="#comments" hx-swap="outerHTML">
+    <form class="comments-form-new" hx-post="{% url 'journal:task_comment_add' task.pk %}" hx-target="#comments" hx-swap="outerHTML">
       <div class="mb-3">
         <label for="comment_text" class="form-label">Добавить комментарий:</label>
         <div class="d-flex">

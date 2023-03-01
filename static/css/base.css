@@ -117,6 +117,16 @@ body {
   box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
 }
 
+/* Print version */
+@media print {
+  .navbar,
+  .btn,
+  .toolbar-link,
+  .comments-form-new {
+    display: none;
+  }
+}
+
 /* Timeline CSS https://csslayout.io/timeline/ */
 .timeline {
   /* Used to position the left vertical line */
@@ -281,7 +291,12 @@ body {
 }
 
 .card-body p {
+  font-size: 1.1rem;
   margin: 0;
+}
+
+.card-body img {
+  max-width: 100%;
 }
 
 .accordion-body p {
@@ -316,12 +331,20 @@ body {
   transform: scale(1.001);
 }
 
-.task-card-body p {
+.task-card-body p, ol, ul {
   font-size: 1.1rem;
 }
 
-.document-card-body p {
+.task-card-body img {
+  max-width: 100%;
+}
+
+.document-card-body p, ol, ul {
   font-size: 1.1rem;
+}
+
+.document-card-body img {
+  max-width: 100%;
 }
 
 .task-list-dropdown {

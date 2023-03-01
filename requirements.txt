@@ -16,3 +16,4 @@ django-bleach==3.0.1
 redis==4.4.2
 celery==5.2.7
 djangorestframework==3.14.0
+coverage==7.2.1

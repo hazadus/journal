@@ -127,9 +127,9 @@ class DocumentListViewTest(TestCase):
 
         user = CustomUser.objects.get(username=self.username)
         doc = Document.objects.first()
-        doc.users_acquainted.add(user)
         pk = doc.pk
 
+        # `user` is not acquainted with `doc`, test `documents:document_acquaint` view:
         url = reverse("documents:document_acquaint", args=[pk])
         response = self.client.post(url, {}, follow=True)
 
