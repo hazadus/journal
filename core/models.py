@@ -93,7 +93,16 @@ class Notification(AbstractNotification):
                                 target=str(target),
                                 comment=action_object.body,
                                 )
-                case "task_add" | "task_completed" | "acquainted" | "favorites_add":
+                case "task_add":
+                    message = '{user} {verb} <a href="{host}{url}">{target}</a>:\n"{task}"'.format(
+                        host=host,
+                        user=actor.short_name,
+                        verb=verbs[verb_code],
+                        target=str(target),
+                        url=target.get_absolute_url() if target else None,
+                        task=target.body,
+                    )
+                case "task_completed" | "acquainted" | "favorites_add":
                     message = '{user} {verb} <a href="{host}{url}">{target}</a>'.format(
                         host=host,
                         user=actor.short_name,
