@@ -29,6 +29,10 @@ class TaskListAnnotateMixin(GenericAPIView):
     Ordering example: ?orderByFields=-is_favorite,-is_completed,-is_acquainted,-created,-completed
     """
     def get_queryset(self):
+        """
+        Annotate QuerySet. Exclude archived tasks and private tasks of other users.
+        Apply `order_by()` based on GET parameters.
+        """
         task_list = Task.objects.all()
 
         # Exclude archived tasks
@@ -164,7 +168,8 @@ class TaskListAPI(TaskListAnnotateMixin, ListAPIView):
 
 class TaskListStatsAPI(TaskListAnnotateMixin, ListAPIView):
     """
-    Returns some tasks stats for currently logged  in user.
+    Returns some tasks stats for currently logged in user.
+    These stats are used for badges in sidebar.
     """
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
@@ -217,7 +222,7 @@ class TaskDetailAPI(TaskListAnnotateMixin, RetrieveAPIView):
 @api_view(http_method_names=['GET'])
 def task_toggle_favorite_api(request, pk: int) -> Response:
     """
-    Toggle "favorite" status for a task for current user.
+    Toggle "favorite" status for a task for current user. Send notifications.
     """
     user = request.user
     task = get_object_or_404(Task, pk=pk)
@@ -256,6 +261,9 @@ class CommentListAPI(ListAPIView):
     serializer_class = CommentSerializer
 
     def get_queryset(self):
+        """
+        Annotate QuerySet. Exclude archived comments.
+        """
         # Filter non-archived comments only:
         comment_list = Comment.objects.filter(is_archived=False)
 

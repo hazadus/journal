@@ -4,6 +4,9 @@ from users.models import CustomUser
 
 
 class CustomUserModelTest(TestCase):
+    """
+    Test CustomUser model.
+    """
     username = "testuser"
     password = "password"
 
@@ -14,6 +17,9 @@ class CustomUserModelTest(TestCase):
         )
 
     def test_custom_user_str(self):
+        """
+        Ensure that CustomUser is correctly represented by username when converted to string.
+        """
         self.assertEqual(
             str(CustomUser.objects.first()), self.username
         )
