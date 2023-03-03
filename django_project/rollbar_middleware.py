@@ -2,21 +2,14 @@ from rollbar.contrib.django.middleware import RollbarNotifierMiddleware
 
 
 class CustomRollbarNotifierMiddleware(RollbarNotifierMiddleware):
-    # def get_extra_data(self, request, exc):
-    #     extra_data = dict()
-    #
-    #     # Example of adding arbitrary metadata (optional)
-    #     extra_data = {
-    #         'trace_id': 'aabbccddeeff',
-    #         'feature_flags': [
-    #             'feature_1',
-    #             'feature_2',
-    #         ]
-    #     }
-    #
-    #     return extra_data
-
+    """
+    Middleware necessary for Rollbar error logging to work.
+    Must be added to the list of middlewares in `settings.py` (in production mode).
+    """
     def get_payload_data(self, request, exc):
+        """
+        Add info about logged in user to have more detailed error info in Rollbar logs.
+        """
         payload_data = dict()
 
         if not request.user.is_anonymous:

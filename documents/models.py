@@ -6,6 +6,9 @@ from django.conf import settings
 
 
 class DocumentCategory(models.Model):
+    """
+    Defines category of a document.
+    """
     title = models.CharField(verbose_name="Название", max_length=128)
     description = models.TextField(verbose_name="Описание", null=True, blank=True)
 
@@ -19,6 +22,10 @@ class DocumentCategory(models.Model):
 
 
 class Document(models.Model):
+    """
+    Описывает "документ". Под документом может подразумеваться письменный приказ, устное поручение,
+    справочный материал, график работы и т.п. - некий материал "к руководству", имеющий срок действия.
+    """
     author = models.ForeignKey(verbose_name="Автор", to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
                                related_name="documents_created")
     title = models.CharField(verbose_name="Название", max_length=256)

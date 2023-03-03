@@ -27,6 +27,9 @@ class Command(BaseCommand):
     help = "Создаёт отчет `О передаче смены` по текущим задачам и комментариям к ним в формате Excel."
 
     def handle(self, *args, **options):
+        """
+        Handles the flow of the command.
+        """
         filename = "Report_" + datetime.now().strftime("%Y-%m-%d_%H_%M_%S") + ".xlsx"
         report_path = os.path.join(REPORTS_FULL_PATH, filename)
 

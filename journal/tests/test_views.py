@@ -15,6 +15,9 @@ TOTAL_COMPLETED_USER_TASKS = NUMBER_OF_SHARED_COMPLETED_TASKS + NUMBER_OF_USER_P
 
 
 class TaskListViewTest(TestCase):
+    """
+    Test task list views.
+    """
     username = "testuser"
     password = "password"
     super_name = "superuser"
@@ -56,15 +59,19 @@ class TaskListViewTest(TestCase):
                                 category=category, is_private=False, is_archived=True)
 
     def test_home_url(self):
-        # Test the "/" URL of the site
+        """
+        Ensure "journal:task_list" view is not accessible without login.
+        """
         # Redirect when not logged in
         url = reverse("journal:task_list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
 
     def test_correct_login(self):
-        # Check login for `testuser`
-        # After login must be redirected to task list
+        """
+        Check login for `testuser`.
+        After login must be redirected to task list view.
+        """
         url = reverse("login")
         response = self.client.post(url, {"username": self.username, "password": self.password},
                                     follow=True)
@@ -72,6 +79,9 @@ class TaskListViewTest(TestCase):
         self.assertContains(response, "задачи")
 
     def test_task_list_view_task_count(self):
+        """
+        Check number of tasks shown in "journal:task_list" view.
+        """
         # Login as usual user
         url = reverse("login")
         response = self.client.post(url, {"username": self.username, "password": self.password},
@@ -83,6 +93,9 @@ class TaskListViewTest(TestCase):
         self.assertEqual(len(response.context["task_list"]), TOTAL_ACTIVE_USER_TASKS)
 
     def test_task_list_view_task_count_with_hide_private_filter(self):
+        """
+        Check number of tasks shown in "journal:task_list" view with "?hide_private=true" GET parameter.
+        """
         # Login as usual user
         url = reverse("login")
         response = self.client.post(url, {"username": self.username, "password": self.password},
@@ -94,6 +107,9 @@ class TaskListViewTest(TestCase):
         self.assertEqual(len(response.context["task_list"]), NUMBER_OF_SHARED_TASKS)
 
     def test_task_list_view_private_task_count(self):
+        """
+        Check number of private tasks shown in "journal:private_task_list" view.
+        """
         # Login as usual user
         url = reverse("login")
         response = self.client.post(url, {"username": self.username, "password": self.password},
@@ -105,6 +121,9 @@ class TaskListViewTest(TestCase):
         self.assertEqual(len(response.context["private_task_list"]), NUMBER_OF_USER_PRIVATE_TASKS)
 
     def test_task_list_view_completed_task_count(self):
+        """
+        Check number of completed tasks shown in "journal:completed_task_list" view.
+        """
         # Login as usual user
         url = reverse("login")
         response = self.client.post(url, {"username": self.username, "password": self.password},

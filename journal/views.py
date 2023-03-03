@@ -17,13 +17,16 @@ from .models import Task, Comment, Report, TaskCategory
 
 class TaskListAnnotateMixin(ListView):
     """
-    Annotates Task QuerySet with the following fields:
+    Annotate Task QuerySet with the following fields:
         comments_count: total number of non-archived comments for the task;
         new_comments_count: number of "new" non-archived comments for logged-in user for the task;
         is_favorite: is task favorited by logged in user (actually equals `username` or None respectively);
         is_acquainted: is logged in user acquainted with the task and all of its non-archived comments, boolean.
     """
     def get_context_data(self, **kwargs):
+        """
+        Add annotation to QuerySet depending on current user.
+        """
         context = super().get_context_data(**kwargs)
         task_list = context[self.context_object_name]
 
@@ -98,6 +101,9 @@ class TaskListFilterMixin(ListView):
     """
 
     def get_context_data(self, **kwargs):
+        """
+        Apply filters to QuerySet.
+        """
         context = super().get_context_data(**kwargs)
         task_list = context[self.context_object_name]
 
@@ -128,6 +134,9 @@ class TaskListOrderMixin(ListView):
     """
 
     def get_context_data(self, **kwargs):
+        """
+        Apply ordering to QuerySet.
+        """
         context = super().get_context_data(**kwargs)
         task_list = context[self.context_object_name]
 
@@ -165,7 +174,9 @@ class TaskListOrderMixin(ListView):
 
 
 class TaskListView(LoginRequiredMixin, TaskListAnnotateMixin, TaskListFilterMixin, TaskListOrderMixin, ListView):
-    """ "Задачи" view in Dashboard (all active - without completed - tasks) """
+    """
+    "Задачи" view in Dashboard (all active - without completed - tasks).
+    """
     model = Task
     template_name = "task_list.html"
     queryset = Task.objects.filter(is_completed=False, is_archived=False)
@@ -173,7 +184,7 @@ class TaskListView(LoginRequiredMixin, TaskListAnnotateMixin, TaskListFilterMixi
 
     def get_context_data(self, **kwargs):
         """
-        Exclude private tasks of other users
+        Exclude private tasks of other users.
         """
         context = super().get_context_data(**kwargs)
         task_list = context["task_list"]
@@ -227,6 +238,9 @@ class PrivateTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, TaskListFil
 
 class FavoriteTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, TaskListFilterMixin, TaskListOrderMixin,
                            ListView):
+    """
+    List favorite tasks of current user.
+    """
     model = Task
     template_name = "task_list_favorites.html"
     context_object_name = "favorite_task_list"
@@ -242,11 +256,18 @@ class FavoriteTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, TaskListFi
 
 
 class TaskDetailView(LoginRequiredMixin, DetailView):
+    """
+    Task detail view.
+    """
     model = Task
     template_name = "task_detail.html"
     context_object_name = "task"
 
     def get_context_data(self, **kwargs):
+        """
+        Add `is_favorite` property to task instance.
+        Add total views count for the task (from Redis) to context.
+        """
         context = super().get_context_data(**kwargs)
         task = context["task"]
 
@@ -261,11 +282,17 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
 
 
 class TaskCreateView(LoginRequiredMixin, CreateView):
+    """
+    Task create view.
+    """
     model = Task
     fields = ["title", "category", "body", "is_private", "due_date", "attachment"]
     template_name = "task_create.html"
 
     def form_valid(self, form):
+        """
+        Set logged in user as author of new task. Auto-acquaint author with new task. Create notifications.
+        """
         task = form.save(commit=False)
         # Associate new Task with logged in user:
         task.author = self.request.user
@@ -286,6 +313,9 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
 
 
 class TaskUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """
+    Task update view.
+    """
     model = Task
     fields = ["title", "category", "body", "is_private", "due_date", "attachment"]
     template_name = "task_update.html"
@@ -297,6 +327,9 @@ class TaskUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return obj.author == self.request.user or self.request.user.is_superuser
 
     def form_valid(self, form):
+        """
+        Create notifications, saving previous and new title and body of the task (if changed).
+        """
         # Get updated task from form, but not yet commit it to DB
         updated_task = form.save(commit=False)
 
@@ -332,8 +365,8 @@ class TaskUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 @require_POST
 def comment_add(request: HttpRequest, pk: int) -> HttpResponse:
     """
-    Add a comment to the task with id == pk.
-    HTMX view, adds a comment, then returns part of a page with comments block.
+    Add the comment to the task with id == pk. Send notifications.
+    HTMX view: add the comment, then return part of the page with comments block.
     """
     task = get_object_or_404(Task, pk=pk)
     new_comment_body = str(request.POST.get("comment_text")).lstrip().rstrip()
@@ -370,7 +403,7 @@ def comment_add(request: HttpRequest, pk: int) -> HttpResponse:
 def comment_delete(request: HttpRequest, task_pk: int, comment_pk: int) -> HttpResponse:
     """
     Only admin can actually DELETE the comment from DB.
-    HTMX view, deletes a comment, then returns part of a page with comments block.
+    HTMX view: delete the comment, then return part of the page with comments block.
     """
     task = get_object_or_404(Task, pk=task_pk)
     comment = get_object_or_404(Comment, pk=comment_pk)
@@ -387,8 +420,8 @@ def comment_delete(request: HttpRequest, task_pk: int, comment_pk: int) -> HttpR
 @login_required
 def comment_archive(request: HttpRequest, task_pk: int, comment_pk: int) -> HttpResponse:
     """
-    Archive comment.
-    HTMX view, archives a comment, then returns part of a page with comments block.
+    Archive comment ("archive" is kind of "soft delete" - removes comment from all views, but leaves it in DB).
+    HTMX view: archive the comment, then return part of the page with comments block.
     """
     task = get_object_or_404(Task, pk=task_pk)
     comment = get_object_or_404(Comment, pk=comment_pk)
@@ -407,7 +440,7 @@ def comment_archive(request: HttpRequest, task_pk: int, comment_pk: int) -> Http
 def comment_edit(request: HttpRequest, comment_pk: int) -> HttpResponse:
     """
     Inline edit comment.
-    HTMX view.
+    HTMX view: return comment "card" HTML block with text input area.
     """
     comment = get_object_or_404(Comment, pk=comment_pk)
 
@@ -433,8 +466,8 @@ def comment_show(request: HttpRequest, comment_pk: int) -> HttpResponse:
 @require_POST
 def comment_edit_save(request: HttpRequest, comment_pk: int) -> HttpResponse:
     """
-    Save updated comment.
-    HTMX view.
+    Save updated comment. Send notifications.
+    HTMX view: return single comment "card-body" HTML block.
     """
     comment = get_object_or_404(Comment, pk=comment_pk)
     task = comment.task
@@ -467,8 +500,8 @@ def comment_edit_save(request: HttpRequest, comment_pk: int) -> HttpResponse:
 @require_POST
 def task_acquaint(request: HttpRequest, pk: int) -> HttpResponse:
     """
-    Acquaint logged in user with task and all it's comments
-    HTMX view, does the thing, then returns part of a page with comments block.
+    Acquaint logged in user with task and all of it's comments. Send notifications.
+    HTMX view: do the thing, then return part of the page with comments block.
     """
     task = get_object_or_404(Task, pk=pk)
     user = request.user
@@ -494,6 +527,9 @@ def task_acquaint(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 class SearchView(LoginRequiredMixin, TemplateView):
+    """
+    Search results view.
+    """
     template_name = "search.html"
 
 
@@ -501,8 +537,8 @@ class SearchView(LoginRequiredMixin, TemplateView):
 @require_POST
 def task_search(request: HttpRequest) -> HttpResponse:
     """
-    Search tasks
-    HTMX view
+    Search tasks, excluding other user's private tasks (other than logged in user).
+    HTMX view: return part of the page with search results.
     """
     user = request.user
     search_text = request.POST.get("search")
@@ -524,8 +560,9 @@ def task_search(request: HttpRequest) -> HttpResponse:
 @require_POST
 def task_toggle_favorite(request: HttpRequest, pk: int) -> HttpResponse:
     """
-    Adds or removes task from logged in user's favorites (i.e. toggles `favorite` status).
-    HTMX view, does the thing, then returns button with another state.
+    Add or remove task from logged in user's favorites (i.e. toggles `favorite` status for current user).
+    Send notifications.
+    HTMX view: do the thing, then return button with another state.
     """
     task = get_object_or_404(Task, pk=pk)
     user = request.user
@@ -552,11 +589,17 @@ def task_toggle_favorite(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 class ReportListView(LoginRequiredMixin, ListView):
+    """
+    Report list view.
+    """
     model = Report
     template_name = "report_list.html"
     context_object_name = "report_list"
 
     def get_context_data(self, **kwargs):
+        """
+        Add dict `reports_by_month` with keys like "Янв, 2023" and lists of reports as values into context.
+        """
         context = super().get_context_data(**kwargs)
         report_list = context["report_list"]
 
@@ -570,7 +613,6 @@ class ReportListView(LoginRequiredMixin, ListView):
                 created__year=month.year,
                 created__month=month.month
             )
-            # locale.setlocale(locale.LC_ALL, "ru_RU")
             dict_key = month.strftime("%b, %Y").capitalize()
             reports_by_month[dict_key] = list(reports)
 
@@ -579,11 +621,17 @@ class ReportListView(LoginRequiredMixin, ListView):
 
 
 class TableTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, ListView):
+    """
+    Table task list view (classic, i.e. server-side rendered).
+    """
     model = Task
     template_name = "task_list_table.html"
     context_object_name = "task_list"
 
     def get_context_data(self, **kwargs):
+        """
+        Exclude other user's private tasks. Apply filters.
+        """
         context = super().get_context_data(**kwargs)
         task_list = context["task_list"]
         category = None
@@ -653,4 +701,7 @@ class TableTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, ListView):
 
 
 class TableTaskListVueView(LoginRequiredMixin, TemplateView):
+    """
+    View for Vue app.
+    """
     template_name = "task_list_table_vue.html"

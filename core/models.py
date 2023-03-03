@@ -10,6 +10,13 @@ from notifications.base.models import AbstractNotification
 
 
 class Notification(AbstractNotification):
+    """
+    Custom Notification model for `django-notifications-hq` app.
+    Added fields are verb_code, previous_title, new_title, previous_body, new_body.
+
+    Must be used in `settings.py`:
+    NOTIFICATIONS_NOTIFICATION_MODEL = "core.Notification"
+    """
     VERB_CODES = Choices("favorites_add", "task_add", "task_edit", "task_completed", "comment_add", "comment_edit",
                          "acquainted", "report_add", "user_logged_in", "user_logged_out")
 
@@ -93,7 +100,16 @@ class Notification(AbstractNotification):
                                 target=str(target),
                                 comment=action_object.body,
                                 )
-                case "task_add" | "task_completed" | "acquainted" | "favorites_add":
+                case "task_add":
+                    message = '{user} {verb} <a href="{host}{url}">{target}</a>:\n"{task}"'.format(
+                        host=host,
+                        user=actor.short_name,
+                        verb=verbs[verb_code],
+                        target=str(target),
+                        url=target.get_absolute_url() if target else None,
+                        task=target.body,
+                    )
+                case "task_completed" | "acquainted" | "favorites_add":
                     message = '{user} {verb} <a href="{host}{url}">{target}</a>'.format(
                         host=host,
                         user=actor.short_name,

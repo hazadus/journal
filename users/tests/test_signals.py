@@ -6,6 +6,9 @@ from core.models import Notification
 
 
 class UsersSignalsTest(TestCase):
+    """
+    Test signals sent when user logs in and out.
+    """
     username = "testuser"
     password = "password"
     admin_username = "admin"
@@ -22,7 +25,7 @@ class UsersSignalsTest(TestCase):
 
     def test_user_login_logout_signals(self):
         """
-        Ensure that notifications are created on user login and logout
+        Ensure that notifications are created on user login and logout.
         """
         # Login
         url = reverse("login")

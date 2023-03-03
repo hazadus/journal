@@ -11,6 +11,9 @@ NUMBER_ARCHIVED_DOCS = 7
 
 
 class DocumentListViewTest(TestCase):
+    """
+    Test Document list view.
+    """
     username = "testuser"
     password = "password"
     super_name = "superuser"
@@ -43,13 +46,18 @@ class DocumentListViewTest(TestCase):
             doc.users_acquainted.add(super_user)
 
     def test_documents_list_url(self):
-        # Test the "/documents/" URL
+        """
+        Ensure the "documents:document_list" view is inaccessible without login
+        """
         # Redirect when not logged in
         url = reverse("documents:document_list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
 
     def test_document_list_view_login(self):
+        """
+        Test the "documents:document_list" accessible with login
+        """
         # Login as usual user
         url = reverse("login")
         response = self.client.post(url, {"username": self.username, "password": self.password},
@@ -61,6 +69,9 @@ class DocumentListViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_document_list_view_docs_count(self):
+        """
+        Check number of Documents shown in the list
+        """
         # Login as usual user
         url = reverse("login")
         response = self.client.post(url, {"username": self.username, "password": self.password},
@@ -72,6 +83,9 @@ class DocumentListViewTest(TestCase):
         self.assertEqual(len(response.context["document_list"]), NUMBER_ACTUAL_DOCS)
 
     def test_document_detail_view(self):
+        """
+        Ensure that Document detail view works
+        """
         # Login as usual user
         url = reverse("login")
         response = self.client.post(url, {"username": self.username, "password": self.password},

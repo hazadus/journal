@@ -3,27 +3,15 @@ from datetime import date
 from django.db import models
 from django.urls import reverse
 from django.conf import settings
+from django.db.models import QuerySet
 
 from users.models import CustomUser
 
 
-class ActiveTaskManager(models.Manager):
-    """
-    Used to retrieve only not completed, archived, or private tasks with 'Task.active.all() notation.
-    """
-    def get_queryset(self):
-        return super().get_queryset().filter(is_private=False, is_archived=False, is_completed=False)
-
-
-class ActiveCommentManager(models.Manager):
-    """
-    Used to retrieve only not archived comment.
-    """
-    def get_queryset(self):
-        return super().get_queryset().filter(is_archived=False)
-
-
 class TaskCategory(models.Model):
+    """
+    Defines category of a task.
+    """
     title = models.CharField(verbose_name="Название", max_length=128)
     description = models.TextField(verbose_name="Описание", null=True, blank=True)
 
@@ -37,6 +25,9 @@ class TaskCategory(models.Model):
 
 
 class Task(models.Model):
+    """
+    Defines a task to be completed by the users of the Journal.
+    """
     author = models.ForeignKey(verbose_name="Автор", to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
                                related_name="tasks_created")
     title = models.CharField(verbose_name="Название", max_length=256)
@@ -58,7 +49,6 @@ class Task(models.Model):
 
     # Model Managers
     objects = models.Manager()
-    active = ActiveTaskManager()
 
     class Meta:
         verbose_name = "Задача"
@@ -72,22 +62,31 @@ class Task(models.Model):
         return reverse("journal:task_detail", args=[self.pk])
 
     @property
-    def active_comments(self):
+    def active_comments(self) -> QuerySet:
         """
-        Returns only `active`, i.e. not archived, comments.
+        Return only `active`, i.e. not archived, comments.
         """
         return self.comments.filter(is_archived=False)
 
     @property
-    def is_overdue(self):
+    def is_overdue(self) -> bool:
+        """
+        Return True if the task has due date and it's already passed.
+        """
         return self.due_date < date.today() if self.due_date else False
 
     @property
-    def is_due_today(self):
+    def is_due_today(self) -> bool:
+        """
+        Return True of the task has due date and it's due today.
+        """
         return self.due_date == date.today() if self.due_date else False
 
 
 class Comment(models.Model):
+    """
+    Defines user's comment for a task. Users post comments on tasks to report on how the task gets done.
+    """
     task = models.ForeignKey(verbose_name="Задача", to=Task, on_delete=models.CASCADE,
                              related_name="comments")
     author = models.ForeignKey(verbose_name="Автор", to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
@@ -103,7 +102,6 @@ class Comment(models.Model):
 
     # Model Managers
     objects = models.Manager()
-    active = ActiveCommentManager()
 
     class Meta:
         verbose_name = "Комментарий"
@@ -121,6 +119,11 @@ class Comment(models.Model):
 
 
 class Report(models.Model):
+    """
+    Описывает модель Отчета.
+    Например, отчет "о передаче смены" - ход выполнения задач на конец смены (список активных задач и всех комментариев
+    к ним)
+    """
     title = models.CharField(verbose_name="Название", max_length=256)
     attachment = models.FileField(verbose_name="Файл отчёта")
     created = models.DateTimeField(verbose_name="Создан", auto_now_add=True)

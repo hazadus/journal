@@ -4,7 +4,13 @@ from django.test import TestCase
 
 
 class CoreFiltersTest(TestCase):
+    """
+    Test all filters defined in `core_filters.py`.
+    """
     def test_get_dict_item_by_key(self):
+        """
+        Ensure `get_dict_item_by_key` filter works as expected.
+        """
         dictionary = {
             "test_key": "test_value",
         }

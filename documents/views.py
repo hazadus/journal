@@ -13,6 +13,9 @@ from core.models import Notification
 
 
 class DocumentListView(LoginRequiredMixin, ListView):
+    """
+    Document list view with all active (i.e. not completed, not archived) documents.
+    """
     model = Document
     queryset = Document.objects.filter(is_completed=False, is_archived=False)
     template_name = "document_list.html"
@@ -20,11 +23,17 @@ class DocumentListView(LoginRequiredMixin, ListView):
 
 
 class DocumentDetailView(LoginRequiredMixin, DetailView):
+    """
+    Document detail view.
+    """
     model = Document
     template_name = "document_detail.html"
     context_object_name = "document"
 
     def get_context_data(self, **kwargs):
+        """
+        Add all notifications and views count (from Redis) to context.
+        """
         context = super().get_context_data(**kwargs)
         document = context["document"]
 
@@ -45,7 +54,7 @@ class DocumentDetailView(LoginRequiredMixin, DetailView):
 @require_POST
 def document_acquaint(request: HttpRequest, pk: int) -> HttpResponse:
     """
-    Acquaint logged in user with document
+    Acquaint logged in user with document.
     HTMX view, does the thing, then returns part of a page with document block.
     """
     document = get_object_or_404(Document, pk=pk)
