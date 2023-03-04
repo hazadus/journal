@@ -71,7 +71,7 @@
             {% if user.is_superuser %}
             <li class="nav-item {% if "/tasks/table/vue/" in request.path %}nav-item-active{% endif %}" style="margin-left: 20px;">
               <a class="nav-link {% if "/tasks/table/vue/" in request.path %}active{% endif %}" href="{% url 'journal:task_list_table_vue' %}">
-                <i class="fa-solid fa-table"></i> Таблица (Vue)
+                <i class="fa-solid fa-columns"></i> Колонки <span class="badge text-bg-warning">бета</span>
               </a>
             </li>
             {% endif %}

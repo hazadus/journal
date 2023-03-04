@@ -1,7 +1,7 @@
 import { reactive } from 'vue';
 
 export const viewOptions = reactive({
-  isTableView: true,        // show as table or 3-column view
+  isTableView: false,       // show as table or 3-column view
   showOptions: true,        // show options pane
   showCategory: false,      // show category name
   showCommentsCount: true,  // show comments count

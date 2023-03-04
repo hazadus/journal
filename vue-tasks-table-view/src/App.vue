@@ -1,18 +1,18 @@
 <template>
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-baseline pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">
-      Задачи: табличный вид (Vue)
+      Задачи: колонки <span class="badge text-bg-warning">бета</span>
     </h1>
     <div class="btn-toolbar mb-2 mb-md-0">
-      <button @click="viewOptions.isTableView = !viewOptions.isTableView" class="btn btn-sm btn-warning me-1">
+      <button @click="viewOptions.isTableView = !viewOptions.isTableView" class="btn btn-sm btn-primary me-1">
         <template v-if="viewOptions.isTableView">
-          <i class="fa-solid fa-columns"></i> Колонки
+          <i class="fa-solid fa-columns"></i> Показать содержание задачи
         </template>
         <template v-else>
-          <i class="fa-solid fa-table"></i> Таблица
+          <i class="fa-solid fa-table"></i> Скрыть содержание задачи
         </template>
       </button>
-      <button class="btn btn-sm btn-primary me-1" @click="viewOptions.showOptions = !viewOptions.showOptions">
+      <button class="btn btn-sm btn-primary me-2" @click="viewOptions.showOptions = !viewOptions.showOptions">
         <i class="fa-solid fa-gears"></i> Настройки
       </button>
       <a class="btn btn-sm btn-success" href="/journal/task/create/">
