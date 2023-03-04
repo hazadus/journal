@@ -161,10 +161,20 @@
             <i class="fa-solid fa-file-circle-check"></i> Задача завершена.
           </div>
 
+          <!-- Acquaintance button, if needed -->
+          <div v-if="!detailItem.is_acquainted"
+               class="btn-toolbar mb-2 mb-md-0 justify-content-end">
+            <button @click.prevent="onClickAcquaint"
+                    class="btn btn-sm btn-primary me-2 mb-3">
+              <i class="fa-solid fa-file-signature"></i> Ознакомлен
+            </button>
+          </div>
+
           <!-- "Add new comment" block-->
           <NewCommentEditor
               v-if="!detailItem.is_completed"
               :task="detailItem"
+              :on-click-acquaint="onClickAcquaint"
           />
 
         </template>
@@ -192,7 +202,7 @@ export default {
     filteredTasks: Array,
     categories: Array,
   },
-  emits: ['favoriteToggled'],
+  emits: ['favoriteToggled', 'acquainted'],
   data () {
     return {
       viewOptions,
@@ -258,6 +268,26 @@ export default {
             console.log("Axios.get error:", error);
             throw error;
           });
+    },
+    onClickAcquaint() {
+      // Contact DRF API to acquaint currently logged in user (via Django auth) with the task.
+      const url = `/journal/tasks/api/v1/task/${this.detailItem.id}/acquaint/`;
+      this.isAcquainting = true;
+
+      return window.axios
+        .get(url, {
+          params: {},
+        })
+        .then((response) => {
+          this.$emit("acquainted", response);
+          this.isAcquainting = false;
+          this.fetchSelectedTask();
+          this.fetchSelectedTaskComments();
+        })
+        .catch(function (error) {
+          console.log("Axios.get error:", error);
+          throw error;
+        });
     },
   },
   watch: {

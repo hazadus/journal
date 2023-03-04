@@ -48,6 +48,7 @@
         :filtered-tasks="filteredTasks"
         :categories="categoriesAll"
         @favorite-toggled="fetchAllTasks"
+        @acquainted="fetchAllTasks"
     />
   </template>
 </template>

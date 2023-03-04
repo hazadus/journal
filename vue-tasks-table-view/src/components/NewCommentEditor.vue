@@ -1,5 +1,5 @@
 <!-- Show the component only when we got logged in user's data from backend -->
-<template v-if="userData">
+<template v-if="isUserDataFetched">
   <form>
     <div class="mb-3">
       <label for="comment_text" class="form-label">Добавить комментарий:</label>
@@ -34,7 +34,8 @@
         </label>
       </div>
       <div class="btn-toolbar mb-2 mb-md-0 justify-content-end">
-        <button v-if="!task.is_acquainted"
+        <button v-if="!task.is_acquainted && !isAcquainting"
+                @click.prevent="onClickAcquaint"
                 class="btn btn-sm btn-primary me-2">
           <i class="fa-solid fa-file-signature"></i> Ознакомлен
         </button>
@@ -64,16 +65,19 @@
 import {useLinesCount} from "@/utils";
 
 export default {
-  name: "NewCommentEditor",
-  props: {
-    task: Object,
-  },
+  name: 'NewCommentEditor',
+  props: ['task', 'onClickAcquaint'],
   data() {
     return {
-      newCommentText: "",
-      userData: null,
+      newCommentText: '',
+      userData: {
+        username: '',
+        avatar_img: '',
+      },
+      isUserDataFetched: false,
       isCompleteTask: false,
       isPosting: false,
+      isAcquainting: false,
     }
   },
   methods: {
@@ -87,6 +91,7 @@ export default {
         })
         .then((response) => {
           this.userData = response.data;
+          this.isUserDataFetched = true;
         })
         .catch(function (error) {
           console.log("Axios.get error:", error);

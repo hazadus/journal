@@ -1,3 +1,4 @@
+from django.http import HttpRequest
 from django.db.models.expressions import RawSQL
 from django.db.models import Q, Case, When, Value, OuterRef, Subquery, Count
 
@@ -325,3 +326,35 @@ class CommentListAPI(ListAPIView):
         )
 
         return comment_list
+
+
+@api_view(http_method_names=['GET'])
+def task_acquaint_api(request: HttpRequest, pk: int) -> Response:
+    """
+    Acquaint current user with task and all it's comments.
+    """
+    task = get_object_or_404(Task, pk=pk)
+    user = request.user
+
+    # Acquaint
+    if user not in task.users_acquainted.all():
+        task.users_acquainted.add(user)
+
+    for comment in task.comments.all():
+        if user not in comment.users_acquainted.all():
+            comment.users_acquainted.add(user)
+
+    # Notify admins
+    Notification.send(sender=request.user, actor=request.user,
+                      recipient=CustomUser.objects.filter(is_superuser=True),
+                      verb_code=Notification.VERB_CODES.acquainted, target=task)
+
+    response = {
+        "username": user.username,
+        "task_id": task.pk,
+        "status": "User '{username}' acquainted with task '{task_title}'.".format(
+            username=user.username,
+            task_title=task.title,
+        )
+    }
+    return Response(response)
