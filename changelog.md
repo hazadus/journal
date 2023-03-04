@@ -1,3 +1,6 @@
+04.03.2023, Сб
+    - 23:10 - Test coverage: 79% total, `core/tests/test_views.py`: 100%.
+
 03.03.2023, Пт
     - 13:10 - Добавлены `docstrings` - 100% coverage.
     - 14:30 - Test coverage: 78% total, `journal/tests/test_models.py`: 100%.
