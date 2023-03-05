@@ -25,5 +25,5 @@ export function useAuthorShortName(entity) {
 
 export function useLinesCount(text) {
   // Returns number of lines in `text`
-  return text.split(/\r\n|\r|\n/).length;
+  return typeof text == 'string' ? text.split(/\r\n|\r|\n/).length : 0;
 }

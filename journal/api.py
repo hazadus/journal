@@ -1,15 +1,18 @@
-from django.http import HttpRequest
+from django.utils import timezone
 from django.db.models.expressions import RawSQL
 from django.db.models import Q, Case, When, Value, OuterRef, Subquery, Count
 
+from rest_framework import status
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from rest_framework.generics import GenericAPIView, RetrieveAPIView, ListAPIView, get_object_or_404
+from rest_framework.generics import GenericAPIView, RetrieveAPIView, CreateAPIView, ListAPIView, get_object_or_404
 
 from users.models import CustomUser
 from core.models import Notification
 from .models import Task, Comment, TaskCategory
-from .serializers import TaskSerializer, TaskDetailSerializer, TaskCategorySerializer, CommentSerializer
+from .serializers import (TaskSerializer, TaskDetailSerializer, TaskCategorySerializer, CommentSerializer,
+    CommentCreateSerializer)
 
 
 class TaskCategoryListAPI(ListAPIView):
@@ -221,7 +224,7 @@ class TaskDetailAPI(TaskListAnnotateMixin, RetrieveAPIView):
 
 
 @api_view(http_method_names=['GET'])
-def task_toggle_favorite_api(request, pk: int) -> Response:
+def task_toggle_favorite_api(request: Request, pk: int) -> Response:
     """
     Toggle "favorite" status for a task for current user. Send notifications.
     """
@@ -328,8 +331,54 @@ class CommentListAPI(ListAPIView):
         return comment_list
 
 
-@api_view(http_method_names=['GET'])
-def task_acquaint_api(request: HttpRequest, pk: int) -> Response:
+@api_view(http_method_names=["POST"])
+def comment_create_api(request: Request) -> Response:
+    """
+    Create comment for the task.
+    References: https://www.django-rest-framework.org/tutorial/2-requests-and-responses/
+
+    Front end should post object like this:
+    {'newComment': {'task': 120, 'author': 2, 'body': 'New comment'}, 'isCompleteTask': False}
+    task - task id.
+    author - author id.
+    body - the comment itself.
+    isCompleteTask - whether we need to mark 'task' as completed.
+    """
+    serializer = CommentCreateSerializer(data=request.data["newComment"])
+
+    if serializer.is_valid():
+        comment = serializer.save()
+        task = comment.task
+
+        # Mark task as completed if needed
+        if request.data["isCompleteTask"]:
+            task.is_completed = True
+            task.completed = timezone.now()
+            task.save()
+
+        # Self-acquaint author
+        author = CustomUser.objects.get(pk=request.data["newComment"]["author"])
+        comment.users_acquainted.add(author)
+
+        # Send notifications
+        # Decide who we will notify
+        recipient = task.author if task.is_private else CustomUser.objects.all()
+
+        # Notify about new comment
+        Notification.send(sender=request.user, actor=request.user, recipient=recipient,
+                          verb_code=Notification.VERB_CODES.comment_add, action_object=comment, target=task)
+
+        # Notify about completed task
+        if task.is_completed:
+            Notification.send(sender=request.user, actor=request.user, recipient=recipient,
+                              verb_code=Notification.VERB_CODES.task_completed, target=task)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(http_method_names=["GET"])
+def task_acquaint_api(request: Request, pk: int) -> Response:
     """
     Acquaint current user with task and all it's comments.
     """

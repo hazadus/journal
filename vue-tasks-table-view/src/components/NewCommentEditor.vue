@@ -34,8 +34,9 @@
         </label>
       </div>
       <div class="btn-toolbar mb-2 mb-md-0 justify-content-end">
-        <button v-if="!task.is_acquainted && !isAcquainting"
+        <button v-if="!task.is_acquainted"
                 @click.prevent="onClickAcquaint"
+                :disabled="isAcquainting"
                 class="btn btn-sm btn-primary me-2">
           <i class="fa-solid fa-file-signature"></i> Ознакомлен
         </button>
@@ -67,6 +68,7 @@ import {useLinesCount} from "@/utils";
 export default {
   name: 'NewCommentEditor',
   props: ['task', 'onClickAcquaint'],
+  emits: ['newCommentPosted'],
   data() {
     return {
       newCommentText: '',
@@ -99,13 +101,31 @@ export default {
         });
     },
     onClickSubmit() {
-      this.isPosting = true;
+      if (this.newCommentText.trimStart().trimEnd().length < 5) {
+        alert('Для отправки комментария, введите текст (не менее 5 символов)!');
+      } else {
+        this.isPosting = true;
+        const newComment = {
+          "task": this.task.id,
+          "author": this.userData.id,
+          "body": this.newCommentText,
+        };
 
-      // actually do the post here
-
-      // set this.isPosting = false;
-      // clear this.newCommentText
-      // emit an event to update stuff
+        // Actually do the post:
+        return window.axios
+          .post('/journal/tasks/api/v1/comment/', {
+            newComment: newComment,
+            isCompleteTask: this.isCompleteTask,
+          })
+          .then((response) => {
+            this.isPosting = false;
+            this.newCommentText = "";
+            this.$emit('newCommentPosted', response);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      }
     },
   },
   computed: {

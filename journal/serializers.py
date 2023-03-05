@@ -113,3 +113,17 @@ class CommentSerializer(serializers.ModelSerializer):
             "updated",
             "is_acquainted",
         ]
+
+
+class CommentCreateSerializer(serializers.ModelSerializer):
+    """
+    Serializer for creating new comments.
+    """
+    class Meta:
+        model = Comment
+        fields = [
+            "id",
+            "task",
+            "author",
+            "body",
+        ]

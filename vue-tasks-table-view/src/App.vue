@@ -49,6 +49,7 @@
         :categories="categoriesAll"
         @favorite-toggled="fetchAllTasks"
         @acquainted="fetchAllTasks"
+        @new-comment-posted="fetchAllTasks"
     />
   </template>
 </template>

@@ -173,6 +173,7 @@
           <!-- "Add new comment" block-->
           <NewCommentEditor
               v-if="!detailItem.is_completed"
+              @new-comment-posted="onNewCommentPosted"
               :task="detailItem"
               :on-click-acquaint="onClickAcquaint"
           />
@@ -202,7 +203,7 @@ export default {
     filteredTasks: Array,
     categories: Array,
   },
-  emits: ['favoriteToggled', 'acquainted'],
+  emits: ['favoriteToggled', 'acquainted', 'newCommentPosted'],
   data () {
     return {
       viewOptions,
@@ -288,6 +289,11 @@ export default {
           console.log("Axios.get error:", error);
           throw error;
         });
+    },
+    onNewCommentPosted() {
+      this.$emit('newCommentPosted');
+      this.fetchSelectedTask();
+      this.fetchSelectedTaskComments();
     },
   },
   watch: {
