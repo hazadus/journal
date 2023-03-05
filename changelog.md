@@ -5,6 +5,7 @@
             необходимости) и обновление интерфейса Vue (re-fetch) работает.
     - 18:40 - Написаны тесты для новых DRF API: `comment_create_api`, `task_acquaint_api` test coverage 100%.
     - 18:45 - При загрузке Vue app открывается первая задача из _отфильтрованного_ списка задач.
+    - 19:05 - Добавлены тесты для `users/api.py`.
 
 04.03.2023, Сб
     - 23:10 - Test coverage: 79% total, `core/tests/test_views.py`: 100%.
