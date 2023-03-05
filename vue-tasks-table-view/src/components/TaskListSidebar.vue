@@ -305,10 +305,10 @@ export default {
     },
   },
   mounted() {
-    // `Select` first item of the list on page load.
+    // `Select` first item of the filtered list on page load.
     if (!this.selectedItem) {
-      if (this.tasks.length) {
-        this.selectedItem = this.tasks[0];
+      if (this.filteredTasks.length) {
+        this.selectedItem = this.filteredTasks[0];
       }
     }
   },
