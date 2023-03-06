@@ -1,3 +1,6 @@
+06.03.2023, Пн
+    - 15:10 - Добавлены тесты для `journal_filters.py` - 100% coverage.
+
 04.03.2023, Сб
     - 23:10 - Test coverage: 79% total, `core/tests/test_views.py`: 100%.
 
