@@ -156,13 +156,13 @@
             </div>
           </template>
 
-          <!-- Task completed alert -->
+          <!-- "Task completed" alert -->
           <div class="alert alert-success" v-if="detailItem.is_completed">
             <i class="fa-solid fa-file-circle-check"></i> Задача завершена.
           </div>
 
-          <!-- Acquaintance button, if needed -->
-          <div v-if="!detailItem.is_acquainted"
+          <!-- Acquaintance button, if needed: show only when task is done and user isn't acquainted. -->
+          <div v-if="!detailItem.is_acquainted && detailItem.is_completed"
                class="btn-toolbar mb-2 mb-md-0 justify-content-end">
             <button @click.prevent="onClickAcquaint"
                     class="btn btn-sm btn-primary me-2 mb-3">
@@ -170,7 +170,7 @@
             </button>
           </div>
 
-          <!-- "Add new comment" block-->
+          <!-- "Add new comment" block (has it's own "acquaint" button -->
           <NewCommentEditor
               v-if="!detailItem.is_completed"
               @new-comment-posted="onNewCommentPosted"
@@ -318,7 +318,7 @@ export default {
 <style scoped>
 .component {
   display: flex;
-  margin: -16px 0 0 -24px;
+  margin: -16px -20px 0 -24px;
 }
 
 .tasks {
@@ -328,7 +328,14 @@ export default {
 }
 
 .task-list {
-  height: calc(100vh - 185px);
+  height: calc(100vh - 183px);
+  overflow-y: auto;
+}
+
+.task-detail {
+  height: calc(100vh - 125px);
+  padding: 10px;
+  flex-grow: 1;
   overflow-y: auto;
 }
 
@@ -378,12 +385,5 @@ export default {
 .task-completed-mark {
   margin: 0 3px 0 0;
   color: var(--bs-success);
-}
-
-.task-detail {
-  height: calc(100vh - 121px);
-  padding: 10px;
-  flex-grow: 1;
-  overflow-y: auto;
 }
 </style>
