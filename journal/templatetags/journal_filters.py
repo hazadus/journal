@@ -6,7 +6,12 @@ register = template.Library()
 @register.filter(name="new_comments_count_for_user")
 def new_comments_count_for_user(value, arg):
     """
-    Returns count of comments for the task with which `user` is not acquinted.
+    Return count of comments for the `task` with which `user` is not acquinted, excluding
+    archived comments.
+
+    :param value: task instance
+    :param arg: user instance
+    :return : count of comments for the `task` with which `user` is not acquinted
     """
     task = value
     user = arg
@@ -23,7 +28,11 @@ def new_comments_count_for_user(value, arg):
 @register.filter(name="is_user_acquainted")
 def is_user_acquainted(value, arg):
     """
-    Returns True if `user` is acquainted with task and all of its comments. Otherwise, returns False.
+    Return True if `user` is acquainted with `task` and all of its comments. Otherwise, return False.
+
+    :param value: task instance
+    :param arg: user instance
+    :return : True if `user` is acquainted with `task` and all of its comments. Otherwise, return False
     """
     task = value
     user = arg
@@ -42,7 +51,11 @@ def is_user_acquainted(value, arg):
 @register.filter(name="is_users_favorite")
 def is_users_favorite(value, arg):
     """
-    Returns True if `user` added this task to favorites. Otherwise, returns False.
+    Return True if `user` added the `task` to favorites. Otherwise, returns False.
+
+    :param value: task instance
+    :param arg: user instance
+    :return : True if `user` added the `task` to favorites. Otherwise, returns False
     """
     task = value
     user = arg

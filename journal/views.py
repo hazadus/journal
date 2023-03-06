@@ -247,11 +247,13 @@ class FavoriteTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, TaskListFi
 
     def get_context_data(self, **kwargs):
         """
-        Filter only tasks favorited by logged in user
+        Filter only tasks favorited by logged in user, excluding archived tasks.
         """
         context = super().get_context_data(**kwargs)
         favorite_task_list = context["favorite_task_list"]
-        context["favorite_task_list"] = favorite_task_list.filter(users_favorited__in=[self.request.user])
+        context["favorite_task_list"] = favorite_task_list.filter(
+            users_favorited__in=[self.request.user], is_archived=False
+        )
         return context
 
 
