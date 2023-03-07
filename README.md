@@ -30,7 +30,7 @@
 - - `whitenoise` - раздача статических файлов.
 - - `django-notifications-hq` - журнал активности пользователей.
 - - `XlsxWriter` - генерация отчетов в формате Excel.
-- - `Markdown` - разметка Markdown в задачах, комментариях и поручениях.
+- - [`Markdown`](https://python-markdown.github.io/) - разметка Markdown в задачах, комментариях и поручениях.
 - - `django-bleach` - очистка от HTML-тегов.
 - - `djangorestframework` - API для Vue-фронтенда.
 - [SQLite](https://sqlite.org/index.html) - проект не рассчитывался на значительное количество одновременно работающих 

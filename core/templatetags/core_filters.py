@@ -15,7 +15,7 @@ def markdown(value: str) -> str:
     :param value: text with Markdown markup.
     :return: input with Markdown markup converted to HTML.
     """
-    return md.markdown(value, extensions=["markdown.extensions.nl2br", "tables"])
+    return md.markdown(value, extensions=["markdown.extensions.nl2br", "tables", "fenced_code"])
 
 
 @register.filter

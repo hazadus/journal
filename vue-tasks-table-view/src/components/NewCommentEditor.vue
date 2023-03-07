@@ -57,8 +57,10 @@
   <div v-if="isPreviewVisible"
        class="alert alert-secondary flex-grow-1 m-1">
     <h5>Предварительный просмотр</h5>
-    <span v-html="markdownToHtml">
-    </span>
+    <div class="card-body">
+      <span v-html="markdownToHtml">
+      </span>
+    </div>
   </div>
 </template>
 

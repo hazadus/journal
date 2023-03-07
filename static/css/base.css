@@ -295,6 +295,23 @@ body {
   margin: 0;
 }
 
+.card-body blockquote {
+  font-style: italic;
+  border-left: solid 20px var(--bs-gray-300);
+  margin: 16px 0 16px 0;
+  padding: 0 0 0 10px;
+}
+
+.card-body code {
+  padding: 2px;
+  border-radius: 2px;
+  background-color: var(--bs-gray-300);
+}
+
+.card-body pre code {
+  background-color: transparent;
+}
+
 .card-body img {
   max-width: 100%;
 }

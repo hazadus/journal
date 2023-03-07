@@ -33,6 +33,13 @@
       <br>
     </div>
   </div>
+
+  <div class="btn-toolbar mb-0 justify-content-end border-top">
+    <button class="btn btn-sm btn-primary me-2 mb-0 mt-2"
+            @click="viewOptions.showOptions = !viewOptions.showOptions">
+      <i class="fa-solid fa-close"></i> Закрыть настройки
+    </button>
+  </div>
 </template>
 
 <script>
