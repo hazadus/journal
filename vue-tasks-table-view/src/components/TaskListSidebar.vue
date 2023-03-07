@@ -109,50 +109,14 @@
               <!-- Left vertical line -->
               <div class="timeline__line"></div>
 
-              <!-- The timeline items timeline -->
-              <div class="timeline__items">
+              <!-- The timeline items -->
+                <div class="timeline__items">
                   <!-- Each timeline item -->
-                  <div v-for="comment in comments" :key="comment.id" class="timeline__item mb-3">
-                    <!-- The circle and title -->
-                    <div class="timeline__top mb-2">
-                      <!-- The circle -->
-                      <div class="timeline__circle text-center">
-                        <i class="fa-solid fa-comment"></i>
-                      </div>
-
-                      <!-- The title -->
-                      <div class="timeline__title" :id="'comment-' + comment.id">
-                        Добавлен комментарий:
-                      </div>
-                    </div>
-                    <!-- The description which has round userpic -->
-                    <div class="timeline__desc_avatar">
-                      <div class="d-flex">
-                        <!-- Comment author's avatar -->
-                        <div class="timeline__desc_avatar__avatar mt-3 me-2">
-                          <img class="rounded-circle"
-                               :src="useAuthorAvatarURL(comment)"
-                               :alt="'Фото ' + useAuthorShortName(comment)"
-                               width="48"
-                               height="48">
-                        </div>
-                        <!-- Comment card -->
-                        <div class="card flex-grow-1"
-                             :class="comment.is_acquainted ? 'bubble' : 'card-new border-success bubble-new'">
-                          <div class="card-header d-flex text-muted">
-                            <!-- Comment info -->
-                            <div class="flex-grow-1">
-                              <i class="fa-solid fa-user"></i> {{ useAuthorShortName(comment) }}, {{ useFormatDateTime(comment.created) }}
-                            </div>
-                          </div>
-                          <div class="card-body" :id="'comment-body-' + comment.id">
-                            <span v-html="markdownToHtml(comment.body)"></span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-              </div>
+                  <CommentTimelineItem
+                    v-for="comment in comments" :key="comment.id"
+                    :comment="comment"
+                  />
+                </div>
             </div>
           </template>
 
@@ -187,6 +151,7 @@
 <script>
 import OptionsPanel from "@/components/OptionsPanel.vue";
 import TaskFavoriteButton from "@/components/TaskFavoriteButton.vue";
+import CommentTimelineItem from "@/components/CommentTimelineItem.vue";
 import NewCommentEditor from "@/components/NewCommentEditor.vue";
 import {viewOptions} from "@/stores/viewOptions";
 import {useFormatDateTime, useAuthorAvatarURL, useAuthorShortName} from "@/utils";
@@ -196,6 +161,7 @@ export default {
   components: {
     OptionsPanel,
     TaskFavoriteButton,
+    CommentTimelineItem,
     NewCommentEditor,
   },
   props: {
