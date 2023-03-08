@@ -79,6 +79,7 @@
             <CommentTimelineItem
               v-for="comment in comments" :key="comment.id"
               :comment="comment"
+              :user-info="userInfo"
             />
           </TimeLine>
 
@@ -101,6 +102,7 @@
               v-if="!detailItem.is_completed"
               @new-comment-posted="onNewCommentPosted"
               :task="detailItem"
+              :user-info="userInfo"
               :on-click-acquaint="onClickAcquaint"
           />
 
@@ -131,6 +133,7 @@ export default {
     NewCommentEditor,
   },
   props: {
+    userInfo: Object,
     tasks: Array,
     filteredTasks: Array,
     categories: Array,

@@ -26,7 +26,7 @@
   ** This will lead to the situation when on the first load (when nothing is stored in localStorage)
   ** the list of visible categories inside the component will be empty, and no tasks will be displayed.
   -->
-  <div v-if="!tasksAll.length || !categoriesAll.length" class="d-flex align-items-center">
+  <div v-if="!tasksAll.length || !categoriesAll.length || !userInfo.username" class="d-flex align-items-center">
     <div class="spinner-border text-primary me-3" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
@@ -44,6 +44,7 @@
     />
     <TaskListSidebar
         v-else
+        :user-info="userInfo"
         :tasks="tasksAll"
         :filtered-tasks="filteredTasks"
         :categories="categoriesAll"
@@ -77,6 +78,12 @@ export default {
       // Fetched from API:
       tasksAll: [],
       categoriesAll: [],
+      // Logged in user info (actually there are all CustomUser fields, see serializer code):
+      userInfo: {
+        id: 0,
+        username: '',
+        avatar_img: '',
+      },
       polling: null,
     }
   },
@@ -178,6 +185,21 @@ export default {
           throw error;
         });
     },
+    fetchUserInfo() {
+      const url = `/users/api/v1/logged_in_user/`;
+
+      return window.axios
+        .get(url, {
+          params: {},
+        })
+        .then((response) => {
+          this.userInfo = response.data;
+        })
+        .catch(function (error) {
+          console.log("Axios.get error:", error);
+          throw error;
+        });
+    },
     pollData () {
       this.polling = setInterval(() => {
         if (fetchOptions.autoUpdate) {
@@ -188,6 +210,7 @@ export default {
   },
   created() {
     this.fetchAllCategories();
+    this.fetchUserInfo();
     this.pollData();
   },
   beforeUnmount() {

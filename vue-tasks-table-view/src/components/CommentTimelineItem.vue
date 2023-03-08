@@ -44,6 +44,7 @@
 
         <CommentCard
             :comment="comment"
+            :user-info="userInfo"
         />
 
       </div>
@@ -62,6 +63,7 @@ export default {
   },
   props: {
     comment: Object,
+    userInfo: Object,
   },
   methods: {
     useFormatDateTime,

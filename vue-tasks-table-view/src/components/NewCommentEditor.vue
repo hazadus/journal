@@ -1,14 +1,13 @@
-<!-- Show the component only when we got logged in user's data from backend -->
-<template v-if="isUserDataFetched">
+<template>
   <form>
     <div class="mb-3">
       <label for="comment_text" class="form-label">Добавить комментарий:</label>
       <div class="d-flex">
         <div class="me-2">
-          <img v-if="userData.avatar_img"
+          <img v-if="userInfo.avatar_img"
                class="rounded-circle"
-               :src="userData.avatar_img"
-               :alt="'Фото ' + userData.username"
+               :src="userInfo.avatar_img"
+               :alt="'Фото ' + userInfo.username"
                width="48"
                height="48">
         </div>
@@ -69,16 +68,11 @@ import {useLinesCount} from "@/utils";
 
 export default {
   name: 'NewCommentEditor',
-  props: ['task', 'onClickAcquaint'],
+  props: ['task', 'onClickAcquaint', 'userInfo'],
   emits: ['newCommentPosted'],
   data() {
     return {
       newCommentText: '',
-      userData: {
-        username: '',
-        avatar_img: '',
-      },
-      isUserDataFetched: false,
       isCompleteTask: false,
       isPosting: false,
       isAcquainting: false,
@@ -86,31 +80,15 @@ export default {
   },
   methods: {
     useLinesCount,
-    fetchUserData() {
-      const url = `/users/api/v1/logged_in_user/`;
-
-      return window.axios
-        .get(url, {
-          params: {},
-        })
-        .then((response) => {
-          this.userData = response.data;
-          this.isUserDataFetched = true;
-        })
-        .catch(function (error) {
-          console.log("Axios.get error:", error);
-          throw error;
-        });
-    },
     onClickSubmit() {
       if (this.newCommentText.trimStart().trimEnd().length < 5) {
         alert('Для отправки комментария, введите текст (не менее 5 символов)!');
       } else {
         this.isPosting = true;
         const newComment = {
-          "task": this.task.id,
-          "author": this.userData.id,
-          "body": this.newCommentText,
+          'task': this.task.id,
+          'author': this.userInfo.id,
+          'body': this.newCommentText,
         };
 
         // Actually do the post:
@@ -121,7 +99,7 @@ export default {
           })
           .then((response) => {
             this.isPosting = false;
-            this.newCommentText = "";
+            this.newCommentText = '';
             this.$emit('newCommentPosted', response);
           })
           .catch(function (error) {
@@ -151,8 +129,5 @@ export default {
       return this.newCommentText.trimStart().trimEnd().length < 5 || this.isPosting;
     },
   },
-  created() {
-    this.fetchUserData();
-  }
 }
 </script>

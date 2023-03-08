@@ -13,12 +13,14 @@
       <!-- Buttons on the right side -->
       <div>
         <!-- Edit button -->
-        <a class="toolbar-link toolbar-link-primary me-1"
+        <a v-if="comment.author === userInfo.id"
+           class="toolbar-link toolbar-link-primary me-1"
            @click.prevent="onClickEdit">
           <i class="fa-solid fa-pen-to-square"></i>
         </a>
         <!-- Archive button -->
-        <a class="toolbar-link toolbar-link-danger"
+        <a v-if="comment.author === userInfo.id"
+           class="toolbar-link toolbar-link-danger"
            @click.prevent="onClickArchive">
           <i class="fa-solid fa-trash"></i>
         </a>
@@ -40,6 +42,7 @@ export default {
   name: "CommentCard",
   props: {
     comment: Object,
+    userInfo: Object,
   },
   data() {
     return {
