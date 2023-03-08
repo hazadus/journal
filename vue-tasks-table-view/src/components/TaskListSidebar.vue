@@ -74,23 +74,13 @@
                     }"
           />
 
-          <!-- Comments block -->
-          <template v-if="comments">
-            <!-- Timeline -->
-            <div class="timeline">
-              <!-- Left vertical line -->
-              <div class="timeline__line"></div>
-
-              <!-- The timeline items -->
-                <div class="timeline__items">
-                  <!-- Each timeline item -->
-                  <CommentTimelineItem
-                    v-for="comment in comments" :key="comment.id"
-                    :comment="comment"
-                  />
-                </div>
-            </div>
-          </template>
+          <!-- Comments timeline -->
+          <TimeLine v-if="comments">
+            <CommentTimelineItem
+              v-for="comment in comments" :key="comment.id"
+              :comment="comment"
+            />
+          </TimeLine>
 
           <!-- "Task completed" alert -->
           <div class="alert alert-success" v-if="detailItem.is_completed">
@@ -124,6 +114,7 @@
 import OptionsPanel from "@/components/OptionsPanel.vue";
 import TaskCard from "@/components/TaskCard.vue";
 import TaskFavoriteButton from "@/components/TaskFavoriteButton.vue";
+import TimeLine from "@/components/TimeLine.vue";
 import CommentTimelineItem from "@/components/CommentTimelineItem.vue";
 import NewCommentEditor from "@/components/NewCommentEditor.vue";
 import {viewOptions} from "@/stores/viewOptions";
@@ -135,6 +126,7 @@ export default {
     OptionsPanel,
     TaskCard,
     TaskFavoriteButton,
+    TimeLine,
     CommentTimelineItem,
     NewCommentEditor,
   },
