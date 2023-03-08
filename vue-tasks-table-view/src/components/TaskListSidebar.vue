@@ -66,41 +66,13 @@
           </h3>
 
           <!-- Task Detail card -->
-          <div class="card mb-2"
-               :class="detailItem.is_acquainted ? '' : 'card-new border-success'">
-            <div class="card-header text-muted">
-              <div class="d-flex flex-wrap flex-md-nowrap align-items-center">
-                <div class="flex-grow-1">
-                  <TaskFavoriteButton
-                      :task="detailItem"
-                      @toggled="(response) => {
-                        detailItem.is_favorite = response.is_favorite;
-                        // Require refetch to update ordering
-                        this.$emit('favoriteToggled');
-                      }"
-                      style="margin: 0 5px 0 0;"
-                  />
-                  <i v-if="detailItem.is_private" class="fa-solid fa-lock me-1"></i>
-                  <i class="fa-regular fa-calendar"></i> {{ useFormatDateTime(detailItem.created) }}
-                  &middot; <i class="fa-solid fa-user"></i> {{ useAuthorShortName(detailItem) }}
-                  <template v-if="detailItem.is_completed">
-                      &middot; <i class="fa-solid fa-calendar-check"></i>
-                      {{ useFormatDateTime(detailItem.completed) }}
-                  </template>
-                  &middot; <a class="text-muted" :href="`/journal/task/${detailItem.id}/`" target="_blank">
-                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div class="card-body task-card-body">
-              <span v-html="markdownToHtml(detailItem.body)"></span>
-              <p v-if="detailItem.attachment" class="mt-3">
-                <i class="fa-solid fa-paperclip"></i> Файл: <a :href="detailItem.attachment">
-                  {{ decodeURI(detailItem.attachment) }}</a>
-              </p>
-            </div>
-          </div>
+          <TaskCard :task="detailItem"
+                    @favorite-toggled="(response) => {
+                      detailItem.is_favorite = response.is_favorite;
+                      // Require refetch to update ordering
+                      this.$emit('favoriteToggled');
+                    }"
+          />
 
           <!-- Comments block -->
           <template v-if="comments">
@@ -150,6 +122,7 @@
 
 <script>
 import OptionsPanel from "@/components/OptionsPanel.vue";
+import TaskCard from "@/components/TaskCard.vue";
 import TaskFavoriteButton from "@/components/TaskFavoriteButton.vue";
 import CommentTimelineItem from "@/components/CommentTimelineItem.vue";
 import NewCommentEditor from "@/components/NewCommentEditor.vue";
@@ -160,6 +133,7 @@ export default {
   name: "TaskListSidebar",
   components: {
     OptionsPanel,
+    TaskCard,
     TaskFavoriteButton,
     CommentTimelineItem,
     NewCommentEditor,

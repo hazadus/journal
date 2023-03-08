@@ -30,6 +30,7 @@ export default {
             params: {},
           })
           .then((response) => {
+            // `response` from API contains "id" (task ID), "username" and "is_favorite".
             this.$emit('toggled', response.data);
             return response.data;
           })
