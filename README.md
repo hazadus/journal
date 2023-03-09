@@ -33,6 +33,8 @@
 - - [`Markdown`](https://python-markdown.github.io/) - разметка Markdown в задачах, комментариях и поручениях.
 - - `django-bleach` - очистка от HTML-тегов.
 - - `djangorestframework` - API для Vue-фронтенда.
+- - `Django-Channels` + `channels-redis`
+- - `Daphne`
 - [SQLite](https://sqlite.org/index.html) - проект не рассчитывался на значительное количество одновременно работающих 
 пользователей, поэтому выбрана данная БД из-за её простоты, удобства отладки и резервного копирования. 
 - Redis

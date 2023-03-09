@@ -5,6 +5,7 @@ services:
     image: redis:7.0.4
     volumes:
       - ./data/redis:/data
+    restart: always
   web:
     container_name: "journal-web"
     build: .
@@ -21,6 +22,22 @@ services:
       - "ROLLBAR_ACCESS_TOKEN="
     depends_on:
       - redis
+    restart: always
+# Daphne part based on ch.17 of A.Mele's "Django 4 by Example" book
+# NB: secret key must be the same with `web`
+  daphne:
+    container_name: "journal-ws"
+    build: .
+    command: ["daphne", "-u", "/code/data/daphne/daphe.sock", "django_project.asgi:application"]
+    volumes:
+      - .:/code
+    environment:
+      - "SECRET_KEY="
+      - "DEBUG=False"
+      - "HOST_NAME=http://127.0.0.1"
+      - "STATIC_ROOT=staticfiles"
+      - "ROLLBAR_ACCESS_TOKEN="
+    restart: always
   worker:
     container_name: "journal-worker"
     build: .
@@ -34,6 +51,7 @@ services:
       - "ROLLBAR_ACCESS_TOKEN="
       - "TELEGRAM_BOT_TOKEN="
       - "TELEGRAM_ADMIN_ID=133637887"
+    restart: always
   # Nginx config inspired by: https://saasitive.com/tutorial/django-celery-redis-postgres-docker-compose/
   nginx:
     container_name: "journal-nginx"
@@ -48,3 +66,4 @@ services:
       - ./media:/media
     depends_on:
       - web
+    restart: always

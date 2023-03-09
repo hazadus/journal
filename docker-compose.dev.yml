@@ -19,6 +19,20 @@ services:
       - "ROLLBAR_ACCESS_TOKEN="
     depends_on:
       - redis
+# Daphne part based on ch.17 of A.Mele's "Django 4 by Example" book
+# NB: secret key must be the same with `web`
+  daphne:
+    container_name: "journal-ws"
+    build: .
+    command: ["daphne", "-u", "/code/data/daphne/daphe.sock", "django_project.asgi:application"]
+    volumes:
+      - .:/code
+    environment:
+      - "SECRET_KEY="
+      - "DEBUG=True"
+      - "HOST_NAME=http://127.0.0.1"
+      - "STATIC_ROOT=staticfiles"
+      - "ROLLBAR_ACCESS_TOKEN="
   worker:
     container_name: "journal-worker"
     build: .

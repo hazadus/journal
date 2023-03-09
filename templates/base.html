@@ -22,6 +22,41 @@
   <script src="{% static 'bootstrap-5.3.0-alpha1-dist/js/bootstrap.bundle.min.js' %}"></script>
   <script src="{% static 'js/htmx-1.8.4.min.js' %}"></script>
   <script>
+    //
+    // Network stuff
+    //
+    let chatSocket;
+
+    function connect() {
+      // Establish WebSocket connection, and reconnect when socket is closed.
+      const url = 'ws://' + window.location.host + '/ws/notifications/';
+      chatSocket = new WebSocket(url);
+
+      chatSocket.onopen = function() {
+        // subscribe to some channels
+        console.log('Base: WebSocket opened.');
+      };
+
+      chatSocket.onmessage = function(event) {
+        console.log(event.data);
+        // Update badges upon receiving any notification
+        updateNewTaskCountBadges();
+      };
+
+      chatSocket.onclose = function(e) {
+        console.log('Base: Socket is closed unexpectedly. Reconnect will be attempted in 1 second.', e.reason);
+        setTimeout(function() {
+          connect();
+        }, 1000);
+      };
+
+      chatSocket.onerror = function(err) {
+        console.error('Base: Socket encountered error: ', err.message, 'Closing socket.');
+        chatSocket.close();
+      };
+    }
+
+    // Badges stuff
     let badgeActiveNewTaskCount = document.getElementById('badge-active-new-task-count');
     let badgeFavoriteNewTaskCount = document.getElementById('badge-favorite-new-task-count');
     let badgeCompletedNewTaskCount = document.getElementById('badge-completed-new-task-count');
@@ -48,6 +83,9 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      // Connect to WebSocket
+      connect();
+
       // Init HTMX
       document.body.addEventListener('htmx:configRequest', (event) => {
         event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
@@ -55,11 +93,6 @@
 
       // Initial update of badges
       updateNewTaskCountBadges();
-
-      // Create timer to update badges every 12 seconds
-      setInterval(() => {
-        updateNewTaskCountBadges();
-      }, 12000);
 
       // Init Bootstrap tooltips
       const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');

@@ -4,9 +4,12 @@ from django.db import models
 from django.conf import settings
 
 from model_utils import Choices
+from asgiref.sync import async_to_sync
 from notifications.signals import notify
-from .tasks import telegram_inform_admin
+from channels.layers import get_channel_layer
 from notifications.base.models import AbstractNotification
+
+from .tasks import telegram_inform_admin
 
 
 class Notification(AbstractNotification):
@@ -57,7 +60,8 @@ class Notification(AbstractNotification):
              previous_body=None, new_title: str = None, new_body: str = None) -> None:
         """
         Custom wrapper for notify.send() and telegram_inform_admin() Celery task.
-        Creates notification(s) for an event: in DB (with additional fields), via Telegram (for admin).
+        Create notification(s) for an event: in DB (with additional fields), via Telegram (for admin).
+        Also send notification text to all users via WebSockets.
         """
         verbs = {
             Notification.VERB_CODES.task_add: "создаёт задачу",
@@ -85,58 +89,71 @@ class Notification(AbstractNotification):
                                        new_title=new_title,
                                        new_body=new_body)
 
-        # Create Celery task to send Telegram message
         # Compose telegram message depending on verb and content type
-        if not actor.is_superuser or verb_code == "report_add":
-            host = settings.HOST_NAME
-            match verb_code:
-                case "comment_add":
-                    message = '{user} {verb} к ' \
-                              '<a href="{host}{url}">{target}</a>:\n"{comment}"'.format(
-                                host=host,
-                                user=actor.short_name,
-                                verb=verbs[verb_code],
-                                url=target.get_absolute_url(),
-                                target=str(target),
-                                comment=action_object.body,
-                                )
-                case "task_add":
-                    message = '{user} {verb} <a href="{host}{url}">{target}</a>:\n"{task}"'.format(
-                        host=host,
-                        user=actor.short_name,
-                        verb=verbs[verb_code],
-                        target=str(target),
-                        url=target.get_absolute_url() if target else None,
-                        task=target.body,
-                    )
-                case "task_completed" | "acquainted" | "favorites_add":
-                    message = '{user} {verb} <a href="{host}{url}">{target}</a>'.format(
-                        host=host,
-                        user=actor.short_name,
-                        verb=verbs[verb_code],
-                        target=str(target),
-                        url=target.get_absolute_url() if target else None
-                    )
-                case "report_add":
-                    message = '{user} {verb} <a href="{host}{url}">{target}</a>'.format(
-                        host=host,
-                        user=actor.short_name,
-                        verb=verbs[verb_code],
-                        target=str(target),
-                        url=target.attachment.url
-                    )
-                case "user_logged_in" | "user_logged_out":
-                    message = '{user} {verb}'.format(
-                        user=actor.short_name,
-                        verb=verbs[verb_code],
-                    )
-                case _:
-                    message = '{user} {verb} <a href="{host}{url}">{target}</a>'.format(
-                        host=host,
-                        user=actor.short_name,
-                        verb=verbs[verb_code],
-                        target=str(target),
-                        url=target.get_absolute_url() if target else None
-                    )
+        host = settings.HOST_NAME
+        match verb_code:
+            case "comment_add":
+                message = '{user} {verb} к ' \
+                          '<a href="{host}{url}">{target}</a>:\n"{comment}"'.format(
+                            host=host,
+                            user=actor.short_name,
+                            verb=verbs[verb_code],
+                            url=target.get_absolute_url(),
+                            target=str(target),
+                            comment=action_object.body,
+                            )
+            case "task_add":
+                message = '{user} {verb} <a href="{host}{url}">{target}</a>:\n"{task}"'.format(
+                    host=host,
+                    user=actor.short_name,
+                    verb=verbs[verb_code],
+                    target=str(target),
+                    url=target.get_absolute_url() if target else None,
+                    task=target.body,
+                )
+            case "task_completed" | "acquainted" | "favorites_add":
+                message = '{user} {verb} <a href="{host}{url}">{target}</a>'.format(
+                    host=host,
+                    user=actor.short_name,
+                    verb=verbs[verb_code],
+                    target=str(target),
+                    url=target.get_absolute_url() if target else None
+                )
+            case "report_add":
+                message = '{user} {verb} <a href="{host}{url}">{target}</a>'.format(
+                    host=host,
+                    user=actor.short_name,
+                    verb=verbs[verb_code],
+                    target=str(target),
+                    url=target.attachment.url
+                )
+            case "user_logged_in" | "user_logged_out":
+                message = '{user} {verb}'.format(
+                    user=actor.short_name,
+                    verb=verbs[verb_code],
+                )
+            case _:
+                message = '{user} {verb} <a href="{host}{url}">{target}</a>'.format(
+                    host=host,
+                    user=actor.short_name,
+                    verb=verbs[verb_code],
+                    target=str(target),
+                    url=target.get_absolute_url() if target else None
+                )
 
+        # Create Celery task to send Telegram message to admin
+        # (excluding notifications generated by admins)
+        if not actor.is_superuser or verb_code == "report_add":
             telegram_inform_admin.delay(message)
+
+        # Send all notifications via WebSockets to all connected users
+        try:
+            channel_layer = get_channel_layer()
+            group_name = "ws-notifications"
+            event = {
+                "type": "notification_created",
+                "text": message,
+            }
+            async_to_sync(channel_layer.group_send)(group_name, event)
+        except Exception as e:
+            print(e)
