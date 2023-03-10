@@ -137,6 +137,7 @@ export default {
     tasks: Array,
     filteredTasks: Array,
     categories: Array,
+    latestNotification: String,
   },
   emits: ['favoriteToggled', 'acquainted', 'newCommentPosted'],
   data () {
@@ -235,6 +236,13 @@ export default {
     selectedItem: {
       handler() {
         this.fetchSelectedTask();
+        this.fetchSelectedTaskComments();
+      }
+    },
+    latestNotification: {
+      handler() {
+        // For now, we refetch comments for selected task on any notification (tasks are refetched in App.vue).
+        // In the future, we want to refetch comments only on actual comment posts / updates.
         this.fetchSelectedTaskComments();
       }
     },

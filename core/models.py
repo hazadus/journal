@@ -147,13 +147,10 @@ class Notification(AbstractNotification):
             telegram_inform_admin.delay(message)
 
         # Send all notifications via WebSockets to all connected users
-        try:
-            channel_layer = get_channel_layer()
-            group_name = "ws-notifications"
-            event = {
-                "type": "notification_created",
-                "text": message,
-            }
-            async_to_sync(channel_layer.group_send)(group_name, event)
-        except Exception as e:
-            print(e)
+        channel_layer = get_channel_layer()
+        group_name = "ws-notifications"
+        event = {
+            "type": "notification_created",
+            "text": message,
+        }
+        async_to_sync(channel_layer.group_send)(group_name, event)

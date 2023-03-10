@@ -22,9 +22,7 @@
   <script src="{% static 'bootstrap-5.3.0-alpha1-dist/js/bootstrap.bundle.min.js' %}"></script>
   <script src="{% static 'js/htmx-1.8.4.min.js' %}"></script>
   <script>
-    //
     // Network stuff
-    //
     let chatSocket;
 
     function connect() {
@@ -33,7 +31,6 @@
       chatSocket = new WebSocket(url);
 
       chatSocket.onopen = function() {
-        // subscribe to some channels
         console.log('Base: WebSocket opened.');
       };
 
@@ -56,11 +53,6 @@
       };
     }
 
-    // Badges stuff
-    let badgeActiveNewTaskCount = document.getElementById('badge-active-new-task-count');
-    let badgeFavoriteNewTaskCount = document.getElementById('badge-favorite-new-task-count');
-    let badgeCompletedNewTaskCount = document.getElementById('badge-completed-new-task-count');
-
     function updateNewTaskCountBadges() {
       // Fetches count of "new" tasks for logged in user from DRF API and updates the badges
       let url = '{% url "journal:api_task_stats" %}';
@@ -81,6 +73,11 @@
         badgeCompletedNewTaskCount.style.visibility = stats.completed_new_tasks === 0 ? 'hidden' : 'visible';
       });
     }
+
+    // Badges stuff
+    let badgeActiveNewTaskCount = document.getElementById('badge-active-new-task-count');
+    let badgeFavoriteNewTaskCount = document.getElementById('badge-favorite-new-task-count');
+    let badgeCompletedNewTaskCount = document.getElementById('badge-completed-new-task-count');
 
     document.addEventListener('DOMContentLoaded', () => {
       // Connect to WebSocket
