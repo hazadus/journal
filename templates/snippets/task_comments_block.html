@@ -157,10 +157,11 @@
 </div>
 
 <script>
-{% block domready %}
-  const completedCheckBox = document.getElementById('check-complete-task');
-  const commentTextarea = document.getElementById('comment-text');
-  const submitButton = document.getElementById('submit-button');
+  // These three variables are declared in "task_detail.html" <script> section.
+  // This separation is needed for HTMX to work properly on partial page reloads, when these DOM elements are changed.
+  completedCheckBox = document.getElementById('check-complete-task');
+  commentTextarea = document.getElementById('comment-text');
+  submitButton = document.getElementById('submit-button');
 
   commentTextarea.addEventListener("keyup", (event) => {
     let commentText = commentTextarea.value.toString().trimStart().trimEnd();
@@ -183,5 +184,4 @@
       submitButton.innerHTML = '<i class="fa-solid fa-comment"></i> Комментировать';
     }
   });
-{% endblock %}
 </script>

@@ -21,3 +21,13 @@
 {% block content %}
   {% include "snippets/task_full_block.html" with task=task %}
 {% endblock content %}
+
+<script>
+{% block domready %}
+  // Declare variables for DOM elements, they will be assigned in "task_comments_block.html" <script> section.
+  // This separation is needed for HTMX to work properly on partial page reloads, when these DOM elements are changed.
+  let completedCheckBox;
+  let commentTextarea;
+  let submitButton;
+{% endblock %}
+</script>
