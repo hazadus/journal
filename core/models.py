@@ -1,3 +1,4 @@
+import json
 from typing import Any
 
 from django.db import models
@@ -5,11 +6,13 @@ from django.conf import settings
 
 from model_utils import Choices
 from asgiref.sync import async_to_sync
+from rest_framework import serializers
 from notifications.signals import notify
 from channels.layers import get_channel_layer
 from notifications.base.models import AbstractNotification
 
 from .tasks import telegram_inform_admin
+from users.serializers import CustomUserMinimalSerializer
 
 
 class Notification(AbstractNotification):
@@ -151,6 +154,36 @@ class Notification(AbstractNotification):
         group_name = "ws-notifications"
         event = {
             "type": "notification_created",
-            "text": message,
+            "text": "{}",
         }
-        async_to_sync(channel_layer.group_send)(group_name, event)
+
+        # Here we want to iterate over all notifications and send each to corresponding channel (i.e. user)
+        # For now, we just send first notification from the list to all connected users.
+        (receiver, notifications_list) = result[0]
+        if notifications_list:
+            serializer = NotificationSerializer(instance=notifications_list[0])
+            event["text"] = json.dumps(serializer.data)
+            async_to_sync(channel_layer.group_send)(group_name, event)
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Notification model.
+    Used to send notification data to users via WebSockets.
+    """
+    actor = CustomUserMinimalSerializer(many=False, read_only=True)
+    recipient = CustomUserMinimalSerializer(many=False, read_only=True)
+    action_obj_id = serializers.IntegerField(source="action_object_object_id")
+    target_obj_id = serializers.IntegerField(source="target_object_id")
+
+    class Meta:
+        model = Notification
+        fields = [
+            "id",
+            "actor",
+            "recipient",
+            "verb_code",
+            "action_obj_id",
+            "target_obj_id",
+            "timestamp",
+        ]

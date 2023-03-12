@@ -5,7 +5,7 @@ from .models import CustomUser
 
 class CustomUserSerializer(serializers.ModelSerializer):
     """
-    Serializer for CustomUser model.
+    Serializer for CustomUser model - full version.
     """
     class Meta:
         model = CustomUser
@@ -19,4 +19,16 @@ class CustomUserSerializer(serializers.ModelSerializer):
             "birthday",
             "avatar_img",
             "date_joined",
+        ]
+
+
+class CustomUserMinimalSerializer(serializers.ModelSerializer):
+    """
+    Serializer for CustomUser model - minimal version.
+    """
+    class Meta:
+        model = CustomUser
+        fields = [
+            "id",
+            "username",
         ]

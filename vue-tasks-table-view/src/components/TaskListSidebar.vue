@@ -137,14 +137,14 @@ export default {
     tasks: Array,
     filteredTasks: Array,
     categories: Array,
-    latestNotification: String,
+    latestNotification: Object,  // Latest notification from backend received via WebSocket
   },
   emits: ['favoriteToggled', 'acquainted', 'newCommentPosted'],
   data () {
     return {
       viewOptions,
-      selectedItem: null,
-      detailItem: null,
+      selectedItem: null,  // "Compact" info about task selected in the sidebar (without body)
+      detailItem: null,    // Full info about task selected in the sidebar
       comments: null,
     }
   },
@@ -237,14 +237,43 @@ export default {
       handler() {
         this.fetchSelectedTask();
         this.fetchSelectedTaskComments();
-      }
+      },
+      deep: true,
     },
     latestNotification: {
       handler() {
-        // For now, we refetch comments for selected task on any notification (tasks are refetched in App.vue).
-        // In the future, we want to refetch comments only on actual comment posts / updates.
-        this.fetchSelectedTaskComments();
-      }
+        // We watch `latestNotification` to re-fetch data from backend when selected task or it's comments are changed.
+        //
+        // Re-fetch comments if we get "add_comment" notification with "target_obj_id" === "detailItem.id"
+        // AND on any "edit_comment" notification (we don't check if it belongs to detailItem or not, and comments are
+        // rarely edited).
+        //
+        // Re-fetch task data when selected task edited or completed.
+        //
+        if (this.selectedItem) {
+          switch (this.latestNotification.verb_code) {
+            case "comment_add":
+              if (this.latestNotification.target_obj_id === this.selectedItem.id) {
+                this.fetchSelectedTaskComments();
+                // Re-fetch task, too, because we need to show "Acquaint" button when new comment added.
+                this.fetchSelectedTask();
+              }
+              break;
+
+            case "comment_edit":
+              this.fetchSelectedTaskComments();
+              break;
+
+            case "task_edit":
+            case "task_completed":
+              if (this.latestNotification.target_obj_id === this.selectedItem.id) {
+                this.fetchSelectedTask();
+              }
+              break;
+          }
+        }
+      },
+      deep: true,
     },
   },
   mounted() {

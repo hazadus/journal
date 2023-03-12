@@ -48,7 +48,13 @@
         :filtered-tasks="filteredTasks"
         :categories="categoriesAll"
         :latest-notification="latestNotification"
+        @favorite-toggled="fetchAllTasks"
+        @acquainted="fetchAllTasks"
     />
+    <!--
+    Tasks are re-fetched when frontend user toggles favorite status of a task, or gets acquainted with a task.
+    Also tasks are re-fetched based on notifications from backend: see `webSocketConnect()` implementation.
+    -->
   </template>
 </template>
 
@@ -143,12 +149,18 @@ export default {
       };
 
       this.webSocket.onmessage = (event) => {
-        console.log('Vue:' + event.data);
         // Store notification to pass it to children component
-        this.latestNotification = event.data;
-        // Refetch data on any notification:
-        this.fetchAllTasks();
-        this.fetchAllCategories();
+        this.latestNotification = JSON.parse(event.data);
+        console.log('Vue  - WS message - verb: ' + this.latestNotification.verb_code + ' from ' + this.latestNotification.actor.username);
+
+        // Refetch tasks depending on notification type:
+        switch (this.latestNotification.verb_code) {
+          case "task_add":
+          case "task_edit":
+          case "task_completed":
+          case "comment_add":
+            this.fetchAllTasks();
+        }
       };
 
       this.webSocket.onclose = (e) => {

@@ -35,9 +35,16 @@
       };
 
       chatSocket.onmessage = function(event) {
-        console.log(event.data);
+        const notification = JSON.parse(event.data);
+        console.log('Base - WS message - verb: ' + notification.verb_code + ' from ' + notification.actor.username);
         // Update badges upon receiving any notification
-        updateNewTaskCountBadges();
+        // "task_add", "task_completed", "comment_add"
+        switch (notification.verb_code) {
+          case "task_add":
+          case "task_completed":
+          case "comment_add":
+            updateNewTaskCountBadges();
+        }
       };
 
       chatSocket.onclose = function(e) {

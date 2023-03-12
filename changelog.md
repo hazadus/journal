@@ -1,3 +1,12 @@
+11.03.2023, Сб
+    - 01:30 - Сериализация `Notification` и отправка его во фронтенд по WebSocket. Обновление фронтенда Vue и бейджей в
+              сайдбаре зависимости от типа уведомления и объектов, которых оно касается.
+
+10.03.2023, Пт
+    - 23:20 - Понижены версии до: `channels==3.0.5`, `channels-redis==3.4.1`, `daphne==3.0.2` из-за ошибки (см.
+              https://github.com/django/channels_redis/issues/332) возникающей при вызове
+              `async_to_sync(channel_layer.group_send)(group_name, event)`. На этих версиях данной ошибки не замечено.
+
 09.03.2023, Чт
     - 15:00 - Подключены `Django-Channels`, `Channels-Redis`, `Daphne`.
               `base.html` при загрузке устанавливает соединение по WebSockets на `ws/notifications/`.
@@ -7,9 +16,6 @@
               бейджей отключен.
     - 22:00 - Vue app при запуске подключается по WebSockets на `ws/notifications/`, и обновляет задачи и категории
               через API при получении любого уведомления по WebSocket. Периодический поллинг API убран из Vue App.
-    - 23:20 - Понижены версии до: `channels==3.0.5`, `channels-redis==3.4.1`, `daphne==3.0.2` из-за ошибки (см.
-              https://github.com/django/channels_redis/issues/332) возникающей при вызове
-              `async_to_sync(channel_layer.group_send)(group_name, event)`. На этих версиях данной ошибки не замечено.
 
 08.03.2023, Ср
     - 22:00 - "Карточка" детального вида задачи порефакторена в компонент `TaskCard`.
