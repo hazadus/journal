@@ -3,8 +3,19 @@
     <div class="tasks">
 
       <div class="d-flex align-items-center flex-shrink-0 p-3 link-dark text-decoration-none border-bottom">
-        <div class="" style="flex-grow: 1;">
-          Задач: {{ filteredTasks.length }} / {{ tasks.length }}
+        <div class="d-flex flex-grow-1">
+          <div class="flex-grow-1">
+            Задач: {{ filteredTasks.length }} / {{ tasks.length }}
+          </div>
+          <div>
+            <!-- Show connection status -->
+            <template v-if="isWebSocketConnected">
+              <i class="fa-solid fa-plug-circle-check" style="color: var(--bs-success);"></i>
+            </template>
+            <template v-else>
+              <i class="fa-solid fa-plug-circle-minus" style="color: var(--bs-danger);"></i>
+            </template>
+          </div>
         </div>
       </div>
 
@@ -138,6 +149,7 @@ export default {
     filteredTasks: Array,
     categories: Array,
     latestNotification: Object,  // Latest notification from backend received via WebSocket
+    isWebSocketConnected: Boolean,  // Used to display WebSocket connection status to user
   },
   emits: ['favoriteToggled', 'acquainted', 'newCommentPosted'],
   data () {

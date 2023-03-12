@@ -48,6 +48,7 @@
         :filtered-tasks="filteredTasks"
         :categories="categoriesAll"
         :latest-notification="latestNotification"
+        :is-web-socket-connected="isWebSocketConnected"
         @favorite-toggled="fetchAllTasks"
         @acquainted="fetchAllTasks"
     />
@@ -88,6 +89,7 @@ export default {
         avatar_img: '',
       },
       webSocket: null,
+      isWebSocketConnected: false,
       latestNotification: null,  // Last notification received via WebSocket connection
     }
   },
@@ -146,6 +148,7 @@ export default {
 
       this.webSocket.onopen = () => {
         console.log('Vue: WebSocket opened.');
+        this.isWebSocketConnected = true;
       };
 
       this.webSocket.onmessage = (event) => {
@@ -163,15 +166,17 @@ export default {
         }
       };
 
-      this.webSocket.onclose = (e) => {
-        console.log('Vue: Socket is closed unexpectedly. Reconnect will be attempted in 1 second.', e.reason);
-        setTimeout(function() {
+      this.webSocket.onclose = (err) => {
+        console.log('Vue: Socket is closed unexpectedly. Reconnect will be attempted in 1 second. Error message: ', err.message);
+        this.isWebSocketConnected = false;
+        setTimeout(() => {
           this.webSocketConnect();
         }, 1000);
       };
 
       this.webSocket.onerror = (err) => {
-        this.webSocket.error('Vue: Socket encountered error: ', err.message, 'Closing socket.');
+        console.error('Vue: Socket encountered error: ', err.message, '. Closing socket.');
+        this.isWebSocketConnected = false;
         this.webSocket.close();
       };
     },
