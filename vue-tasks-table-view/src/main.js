@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import App from './App.vue';
+import * as Sentry from "@sentry/vue";
 
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
@@ -47,5 +48,12 @@ const markedMixin = {
 };
 
 const app = createApp(App);
+
+Sentry.init({
+  app,
+  dsn: "https://f34f0f582dfa429e868907665de40a62@o1402378.ingest.sentry.io/4504825355698176",
+  tracesSampleRate: 0.1,
+});
+
 app.mixin(markedMixin);
 app.mount('#dashboard-page-content');
