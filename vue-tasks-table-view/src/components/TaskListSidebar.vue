@@ -4,13 +4,12 @@
 
       <div class="d-flex align-items-center flex-shrink-0 p-3 link-dark text-decoration-none border-bottom">
         <div class="d-flex flex-grow-1">
-          <div class="flex-grow-1">
+          <div class="tasks-task-counts flex-grow-1">
             <!-- Show number of tasks -->
             <i class="fa-solid fa-display"></i> {{ filteredTasks.length }} |      <!-- # tasks displayed  -->
             <i class="fa-solid fa-eye-slash"></i> {{ newTasksCount }} |           <!-- # "new" tasks      -->
             <i class="fa-solid fa-star"></i> {{ favoriteTasksCount }} |           <!-- # favorite tasks   -->
             <i class="fa-solid fa-bars-progress"></i> {{ activeTasksCount }} |    <!-- # incomplete tasks -->
-            <i class="fa-solid fa-check-double"></i> {{ completedTasksCount }} |  <!-- # complete tasks   -->
             <i class="fa-solid fa-tasks"></i> {{ tasks.length }}                  <!-- # tasks total      -->
           </div>
           <div>
@@ -177,9 +176,6 @@ export default {
     activeTasksCount() {
       return this.tasks.filter((task) => !task.is_completed).length;
     },
-    completedTasksCount() {
-      return this.tasks.filter((task) => task.is_completed).length;
-    },
   },
   methods: {
     useFormatDateTime,
@@ -330,6 +326,12 @@ export default {
   width: 380px;
   flex-shrink: 0;
   border-right: 1px solid #e4e4e4;
+}
+
+.tasks-task-counts {
+  white-space: nowrap;
+  overflow-x: hidden;
+  font-family: var(--font-family-condensed);
 }
 
 .task-list {
