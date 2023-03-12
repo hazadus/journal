@@ -84,6 +84,7 @@
 
           <!-- Task Detail card -->
           <TaskCard :task="detailItem"
+                    :user-info="userInfo"
                     @favorite-toggled="(response) => {
                       detailItem.is_favorite = response.is_favorite;
                       // Require refetch to update ordering

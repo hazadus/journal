@@ -56,9 +56,8 @@
       </div>
 
       <!-- Buttons -->
-      <div class="flex-grow-1">
-        &nbsp;
-        <!-- Add some info text here... -->
+      <div class="help-text flex-grow-1 text-muted p-1 align-items-center">
+        <i class="fa-solid fa-info-circle"></i> В тексте задачи можно использовать разметку <a href="http://konvut.github.io/k50articles/" target="_blank">Markdown <i class="fa-solid fa-question-circle"></i></a> .
       </div>
       <div class="btn-toolbar mt-1 mb-2 mb-md-0 justify-content-end">
         <button class="btn btn-sm btn-secondary me-1"
@@ -111,6 +110,7 @@ export default {
     useLinesCount,
     onClickEdit() {
       this.isEditing = true;
+      this.activeEditorTabName = 'edit';
       this.modifiedBody = this.comment.body;
     },
     onClickSave() {
@@ -134,5 +134,9 @@ export default {
 <style scoped>
   .nav-link {
     font-size: 16px;
+  }
+
+  .help-text {
+    font-family: var(--font-family-condensed);
   }
 </style>
