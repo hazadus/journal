@@ -54,10 +54,10 @@ export default {
     useFormatDateTime,
     useAuthorShortName,
     onClickEdit() {
-      alert('Edit comment ' + this.comment.id);
+      alert('В РАЗРАБОТКЕ!\nЗдесь редактирование пока не работает - воспользуйтесь кнопкой редактирования комментария на отдельной странице задачи.\n\nEdit comment ' + this.comment.id);
     },
     onClickArchive() {
-      alert('Archive comment ' + this.comment.id);
+      alert('В РАЗРАБОТКЕ!\nЗдесь удаление пока не работает - воспользуйтесь кнопкой удаления комментария на отдельной странице задачи.\n\nArchive comment ' + this.comment.id);
     },
     markdownToHtml(markedDownContent) {
       // Sanitizes `markedDownContent` and converts markdown to HTML.

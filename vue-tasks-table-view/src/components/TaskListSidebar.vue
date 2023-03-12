@@ -5,7 +5,13 @@
       <div class="d-flex align-items-center flex-shrink-0 p-3 link-dark text-decoration-none border-bottom">
         <div class="d-flex flex-grow-1">
           <div class="flex-grow-1">
-            Задач: {{ filteredTasks.length }} / {{ tasks.length }}
+            <!-- Show number of tasks -->
+            <i class="fa-solid fa-display"></i> {{ filteredTasks.length }} |      <!-- # tasks displayed  -->
+            <i class="fa-solid fa-eye-slash"></i> {{ newTasksCount }} |           <!-- # "new" tasks      -->
+            <i class="fa-solid fa-star"></i> {{ favoriteTasksCount }} |           <!-- # favorite tasks   -->
+            <i class="fa-solid fa-bars-progress"></i> {{ activeTasksCount }} |    <!-- # incomplete tasks -->
+            <i class="fa-solid fa-check-double"></i> {{ completedTasksCount }} |  <!-- # complete tasks   -->
+            <i class="fa-solid fa-tasks"></i> {{ tasks.length }}                  <!-- # tasks total      -->
           </div>
           <div>
             <!-- Show connection status -->
@@ -159,6 +165,20 @@ export default {
       detailItem: null,    // Full info about task selected in the sidebar
       comments: null,
     }
+  },
+  computed: {
+    newTasksCount() {
+      return this.tasks.filter((task) => !task.is_acquainted).length;
+    },
+    favoriteTasksCount() {
+      return this.tasks.filter((task) => task.is_favorite).length;
+    },
+    activeTasksCount() {
+      return this.tasks.filter((task) => !task.is_completed).length;
+    },
+    completedTasksCount() {
+      return this.tasks.filter((task) => task.is_completed).length;
+    },
   },
   methods: {
     useFormatDateTime,
