@@ -23,40 +23,41 @@
   <script src="{% static 'js/htmx-1.8.4.min.js' %}"></script>
   <script>
     // Network stuff
-    let chatSocket;
+    let webSocket;
 
-    function connect() {
+    function webSocketConnect() {
       // Establish WebSocket connection, and reconnect when socket is closed.
       const url = 'ws://' + window.location.host + '/ws/notifications/';
-      chatSocket = new WebSocket(url);
+      webSocket = new WebSocket(url);
 
-      chatSocket.onopen = function() {
+      webSocket.onopen = function() {
         console.log('Base: WebSocket opened.');
       };
 
-      chatSocket.onmessage = function(event) {
+      webSocket.onmessage = function(event) {
         const notification = JSON.parse(event.data);
         console.log('Base - WS message - verb: ' + notification.verb_code + ' from ' + notification.actor.username);
         // Update badges upon receiving any notification
-        // "task_add", "task_completed", "comment_add"
+        // "task_add", "task_completed", "comment_add", "acquainted"
         switch (notification.verb_code) {
           case "task_add":
           case "task_completed":
           case "comment_add":
+          case "acquainted":
             updateNewTaskCountBadges();
         }
       };
 
-      chatSocket.onclose = function(e) {
-        console.log('Base: Socket is closed unexpectedly. Reconnect will be attempted in 1 second.', e.reason);
+      webSocket.onclose = function(err) {
+        console.log('Base: Socket is closed unexpectedly. Reconnect will be attempted in 1 second. Error:', err.message);
         setTimeout(function() {
-          connect();
+          webSocketConnect();
         }, 1000);
       };
 
-      chatSocket.onerror = function(err) {
-        console.error('Base: Socket encountered error: ', err.message, 'Closing socket.');
-        chatSocket.close();
+      webSocket.onerror = function(err) {
+        console.error('Base: Socket encountered error: ', err.message, '. Closing socket.');
+        webSocket.close();
       };
     }
 
@@ -88,7 +89,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       // Connect to WebSocket
-      connect();
+      webSocketConnect();
 
       // Init HTMX
       document.body.addEventListener('htmx:configRequest', (event) => {
