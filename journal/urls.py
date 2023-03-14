@@ -5,7 +5,7 @@ from .views import (TaskListView, PrivateTaskListView, CompletedTaskListView, Ta
                     comment_edit_save, task_acquaint, SearchView, task_search, FavoriteTaskListView,
                     task_toggle_favorite, ReportListView, TableTaskListView, TableTaskListVueView)
 from .api import (TaskListAPI, TaskListStatsAPI, TaskCategoryListAPI, TaskDetailAPI, task_toggle_favorite_api,
-                  CommentListAPI, comment_create_api, task_acquaint_api)
+                  CommentListAPI, comment_create_api, comment_edit_api, task_acquaint_api)
 
 app_name = "journal"
 
@@ -38,5 +38,6 @@ urlpatterns = [
     path("tasks/api/v1/category_list/", TaskCategoryListAPI.as_view(), name="api_task_category_list"),
     path("tasks/api/v1/comment_list/", CommentListAPI.as_view(), name="api_task_comment_list"),
     path("tasks/api/v1/comment/", comment_create_api, name="api_task_comment_create"),
+    path("tasks/api/v1/comment/<int:pk>/edit/", comment_edit_api, name="api_task_comment_edit"),
     path("tasks/api/v1/task/<int:pk>/acquaint/", task_acquaint_api, name="api_task_acquaint"),
 ]

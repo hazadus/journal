@@ -127,3 +127,15 @@ class CommentCreateSerializer(serializers.ModelSerializer):
             "author",
             "body",
         ]
+
+
+class CommentEditSerializer(serializers.ModelSerializer):
+    """
+    Serializer for comment edits.
+    """
+    class Meta:
+        model = Comment
+        fields = [
+            "id",
+            "body",
+        ]

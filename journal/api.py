@@ -6,13 +6,15 @@ from rest_framework import status
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from rest_framework.generics import GenericAPIView, RetrieveAPIView, CreateAPIView, ListAPIView, get_object_or_404
+from rest_framework.generics import GenericAPIView, RetrieveAPIView, ListAPIView, get_object_or_404
 
 from users.models import CustomUser
 from core.models import Notification
 from .models import Task, Comment, TaskCategory
-from .serializers import (TaskSerializer, TaskDetailSerializer, TaskCategorySerializer, CommentSerializer,
-    CommentCreateSerializer)
+from .serializers import (
+    TaskSerializer, TaskDetailSerializer, TaskCategorySerializer, CommentSerializer, CommentCreateSerializer,
+    CommentEditSerializer
+)
 
 
 class TaskCategoryListAPI(ListAPIView):
@@ -374,6 +376,44 @@ def comment_create_api(request: Request) -> Response:
                               verb_code=Notification.VERB_CODES.task_completed, target=task)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(http_method_names=["POST"])
+def comment_edit_api(request: Request, pk: int) -> Response:
+    """
+    Edit a comment. Create notifictions including previous version of the comment.
+    Editing only allowed to author, admin, and only if the comment's task is not completed.
+
+    POST /journal/tasks/api/v1/comment/560/edit/
+    { 'body': 'New body content' }
+    """
+    serializer = CommentEditSerializer(data=request.data)
+
+    if serializer.is_valid():
+        comment = get_object_or_404(Comment, pk=pk)
+        task = comment.task
+        user = request.user
+
+        updated_comment_text = serializer.data["body"]
+        updated_comment_text = updated_comment_text.lstrip().rstrip()
+
+        can_edit = True if (user.is_superuser or comment.author == user) and not task.is_completed else False
+
+        if comment.body != updated_comment_text and can_edit:
+            previous_body = comment.body
+            comment.body = updated_comment_text
+            comment.save()
+
+            # Decide who we will notify
+            recipient = task.author if task.is_private else CustomUser.objects.all()
+
+            # Notify about comment edit
+            Notification.send(sender=user, actor=user, recipient=recipient,
+                              verb_code=Notification.VERB_CODES.comment_edit, target=comment,
+                              previous_body=previous_body, new_body=comment.body)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

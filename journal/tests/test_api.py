@@ -105,3 +105,45 @@ class JournalAPITest(APITestCase):
             "isCompleteTask": False,
         }, format="json")
         self.assertEqual(response.status_code, 400)
+
+    def test_comment_edit_api(self):
+        """
+        Test comment editing endpoint.
+        Try to edit by comment author.
+        """
+        # Login as usual user
+        url = reverse("login")
+        response = self.client.post(url, {"username": self.username, "password": self.password}, follow=True)
+
+        task = Task.objects.first()
+        comment = Comment.objects.create(task=task, author=self.new_user, body="Comment to edit")
+
+        url = f"/journal/tasks/api/v1/comment/{comment.id}/edit/"
+        new_body = "Changed comment body"
+        response = self.client.post(url, data={"body": new_body, }, format="json")
+        self.assertEqual(response.status_code, 200)
+
+        # Check if DB was actually updated
+        updated_comment = Comment.objects.get(pk=comment.pk)
+        self.assertEqual(updated_comment.body, new_body)
+
+    def test_comment_edit_api_by_another_user(self):
+        """
+        Test comment editing endpoint.
+        Try to edit comment by another user (not by it's author).
+        """
+        username = "anotheruser"
+        password = "password"
+
+        another_user = get_user_model().objects.create_user(username=username, password=password)
+        url = reverse("login")
+        self.client.post(url, {"username": username, "password": password}, follow=True)
+
+        task = Task.objects.first()
+        comment = Comment.objects.create(task=task, author=self.new_user, body="Comment to edit")
+
+        # Try to edit comment by wrong user
+        url = f"/journal/tasks/api/v1/comment/{comment.id}/edit/"
+        new_body = "Changed comment body"
+        response = self.client.post(url, data={"body": new_body, }, format="json")
+        self.assertEqual(response.status_code, 400)
