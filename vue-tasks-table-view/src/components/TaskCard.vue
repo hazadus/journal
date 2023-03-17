@@ -53,7 +53,7 @@
       </li>
     </ul>
 
-    <div v-if="isEditing" class="d-flex mb-3 flex-wrap ms-1 me-1">
+    <div v-if="isEditing" class="d-flex mb-1 flex-wrap ms-1 me-1">
       <!-- Comment editor -->
       <textarea v-if="activeEditorTabName === 'edit'" class="form-control"
                 v-model="modifiedBody"
@@ -68,7 +68,7 @@
       <div class="help-text flex-grow-1 text-muted p-1 align-items-center">
         <i class="fa-solid fa-info-circle"></i> В тексте задачи можно использовать разметку <a href="http://konvut.github.io/k50articles/" target="_blank">Markdown <i class="fa-solid fa-question-circle"></i></a> .
       </div>
-      <div class="btn-toolbar mt-1 mb-2 mb-md-0 justify-content-end">
+      <div class="btn-toolbar mt-1 mb-1 mb-md-0 justify-content-end">
         <button class="btn btn-sm btn-secondary me-1"
                 @click="isEditing=false">
           <i class="fa-solid fa-cancel"></i> Отмена
@@ -112,6 +112,15 @@ export default {
       modifiedBody: null, // Represents task body content changed while editing.
     }
   },
+  watch: {
+    task: {
+      handler() {
+        // When the `task` is changed (another task selected in the list), exit editing mode:
+        this.isEditing = false;
+      },
+      deep: true,
+    }
+  },
   computed: {
     textAreaRowsQty() {
       // Make text area taller to match number of lines in the comment,
@@ -143,6 +152,10 @@ export default {
 </script>
 
 <style scoped>
+  .nav-link {
+    font-size: 16px;
+  }
+
   .help-text {
     font-family: var(--font-family-condensed);
   }

@@ -78,6 +78,15 @@ export default {
       isAcquainting: false,
     }
   },
+  watch: {
+    task: {
+      handler() {
+        // Reset new comment text if another task was selected
+        this.newCommentText = '';
+      },
+      deep: true,
+    },
+  },
   methods: {
     useLinesCount,
     onClickSubmit() {

@@ -299,6 +299,13 @@ export default {
                 this.fetchSelectedTask();
               }
               break;
+
+            case "favorites_add":
+              // Re-fetch selected task only if it was added to favorites by current user
+              if ((this.latestNotification.actor.id === this.userInfo.id)
+                  && (this.latestNotification.target_obj_id === this.selectedItem.id)) {
+                this.fetchSelectedTask();
+              }
           }
         }
       },

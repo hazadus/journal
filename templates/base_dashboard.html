@@ -66,11 +66,13 @@
             <li class="nav-item {% if "/journal/tasks/table/" == request.path %}nav-item-active{% endif %}" style="margin-left: 20px;">
               <a class="nav-link {% if "/journal/tasks/table/" == request.path %}active{% endif %}" href="{% url 'journal:task_list_table' %}">
                 <i class="fa-solid fa-table"></i> Таблица
+                <span id="badge-total-new-task-count-1" class="badge text-bg-success" style="visibility: hidden;"></span>
               </a>
             </li>
             <li class="nav-item {% if "/tasks/table/vue/" in request.path %}nav-item-active{% endif %}" style="margin-left: 20px;">
               <a class="nav-link {% if "/tasks/table/vue/" in request.path %}active{% endif %}" href="{% url 'journal:task_list_table_vue' %}">
-                <i class="fa-solid fa-columns"></i> Колонки <span class="badge text-bg-warning">бета</span>
+                <i class="fa-solid fa-columns"></i> Колонки
+                <span id="badge-total-new-task-count-2" class="badge text-bg-success" style="visibility: hidden;"></span>
               </a>
             </li>
             <li class="nav-item {% if "/tasks/private/" in request.path %}nav-item-active{% endif %}" style="margin-left: 20px;">

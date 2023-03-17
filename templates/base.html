@@ -44,6 +44,7 @@
           case "task_completed":
           case "comment_add":
           case "acquainted":
+          case "favorites_add":
             updateNewTaskCountBadges();
         }
       };
@@ -71,6 +72,11 @@
       }
 
       fetch(url, options).then(response => response.json()).then(stats => {
+        badgeTotalNewTaskCount1.innerHTML = stats.total_new_tasks;
+        badgeTotalNewTaskCount1.style.visibility = stats.total_new_tasks === 0 ? 'hidden' : 'visible';
+        badgeTotalNewTaskCount2.innerHTML = stats.total_new_tasks;
+        badgeTotalNewTaskCount2.style.visibility = stats.total_new_tasks === 0 ? 'hidden' : 'visible';
+
         badgeActiveNewTaskCount.innerHTML = stats.active_new_tasks;
         badgeActiveNewTaskCount.style.visibility = stats.active_new_tasks === 0 ? 'hidden' : 'visible';
 
@@ -83,6 +89,8 @@
     }
 
     // Badges stuff
+    let badgeTotalNewTaskCount1 = document.getElementById('badge-total-new-task-count-1');
+    let badgeTotalNewTaskCount2 = document.getElementById('badge-total-new-task-count-2');
     let badgeActiveNewTaskCount = document.getElementById('badge-active-new-task-count');
     let badgeFavoriteNewTaskCount = document.getElementById('badge-favorite-new-task-count');
     let badgeCompletedNewTaskCount = document.getElementById('badge-completed-new-task-count');

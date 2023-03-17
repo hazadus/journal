@@ -163,6 +163,13 @@ export default {
           case "task_completed":
           case "comment_add":
             this.fetchAllTasks();
+            break;
+
+          case "favorites_add":
+            // Re-fetch only if something was added to favorites by current user
+            if (this.latestNotification.actor.id === this.userInfo?.id) {
+              this.fetchAllTasks();
+            }
         }
       };
 
