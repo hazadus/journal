@@ -1,3 +1,4 @@
+from django.db.models import Count, Q
 from django.http import HttpRequest, HttpResponse
 from django.views.decorators.http import require_POST
 from django.views.generic import ListView, DetailView
@@ -7,7 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 
 from django_project.spawn_redis import redis
-from .models import Document
+from .models import Document, DocumentCategory
 from users.models import CustomUser
 from core.models import Notification
 
@@ -20,6 +21,29 @@ class DocumentListView(LoginRequiredMixin, ListView):
     queryset = Document.objects.filter(is_completed=False, is_archived=False)
     template_name = "document_list.html"
     context_object_name = "document_list"
+
+    def get_context_data(self, **kwargs):
+        """
+        Add all document categories to context.
+        """
+        context = super().get_context_data(**kwargs)
+        category_id = self.request.GET.get("category_id")
+
+        categories = DocumentCategory.objects.all().annotate(
+            document_qty=Count("documents", filter=Q(documents__is_archived=False) & Q(documents__is_completed=False))
+        ).order_by("-document_qty")
+
+        document_list = Document.objects.filter(is_archived=False, is_completed=False)
+        total_count = document_list.count()
+
+        if category_id:
+            document_list = document_list.filter(category_id__exact=category_id)
+
+        context["categories"] = categories
+        context["category_id"] = int(category_id) if category_id else None
+        context["document_list"] = document_list
+        context["total_count"] = total_count
+        return context
 
 
 class DocumentDetailView(LoginRequiredMixin, DetailView):
