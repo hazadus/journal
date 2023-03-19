@@ -82,6 +82,22 @@ class DocumentListViewTest(TestCase):
 
         self.assertEqual(len(response.context["document_list"]), NUMBER_ACTUAL_DOCS)
 
+    def test_document_list_view_docs_by_category_count(self):
+        """
+        Check number of Documents shown in the list filtered by category
+        """
+        # Login as usual user
+        url = reverse("login")
+        response = self.client.post(url, {"username": self.username, "password": self.password},
+                                    follow=True)
+        category = DocumentCategory.objects.first()
+        # Go to list page
+        url = reverse("documents:document_list") + "?category_id=" + str(category.id)
+        response = self.client.get(url)
+
+        # Since we have only one category, there must be all "actual" documents in the list.
+        self.assertEqual(len(response.context["document_list"]), NUMBER_ACTUAL_DOCS)
+
     def test_document_detail_view(self):
         """
         Ensure that Document detail view works
