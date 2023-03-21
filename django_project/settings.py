@@ -177,7 +177,7 @@ NOTIFICATIONS_NOTIFICATION_MODEL = "core.Notification"
 # Which HTML tags are allowed
 BLEACH_ALLOWED_TAGS = [
     "p", "b", "i", "u", "em", "strong", "a", "code", "img", "s", "ol", "ul", "li", "br", "h1", "h2", "h3", "h4", "h5",
-    "h6", "table", "tr", "td", "thead", "tbody", "th", "blockquote", "pre", "code",
+    "h6", "table", "tr", "td", "thead", "tbody", "th", "blockquote", "pre", "code", "hr"
 ]
 
 # Which HTML attributes are allowed
