@@ -1,8 +1,9 @@
-from django.urls import reverse
-from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.test import TestCase
+from django.urls import reverse
 
 from users.models import CustomUser
+
 from .models import Document, DocumentCategory
 
 NUMBER_ACTUAL_DOCS = 10
@@ -14,6 +15,7 @@ class DocumentListViewTest(TestCase):
     """
     Test Document list view.
     """
+
     username = "testuser"
     password = "password"
     super_name = "superuser"
@@ -22,27 +24,48 @@ class DocumentListViewTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Create test users
-        new_user = get_user_model().objects.create_user(cls.username, password=cls.password)
-        super_user = get_user_model().objects.create_user(cls.super_name, password=cls.super_password,
-                                                          is_superuser=True)
+        new_user = get_user_model().objects.create_user(
+            cls.username, password=cls.password
+        )
+        super_user = get_user_model().objects.create_user(
+            cls.super_name, password=cls.super_password, is_superuser=True
+        )
 
-        category = DocumentCategory.objects.create(title="Misc", description="Miscellaneous stuff")
+        category = DocumentCategory.objects.create(
+            title="Misc", description="Miscellaneous stuff"
+        )
 
         for i_doc in range(NUMBER_ACTUAL_DOCS):
-            doc = Document.objects.create(title=f"Document {i_doc}", category=category, body=f"Document {i_doc} body.",
-                                          author=super_user, is_completed=False, is_archived=False)
+            doc = Document.objects.create(
+                title=f"Document {i_doc}",
+                category=category,
+                body=f"Document {i_doc} body.",
+                author=super_user,
+                is_completed=False,
+                is_archived=False,
+            )
             doc.users_acquainted.add(super_user)
 
         for i_doc in range(NUMBER_COMPLETED_DOCS):
-            doc = Document.objects.create(title=f"Completed document {i_doc}", category=category,
-                                          body=f"Completed document {i_doc} body.",
-                                          author=super_user, is_completed=True, is_archived=False)
+            doc = Document.objects.create(
+                title=f"Completed document {i_doc}",
+                category=category,
+                body=f"Completed document {i_doc} body.",
+                author=super_user,
+                is_completed=True,
+                is_archived=False,
+            )
             doc.users_acquainted.add(super_user)
 
         for i_doc in range(NUMBER_ARCHIVED_DOCS):
-            doc = Document.objects.create(title=f"Archived document {i_doc}", category=category,
-                                          body=f"Archived document {i_doc} body.",
-                                          author=super_user, is_completed=False, is_archived=True)
+            doc = Document.objects.create(
+                title=f"Archived document {i_doc}",
+                category=category,
+                body=f"Archived document {i_doc} body.",
+                author=super_user,
+                is_completed=False,
+                is_archived=True,
+            )
             doc.users_acquainted.add(super_user)
 
     def test_documents_list_url(self):
@@ -60,8 +83,9 @@ class DocumentListViewTest(TestCase):
         """
         # Login as usual user
         url = reverse("login")
-        response = self.client.post(url, {"username": self.username, "password": self.password},
-                                    follow=True)
+        response = self.client.post(
+            url, {"username": self.username, "password": self.password}, follow=True
+        )
         # Go to list page
         url = reverse("documents:document_list")
         response = self.client.get(url)
@@ -74,8 +98,9 @@ class DocumentListViewTest(TestCase):
         """
         # Login as usual user
         url = reverse("login")
-        response = self.client.post(url, {"username": self.username, "password": self.password},
-                                    follow=True)
+        response = self.client.post(
+            url, {"username": self.username, "password": self.password}, follow=True
+        )
         # Go to list page
         url = reverse("documents:document_list")
         response = self.client.get(url)
@@ -88,8 +113,9 @@ class DocumentListViewTest(TestCase):
         """
         # Login as usual user
         url = reverse("login")
-        response = self.client.post(url, {"username": self.username, "password": self.password},
-                                    follow=True)
+        response = self.client.post(
+            url, {"username": self.username, "password": self.password}, follow=True
+        )
         category = DocumentCategory.objects.first()
         # Go to list page
         url = reverse("documents:document_list") + "?category_id=" + str(category.id)
@@ -104,8 +130,9 @@ class DocumentListViewTest(TestCase):
         """
         # Login as usual user
         url = reverse("login")
-        response = self.client.post(url, {"username": self.username, "password": self.password},
-                                    follow=True)
+        response = self.client.post(
+            url, {"username": self.username, "password": self.password}, follow=True
+        )
 
         doc = Document.objects.first()
         url = doc.get_absolute_url()
@@ -119,8 +146,9 @@ class DocumentListViewTest(TestCase):
         """
         # Login as usual user
         url = reverse("login")
-        response = self.client.post(url, {"username": self.username, "password": self.password},
-                                    follow=True)
+        response = self.client.post(
+            url, {"username": self.username, "password": self.password}, follow=True
+        )
 
         doc = Document.objects.first()
         url = doc.get_absolute_url()
@@ -134,8 +162,9 @@ class DocumentListViewTest(TestCase):
         """
         # Login as usual user
         url = reverse("login")
-        response = self.client.post(url, {"username": self.username, "password": self.password},
-                                    follow=True)
+        response = self.client.post(
+            url, {"username": self.username, "password": self.password}, follow=True
+        )
 
         user = CustomUser.objects.get(username=self.username)
         doc = Document.objects.first()
@@ -152,8 +181,9 @@ class DocumentListViewTest(TestCase):
         """
         # Login as usual user
         url = reverse("login")
-        response = self.client.post(url, {"username": self.username, "password": self.password},
-                                    follow=True)
+        response = self.client.post(
+            url, {"username": self.username, "password": self.password}, follow=True
+        )
 
         user = CustomUser.objects.get(username=self.username)
         doc = Document.objects.first()
@@ -166,4 +196,4 @@ class DocumentListViewTest(TestCase):
         doc = Document.objects.get(pk=pk)
 
         self.assertEqual(response.status_code, 200)
-        assert(user in doc.users_acquainted.all())
+        assert user in doc.users_acquainted.all()

@@ -1,18 +1,25 @@
-from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db.models import Case, Count, OuterRef, Q, Subquery, Value, When
 from django.db.models.expressions import RawSQL
 from django.db.models.functions import TruncMonth
 from django.http import HttpRequest, HttpResponse
+from django.shortcuts import get_object_or_404, render
+from django.utils import timezone
 from django.views.decorators.http import require_POST
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.db.models import Q, Case, When, Value, OuterRef, Subquery, Count
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, TemplateView
+from django.views.generic import (
+    CreateView,
+    DetailView,
+    ListView,
+    TemplateView,
+    UpdateView,
+)
 
-from users.models import CustomUser
 from core.models import Notification
 from django_project.spawn_redis import redis
-from .models import Task, Comment, Report, TaskCategory
+from users.models import CustomUser
+
+from .models import Comment, Report, Task, TaskCategory
 
 
 class TaskListAnnotateMixin(ListView):
@@ -23,6 +30,7 @@ class TaskListAnnotateMixin(ListView):
         is_favorite: is task favorited by logged in user (actually equals `username` or None respectively);
         is_acquainted: is logged in user acquainted with the task and all of its non-archived comments, boolean.
     """
+
     def get_context_data(self, **kwargs):
         """
         Add annotation to QuerySet depending on current user.
@@ -36,23 +44,25 @@ class TaskListAnnotateMixin(ListView):
         )
 
         task_list = task_list.annotate(
-            new_comments_count=RawSQL("""
+            new_comments_count=RawSQL(
+                """
                     SELECT COUNT(*) AS "__count"
                     FROM "journal_comment"
                     WHERE ("journal_comment"."task_id" IN ("journal_task"."id")
                     AND NOT "journal_comment"."is_archived"
                     AND NOT (EXISTS(SELECT '1' AS "a" FROM "journal_comment_users_acquainted" U1 
                     WHERE (U1."customuser_id" IN (%s) AND U1."comment_id" = ("journal_comment"."id")) LIMIT 1)))
-                 """, (self.request.user.pk,))
-
+                 """,
+                (self.request.user.pk,),
+            )
         )
 
         # `is_favorite` will be `username` if user favorited the Task, or else None
         task_list = task_list.annotate(
             is_favorite=Subquery(
                 CustomUser.objects.filter(
-                    Q(tasks_favorited__in=OuterRef("pk")) &
-                    Q(tasks_favorited__users_favorited__exact=self.request.user.pk)
+                    Q(tasks_favorited__in=OuterRef("pk"))
+                    & Q(tasks_favorited__users_favorited__exact=self.request.user.pk)
                 ).values("username")
             )
         )
@@ -61,8 +71,8 @@ class TaskListAnnotateMixin(ListView):
         task_list = task_list.annotate(
             is_acquainted_task=Subquery(
                 CustomUser.objects.filter(
-                    Q(tasks_acquainted__in=OuterRef("pk")) &
-                    Q(tasks_acquainted__users_acquainted__exact=self.request.user.pk)
+                    Q(tasks_acquainted__in=OuterRef("pk"))
+                    & Q(tasks_acquainted__users_acquainted__exact=self.request.user.pk)
                 ).values("username")
             )
         )
@@ -70,9 +80,11 @@ class TaskListAnnotateMixin(ListView):
         # `id_latest_comment_unacqainted` will be id of the newest unacquainted comment, or else None
         task_list = task_list.annotate(
             id_latest_comment_unacqainted=Subquery(
-                Comment.objects.filter(Q(task_id=OuterRef("pk")) &
-                                       ~Q(users_acquainted__exact=self.request.user.pk) &
-                                       Q(is_archived=False))
+                Comment.objects.filter(
+                    Q(task_id=OuterRef("pk"))
+                    & ~Q(users_acquainted__exact=self.request.user.pk)
+                    & Q(is_archived=False)
+                )
                 .order_by("-created")
                 .values("id")
             )
@@ -83,9 +95,9 @@ class TaskListAnnotateMixin(ListView):
             is_acquainted=Case(
                 When(
                     Q(is_acquainted_task=None) | ~Q(id_latest_comment_unacqainted=None),
-                    then=Value(False)
+                    then=Value(False),
                 ),
-                default=Value(True)
+                default=Value(True),
             )
         ).select_related("category")
 
@@ -118,7 +130,9 @@ class TaskListFilterMixin(ListView):
             self.request.session["hide_private"] = get_hide_private
             if get_hide_private == "true":
                 context["get_hide_private"] = True
-                context[self.context_object_name] = task_list.exclude(Q(is_private=True))
+                context[self.context_object_name] = task_list.exclude(
+                    Q(is_private=True)
+                )
             elif get_hide_private == "false":
                 context["get_hide_private"] = False
 
@@ -158,8 +172,7 @@ class TaskListOrderMixin(ListView):
             case "latest_comment":
                 task_list = task_list.annotate(
                     last_comment_datetime=Subquery(
-                        Comment.objects
-                        .filter(task_id=OuterRef("pk"))
+                        Comment.objects.filter(task_id=OuterRef("pk"))
                         .order_by("-created")
                         .values("created")
                     )
@@ -173,10 +186,17 @@ class TaskListOrderMixin(ListView):
         return context
 
 
-class TaskListView(LoginRequiredMixin, TaskListAnnotateMixin, TaskListFilterMixin, TaskListOrderMixin, ListView):
+class TaskListView(
+    LoginRequiredMixin,
+    TaskListAnnotateMixin,
+    TaskListFilterMixin,
+    TaskListOrderMixin,
+    ListView,
+):
     """
     "Задачи" view in Dashboard (all active - without completed - tasks).
     """
+
     model = Task
     template_name = "task_list.html"
     queryset = Task.objects.filter(is_completed=False, is_archived=False)
@@ -194,12 +214,18 @@ class TaskListView(LoginRequiredMixin, TaskListAnnotateMixin, TaskListFilterMixi
         return context
 
 
-class CompletedTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, TaskListFilterMixin, TaskListOrderMixin,
-                            ListView):
+class CompletedTaskListView(
+    LoginRequiredMixin,
+    TaskListAnnotateMixin,
+    TaskListFilterMixin,
+    TaskListOrderMixin,
+    ListView,
+):
     """
     "Задачи" - "Завершенные" view in Dashboard (completed: public tasks, private tasks for this user, archived tasks
     excluded).
     """
+
     model = Task
     template_name = "task_list_completed.html"
     queryset = Task.objects.filter(is_completed=True, is_archived=False)
@@ -217,13 +243,22 @@ class CompletedTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, TaskListF
         return context
 
 
-class PrivateTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, TaskListFilterMixin, TaskListOrderMixin, ListView):
+class PrivateTaskListView(
+    LoginRequiredMixin,
+    TaskListAnnotateMixin,
+    TaskListFilterMixin,
+    TaskListOrderMixin,
+    ListView,
+):
     """
     "Задачи" - "Личные" view in Dashboard (active private tasks of logged in user)
     """
+
     model = Task
     template_name = "task_list_private.html"
-    queryset = Task.objects.filter(is_completed=False, is_archived=False, is_private=True)
+    queryset = Task.objects.filter(
+        is_completed=False, is_archived=False, is_private=True
+    )
     context_object_name = "private_task_list"
 
     def get_context_data(self, **kwargs):
@@ -232,15 +267,23 @@ class PrivateTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, TaskListFil
         """
         context = super().get_context_data(**kwargs)
         private_task_list = context["private_task_list"]
-        context["private_task_list"] = private_task_list.filter(author=self.request.user)
+        context["private_task_list"] = private_task_list.filter(
+            author=self.request.user
+        )
         return context
 
 
-class FavoriteTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, TaskListFilterMixin, TaskListOrderMixin,
-                           ListView):
+class FavoriteTaskListView(
+    LoginRequiredMixin,
+    TaskListAnnotateMixin,
+    TaskListFilterMixin,
+    TaskListOrderMixin,
+    ListView,
+):
     """
     List favorite tasks of current user.
     """
+
     model = Task
     template_name = "task_list_favorites.html"
     context_object_name = "favorite_task_list"
@@ -261,6 +304,7 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
     """
     Task detail view.
     """
+
     model = Task
     template_name = "task_detail.html"
     context_object_name = "task"
@@ -287,6 +331,7 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
     """
     Task create view.
     """
+
     model = Task
     fields = ["title", "category", "body", "is_private", "due_date", "attachment"]
     template_name = "task_create.html"
@@ -305,11 +350,13 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
         # Decide who we will notify
         recipient = task.author if task.is_private else CustomUser.objects.all()
 
-        Notification.send(sender=self.request.user,
-                          actor=self.request.user,
-                          recipient=recipient,
-                          verb_code=Notification.VERB_CODES.task_add,
-                          target=task)
+        Notification.send(
+            sender=self.request.user,
+            actor=self.request.user,
+            recipient=recipient,
+            verb_code=Notification.VERB_CODES.task_add,
+            target=task,
+        )
 
         return super().form_valid(form)
 
@@ -318,6 +365,7 @@ class TaskUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     """
     Task update view.
     """
+
     model = Task
     fields = ["title", "category", "body", "is_private", "due_date", "attachment"]
     template_name = "task_update.html"
@@ -354,10 +402,17 @@ class TaskUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
         # Notify only if title or body has changed
         if previous_title or previous_body:
-            Notification.send(sender=self.request.user, actor=self.request.user, recipient=recipient,
-                              verb_code=Notification.VERB_CODES.task_edit, target=task,
-                              previous_title=previous_title, previous_body=previous_body,
-                              new_title=new_title, new_body=new_body)
+            Notification.send(
+                sender=self.request.user,
+                actor=self.request.user,
+                recipient=recipient,
+                verb_code=Notification.VERB_CODES.task_edit,
+                target=task,
+                previous_title=previous_title,
+                previous_body=previous_body,
+                new_title=new_title,
+                new_body=new_body,
+            )
 
         # Super actually saves updated task to DB
         return super().form_valid(form)
@@ -376,7 +431,9 @@ def comment_add(request: HttpRequest, pk: int) -> HttpResponse:
 
     if new_comment_body:
         # Create new comment, and auto-acquaint author:
-        new_comment = Comment.objects.create(task=task, author=request.user, body=new_comment_body)
+        new_comment = Comment.objects.create(
+            task=task, author=request.user, body=new_comment_body
+        )
         new_comment.users_acquainted.add(request.user)
         # Check if the task must be completed:
         if check_complete_task == "complete":
@@ -388,17 +445,32 @@ def comment_add(request: HttpRequest, pk: int) -> HttpResponse:
         recipient = task.author if task.is_private else CustomUser.objects.all()
 
         # Notify about new comment
-        Notification.send(sender=request.user, actor=request.user, recipient=recipient,
-                          verb_code=Notification.VERB_CODES.comment_add, action_object=new_comment, target=task)
+        Notification.send(
+            sender=request.user,
+            actor=request.user,
+            recipient=recipient,
+            verb_code=Notification.VERB_CODES.comment_add,
+            action_object=new_comment,
+            target=task,
+        )
 
         # Notify about completed task
         if task.is_completed:
-            Notification.send(sender=request.user, actor=request.user, recipient=recipient,
-                              verb_code=Notification.VERB_CODES.task_completed, target=task)
+            Notification.send(
+                sender=request.user,
+                actor=request.user,
+                recipient=recipient,
+                verb_code=Notification.VERB_CODES.task_completed,
+                target=task,
+            )
 
-    return render(request, "snippets/task_comments_block.html", {
-        "task": task,
-    })
+    return render(
+        request,
+        "snippets/task_comments_block.html",
+        {
+            "task": task,
+        },
+    )
 
 
 @login_required
@@ -414,13 +486,19 @@ def comment_delete(request: HttpRequest, task_pk: int, comment_pk: int) -> HttpR
     if request.user.is_superuser:
         comment.delete()
 
-    return render(request, "snippets/task_comments_block.html", {
-        "task": task,
-    })
+    return render(
+        request,
+        "snippets/task_comments_block.html",
+        {
+            "task": task,
+        },
+    )
 
 
 @login_required
-def comment_archive(request: HttpRequest, task_pk: int, comment_pk: int) -> HttpResponse:
+def comment_archive(
+    request: HttpRequest, task_pk: int, comment_pk: int
+) -> HttpResponse:
     """
     Archive comment ("archive" is kind of "soft delete" - removes comment from all views, but leaves it in DB).
     HTMX view: archive the comment, then return part of the page with comments block.
@@ -429,13 +507,19 @@ def comment_archive(request: HttpRequest, task_pk: int, comment_pk: int) -> Http
     comment = get_object_or_404(Comment, pk=comment_pk)
 
     # Only allow superusers or authors (if task is not completed) to archive comments:
-    if request.user.is_superuser or (request.user == comment.author and not task.is_completed):
+    if request.user.is_superuser or (
+        request.user == comment.author and not task.is_completed
+    ):
         comment.is_archived = True
         comment.save()
 
-    return render(request, "snippets/task_comments_block.html", {
-        "task": task,
-    })
+    return render(
+        request,
+        "snippets/task_comments_block.html",
+        {
+            "task": task,
+        },
+    )
 
 
 @login_required
@@ -446,9 +530,13 @@ def comment_edit(request: HttpRequest, comment_pk: int) -> HttpResponse:
     """
     comment = get_object_or_404(Comment, pk=comment_pk)
 
-    return render(request, "snippets/task_comment_edit.html", {
-        "comment": comment,
-    })
+    return render(
+        request,
+        "snippets/task_comment_edit.html",
+        {
+            "comment": comment,
+        },
+    )
 
 
 @login_required
@@ -459,9 +547,13 @@ def comment_show(request: HttpRequest, comment_pk: int) -> HttpResponse:
     """
     comment = get_object_or_404(Comment, pk=comment_pk)
 
-    return render(request, "snippets/task_comment_show.html", {
-        "comment": comment,
-    })
+    return render(
+        request,
+        "snippets/task_comment_show.html",
+        {
+            "comment": comment,
+        },
+    )
 
 
 @login_required
@@ -478,7 +570,11 @@ def comment_edit_save(request: HttpRequest, comment_pk: int) -> HttpResponse:
     updated_comment_text = request.POST.get("updated_comment_text")
     updated_comment_text = updated_comment_text.lstrip().rstrip()
 
-    can_edit = True if (user.is_superuser or comment.author == user) and not task.is_completed else False
+    can_edit = (
+        True
+        if (user.is_superuser or comment.author == user) and not task.is_completed
+        else False
+    )
 
     if comment.body != updated_comment_text and can_edit:
         previous_body = comment.body
@@ -489,13 +585,23 @@ def comment_edit_save(request: HttpRequest, comment_pk: int) -> HttpResponse:
         recipient = task.author if task.is_private else CustomUser.objects.all()
 
         # Notify about comment edit
-        Notification.send(sender=user, actor=user, recipient=recipient,
-                          verb_code=Notification.VERB_CODES.comment_edit, target=comment,
-                          previous_body=previous_body, new_body=comment.body)
+        Notification.send(
+            sender=user,
+            actor=user,
+            recipient=recipient,
+            verb_code=Notification.VERB_CODES.comment_edit,
+            target=comment,
+            previous_body=previous_body,
+            new_body=comment.body,
+        )
 
-    return render(request, "snippets/task_comment_show.html", {
-        "comment": comment,
-    })
+    return render(
+        request,
+        "snippets/task_comment_show.html",
+        {
+            "comment": comment,
+        },
+    )
 
 
 @login_required
@@ -518,20 +624,29 @@ def task_acquaint(request: HttpRequest, pk: int) -> HttpResponse:
             comment.users_acquainted.add(user)
 
     # Notify admins
-    Notification.send(sender=request.user, actor=request.user,
-                      recipient=CustomUser.objects.filter(is_superuser=True),
-                      verb_code=Notification.VERB_CODES.acquainted, target=task)
+    Notification.send(
+        sender=request.user,
+        actor=request.user,
+        recipient=CustomUser.objects.filter(is_superuser=True),
+        verb_code=Notification.VERB_CODES.acquainted,
+        target=task,
+    )
 
-    return render(request, "snippets/task_full_block.html", {  # NB: full block, 'cause we gotta update the task too!
-        "task": task,
-        "is_favorite": is_favorite,
-    })
+    return render(
+        request,
+        "snippets/task_full_block.html",
+        {  # NB: full block, 'cause we gotta update the task too!
+            "task": task,
+            "is_favorite": is_favorite,
+        },
+    )
 
 
 class SearchView(LoginRequiredMixin, TemplateView):
     """
     Search results view.
     """
+
     template_name = "search.html"
 
 
@@ -546,16 +661,24 @@ def task_search(request: HttpRequest) -> HttpResponse:
     search_text = request.POST.get("search")
 
     # Exclude other user's private tasks, then search the remaining tasks (title, body, comments body)
-    found_task_list = Task.objects.exclude(
-        ~Q(author=user) & Q(is_private=True)
-    ).filter(
-        Q(title__icontains=search_text) | Q(body__icontains=search_text) | Q(comments__body__icontains=search_text)
-    ).distinct()
+    found_task_list = (
+        Task.objects.exclude(~Q(author=user) & Q(is_private=True))
+        .filter(
+            Q(title__icontains=search_text)
+            | Q(body__icontains=search_text)
+            | Q(comments__body__icontains=search_text)
+        )
+        .distinct()
+    )
 
-    return render(request, "snippets/task_search_results.html", {
-        "found_task_list": found_task_list,
-        "search_text": search_text,
-    })
+    return render(
+        request,
+        "snippets/task_search_results.html",
+        {
+            "found_task_list": found_task_list,
+            "search_text": search_text,
+        },
+    )
 
 
 @login_required
@@ -575,25 +698,32 @@ def task_toggle_favorite(request: HttpRequest, pk: int) -> HttpResponse:
         task.users_favorited.add(user)
         is_favorite = True
 
-        Notification.send(sender=request.user,
-                          actor=request.user,
-                          recipient=CustomUser.objects.filter(is_superuser=True),
-                          verb_code=Notification.VERB_CODES.favorites_add,
-                          target=task)
+        Notification.send(
+            sender=request.user,
+            actor=request.user,
+            recipient=CustomUser.objects.filter(is_superuser=True),
+            verb_code=Notification.VERB_CODES.favorites_add,
+            target=task,
+        )
     else:
         task.users_favorited.remove(user)
         is_favorite = False
 
-    return render(request, "snippets/task_list_item_favorite_button.html", {
-        "task": task,
-        "is_favorite": is_favorite,
-    })
+    return render(
+        request,
+        "snippets/task_list_item_favorite_button.html",
+        {
+            "task": task,
+            "is_favorite": is_favorite,
+        },
+    )
 
 
 class ReportListView(LoginRequiredMixin, ListView):
     """
     Report list view.
     """
+
     model = Report
     template_name = "report_list.html"
     context_object_name = "report_list"
@@ -612,8 +742,7 @@ class ReportListView(LoginRequiredMixin, ListView):
         reports_by_month = {}
         for month in months:
             reports = report_list.filter(
-                created__year=month.year,
-                created__month=month.month
+                created__year=month.year, created__month=month.month
             )
             dict_key = month.strftime("%b, %Y").capitalize()
             reports_by_month[dict_key] = list(reports)
@@ -626,6 +755,7 @@ class TableTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, ListView):
     """
     Table task list view (classic, i.e. server-side rendered).
     """
+
     model = Task
     template_name = "task_list_table.html"
     context_object_name = "task_list"
@@ -639,9 +769,7 @@ class TableTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, ListView):
         category = None
 
         # Exclude private tasks of other users
-        task_list = task_list.exclude(
-            ~Q(author=self.request.user) & Q(is_private=True)
-        )
+        task_list = task_list.exclude(~Q(author=self.request.user) & Q(is_private=True))
 
         category_id = self.request.GET.get("category_id")
         # If not in GET params, check the session params:
@@ -689,7 +817,9 @@ class TableTaskListView(LoginRequiredMixin, TaskListAnnotateMixin, ListView):
                 case "all":
                     self.request.session["is_private"] = "all"
 
-        task_list = task_list.order_by("is_acquainted", "-is_favorite", "is_completed", "-completed", "-created")
+        task_list = task_list.order_by(
+            "is_acquainted", "-is_favorite", "is_completed", "-completed", "-created"
+        )
 
         categories = TaskCategory.objects.all()
 
@@ -706,4 +836,5 @@ class TableTaskListVueView(LoginRequiredMixin, TemplateView):
     """
     View for Vue app.
     """
+
     template_name = "task_list_table_vue.html"

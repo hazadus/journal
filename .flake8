@@ -1,0 +1,4 @@
+[flake8]
+max-line-length = 160
+max-complexity = 3
+exclude = __pycache__, .venv, docker, htmlcov, media, static, staticfiles, vue-tasks-table-view

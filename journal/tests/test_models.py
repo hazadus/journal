@@ -1,16 +1,17 @@
 from datetime import date
 
-from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase
 
+from journal.models import Comment, Report, Task, TaskCategory
 from users.models import CustomUser
-from journal.models import Task, TaskCategory, Comment, Report
 
 
 class TaskModelTest(TestCase):
     """
     Test Task, TaskCategory models.
     """
+
     username = "testuser"
     password = "password"
     category_title = "New category"
@@ -21,21 +22,27 @@ class TaskModelTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        new_user = CustomUser.objects.create_user(
-            cls.username, password=cls.password
-        )
-        new_category = TaskCategory.objects.create(
-            title=cls.category_title
-        )
+        new_user = CustomUser.objects.create_user(cls.username, password=cls.password)
+        new_category = TaskCategory.objects.create(title=cls.category_title)
         task = Task.objects.create(
-            author=new_user, title=cls.task_title, category=new_category, body=cls.task_body, due_date=date.today(),
+            author=new_user,
+            title=cls.task_title,
+            category=new_category,
+            body=cls.task_body,
+            due_date=date.today(),
         )
         # Add one `active` and one `archived` comment to the task:
         active_comment = Comment.objects.create(
-            author=new_user, task=task, body=cls.comment_body_active, is_archived=False,
+            author=new_user,
+            task=task,
+            body=cls.comment_body_active,
+            is_archived=False,
         )
         archived_comment = Comment.objects.create(
-            author=new_user, task=task, body=cls.comment_body_archived, is_archived=True,
+            author=new_user,
+            task=task,
+            body=cls.comment_body_archived,
+            is_archived=True,
         )
 
     def test_task_and_category_created(self):
@@ -65,9 +72,7 @@ class TaskModelTest(TestCase):
         :return:
         """
         task = Task.objects.first()
-        self.assertEqual(
-            task.active_comments.count(), 1
-        )
+        self.assertEqual(task.active_comments.count(), 1)
 
     def test_task_is_overdue_and_is_due_today_properties(self):
         """
@@ -91,22 +96,23 @@ class TaskModelTest(TestCase):
         """
         task = Task.objects.first()
         comment = task.active_comments.first()
-        self.assertEqual(
-            comment.get_absolute_url(), "/journal/task/1/#comment-1"
-        )
+        self.assertEqual(comment.get_absolute_url(), "/journal/task/1/#comment-1")
 
 
 class ReportModelTest(TestCase):
     """
     Test Report model.
     """
+
     report_title = "Отчёт о передаче дежурства"
 
     @classmethod
     def setUpTestData(cls):
         # Content types: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types
         report_file = SimpleUploadedFile(
-            name="report.xlsx", content=b"excel_content", content_type="application/octet-stream"
+            name="report.xlsx",
+            content=b"excel_content",
+            content_type="application/octet-stream",
         )
 
         Report.objects.create(
@@ -119,15 +125,11 @@ class ReportModelTest(TestCase):
         Ensure that report created correctly.
         """
         report = Report.objects.first()
-        self.assertEqual(
-            report.title, self.report_title
-        )
+        self.assertEqual(report.title, self.report_title)
 
     def test_report_str(self):
         """
         Ensure that str representation of Report works correctly.
         """
         report = Report.objects.first()
-        self.assertEqual(
-            str(report), self.report_title
-        )
+        self.assertEqual(str(report), self.report_title)

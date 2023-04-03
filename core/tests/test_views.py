@@ -1,19 +1,21 @@
-from django.urls import reverse
-from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.test import TestCase
+from django.urls import reverse
 
 
 class DashboardViewTest(TestCase):
     """
     Test "core:dashboard" view (list of notifications for current user).
     """
+
     super_name = "superuser"
     super_password = "superword"
 
     @classmethod
     def setUpTestData(cls):
-        super_user = get_user_model().objects.create_user(cls.super_name, password=cls.super_password,
-                                                          is_superuser=True)
+        super_user = get_user_model().objects.create_user(
+            cls.super_name, password=cls.super_password, is_superuser=True
+        )
 
     def test_dashboard_without_login(self):
         """
@@ -30,8 +32,11 @@ class DashboardViewTest(TestCase):
         """
         # Login as superuser
         url = reverse("login")
-        response = self.client.post(url, {"username": self.super_name, "password": self.super_password},
-                                    follow=True)
+        response = self.client.post(
+            url,
+            {"username": self.super_name, "password": self.super_password},
+            follow=True,
+        )
         # Go to dashboard page
         url = reverse("core:dashboard")
         response = self.client.get(url)

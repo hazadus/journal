@@ -1,7 +1,6 @@
+import markdown as md
 from django import template
 from django.template.defaultfilters import stringfilter
-
-import markdown as md
 
 register = template.Library()
 
@@ -15,7 +14,9 @@ def markdown(value: str) -> str:
     :param value: text with Markdown markup.
     :return: input with Markdown markup converted to HTML.
     """
-    return md.markdown(value, extensions=["markdown.extensions.nl2br", "tables", "fenced_code"])
+    return md.markdown(
+        value, extensions=["markdown.extensions.nl2br", "tables", "fenced_code"]
+    )
 
 
 @register.filter

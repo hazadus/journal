@@ -1,19 +1,28 @@
-from django.utils import timezone
+from django.db.models import Case, Count, OuterRef, Q, Subquery, Value, When
 from django.db.models.expressions import RawSQL
-from django.db.models import Q, Case, When, Value, OuterRef, Subquery, Count
-
+from django.utils import timezone
 from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.generics import (
+    GenericAPIView,
+    ListAPIView,
+    RetrieveAPIView,
+    get_object_or_404,
+)
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from rest_framework.generics import GenericAPIView, RetrieveAPIView, ListAPIView, get_object_or_404
 
-from users.models import CustomUser
 from core.models import Notification
-from .models import Task, Comment, TaskCategory
+from users.models import CustomUser
+
+from .models import Comment, Task, TaskCategory
 from .serializers import (
-    TaskSerializer, TaskDetailSerializer, TaskCategorySerializer, CommentSerializer, CommentCreateSerializer,
-    CommentEditSerializer
+    CommentCreateSerializer,
+    CommentEditSerializer,
+    CommentSerializer,
+    TaskCategorySerializer,
+    TaskDetailSerializer,
+    TaskSerializer,
 )
 
 
@@ -21,6 +30,7 @@ class TaskCategoryListAPI(ListAPIView):
     """
     List all task categories.
     """
+
     queryset = TaskCategory.objects.all()
     serializer_class = TaskCategorySerializer
 
@@ -34,6 +44,7 @@ class TaskListAnnotateMixin(GenericAPIView):
     Field list for order_by() should be passed via orderByFields GET parameter.
     Ordering example: ?orderByFields=-is_favorite,-is_completed,-is_acquainted,-created,-completed
     """
+
     def get_queryset(self):
         """
         Annotate QuerySet. Exclude archived tasks and private tasks of other users.
@@ -42,14 +53,10 @@ class TaskListAnnotateMixin(GenericAPIView):
         task_list = Task.objects.all()
 
         # Exclude archived tasks
-        task_list = task_list.exclude(
-            is_archived=True
-        )
+        task_list = task_list.exclude(is_archived=True)
 
         # Exclude private tasks of other users
-        task_list = task_list.exclude(
-            ~Q(author=self.request.user) & Q(is_private=True)
-        )
+        task_list = task_list.exclude(~Q(author=self.request.user) & Q(is_private=True))
 
         # Count non-archived comments for each task
         task_list = task_list.annotate(
@@ -59,61 +66,64 @@ class TaskListAnnotateMixin(GenericAPIView):
         # Add category title
         task_list = task_list.annotate(
             category_title=Subquery(
-                TaskCategory.objects.filter(
-                    Q(id=OuterRef("category_id"))
-                ).values("title")
+                TaskCategory.objects.filter(Q(id=OuterRef("category_id"))).values(
+                    "title"
+                )
             )
         )
 
         # Add author info directly to comments:
         task_list = task_list.annotate(
             author_last_name=Subquery(
-                CustomUser.objects.filter(
-                    Q(pk=OuterRef("author_id"))
-                ).values("last_name")
+                CustomUser.objects.filter(Q(pk=OuterRef("author_id"))).values(
+                    "last_name"
+                )
             )
         )
         task_list = task_list.annotate(
             author_first_name=Subquery(
-                CustomUser.objects.filter(
-                    Q(pk=OuterRef("author_id"))
-                ).values("first_name")
+                CustomUser.objects.filter(Q(pk=OuterRef("author_id"))).values(
+                    "first_name"
+                )
             )
         )
         task_list = task_list.annotate(
             author_second_name=Subquery(
-                CustomUser.objects.filter(
-                    Q(pk=OuterRef("author_id"))
-                ).values("second_name")
+                CustomUser.objects.filter(Q(pk=OuterRef("author_id"))).values(
+                    "second_name"
+                )
             )
         )
 
         # Add author's avatar URL like: "images/v.skutin_profile_pic.jpg"
         task_list = task_list.annotate(
             author_avatar_url=Subquery(
-                CustomUser.objects.filter(
-                    Q(pk=OuterRef("author_id"))
-                ).values("avatar_img")
+                CustomUser.objects.filter(Q(pk=OuterRef("author_id"))).values(
+                    "avatar_img"
+                )
             )
         )
 
         task_list = task_list.annotate(
-            new_comments_count=RawSQL("""
+            new_comments_count=RawSQL(
+                """
                     SELECT COUNT(*) AS "__count"
                     FROM "journal_comment"
                     WHERE ("journal_comment"."task_id" IN ("journal_task"."id")
                     AND NOT "journal_comment"."is_archived"
                     AND NOT (EXISTS(SELECT '1' AS "a" FROM "journal_comment_users_acquainted" U1 
                     WHERE (U1."customuser_id" IN (%s) AND U1."comment_id" = ("journal_comment"."id")) LIMIT 1)))
-                 """, (self.request.user.pk,))
+                 """,
+                (self.request.user.pk,),
+            )
         )
 
         # `is_favorite` will be `username` if user favorited the Task, or else None
         task_list = task_list.annotate(
             is_favorite=Subquery(
                 CustomUser.objects.filter(
-                    Q(tasks_favorited__in=OuterRef("pk")) &
-                    Q(tasks_favorited__users_favorited__exact=self.request.user.pk)
+                    Q(tasks_favorited__in=OuterRef("pk"))
+                    & Q(tasks_favorited__users_favorited__exact=self.request.user.pk)
                 ).values("username")
             )
         )
@@ -122,8 +132,8 @@ class TaskListAnnotateMixin(GenericAPIView):
         task_list = task_list.annotate(
             is_acquainted_task=Subquery(
                 CustomUser.objects.filter(
-                    Q(tasks_acquainted__in=OuterRef("pk")) &
-                    Q(tasks_acquainted__users_acquainted__exact=self.request.user.pk)
+                    Q(tasks_acquainted__in=OuterRef("pk"))
+                    & Q(tasks_acquainted__users_acquainted__exact=self.request.user.pk)
                 ).values("username")
             )
         )
@@ -131,9 +141,11 @@ class TaskListAnnotateMixin(GenericAPIView):
         # `id_latest_comment_unacqainted` will be id of the newest unacquainted comment, or else None
         task_list = task_list.annotate(
             id_latest_comment_unacqainted=Subquery(
-                Comment.objects.filter(Q(task_id=OuterRef("pk")) &
-                                       ~Q(users_acquainted__exact=self.request.user.pk) &
-                                       Q(is_archived=False))
+                Comment.objects.filter(
+                    Q(task_id=OuterRef("pk"))
+                    & ~Q(users_acquainted__exact=self.request.user.pk)
+                    & Q(is_archived=False)
+                )
                 .order_by("-created")
                 .values("id")
             )
@@ -144,9 +156,9 @@ class TaskListAnnotateMixin(GenericAPIView):
             is_acquainted=Case(
                 When(
                     Q(is_acquainted_task=None) | ~Q(id_latest_comment_unacqainted=None),
-                    then=Value(False)
+                    then=Value(False),
                 ),
-                default=Value(True)
+                default=Value(True),
             )
         )
 
@@ -168,6 +180,7 @@ class TaskListAPI(TaskListAnnotateMixin, ListAPIView):
     """
     List all tasks. Less detailed data (no body, no author info).
     """
+
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
 
@@ -177,6 +190,7 @@ class TaskListStatsAPI(TaskListAnnotateMixin, ListAPIView):
     Returns some tasks stats for currently logged in user.
     These stats are used for badges in sidebar.
     """
+
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
 
@@ -191,22 +205,32 @@ class TaskListStatsAPI(TaskListAnnotateMixin, ListAPIView):
         favorite_new_tasks: number of "new" tasks favorited by user.
         completed_new_tasks: number of completed "new" tasks.
         """
-        total_new_tasks = self.get_queryset().filter(
-            is_acquainted=False, is_archived=False
-        ).count()
+        total_new_tasks = (
+            self.get_queryset().filter(is_acquainted=False, is_archived=False).count()
+        )
 
-        active_new_tasks = self.get_queryset().filter(
-            is_acquainted=False, is_completed=False, is_archived=False
-        ).count()
+        active_new_tasks = (
+            self.get_queryset()
+            .filter(is_acquainted=False, is_completed=False, is_archived=False)
+            .count()
+        )
 
         # Favorite tasks are those with `is_favorite != None`, according to our annotation.
-        favorite_new_tasks = self.get_queryset().filter(
-            Q(is_acquainted=False) & ~Q(is_favorite=None) & Q(is_archived=False)
-        ).count()
+        favorite_new_tasks = (
+            self.get_queryset()
+            .filter(
+                Q(is_acquainted=False) & ~Q(is_favorite=None) & Q(is_archived=False)
+            )
+            .count()
+        )
 
-        completed_new_tasks = self.get_queryset().filter(
-            Q(is_acquainted=False) & Q(is_completed=True) & Q(is_archived=False)
-        ).count()
+        completed_new_tasks = (
+            self.get_queryset()
+            .filter(
+                Q(is_acquainted=False) & Q(is_completed=True) & Q(is_archived=False)
+            )
+            .count()
+        )
 
         stats = {
             "total_new_tasks": total_new_tasks,
@@ -221,11 +245,12 @@ class TaskDetailAPI(TaskListAnnotateMixin, RetrieveAPIView):
     """
     Get one task by its pk. Detailed info including body, author first/second/last name, avatar url.
     """
+
     queryset = Task.objects.all()
     serializer_class = TaskDetailSerializer
 
 
-@api_view(http_method_names=['GET'])
+@api_view(http_method_names=["GET"])
 def task_toggle_favorite_api(request: Request, pk: int) -> Response:
     """
     Toggle "favorite" status for a task for current user. Send notifications.
@@ -238,11 +263,13 @@ def task_toggle_favorite_api(request: Request, pk: int) -> Response:
         task.users_favorited.add(user)
         is_favorite = True
 
-        Notification.send(sender=user,
-                          actor=user,
-                          recipient=CustomUser.objects.filter(is_superuser=True),
-                          verb_code=Notification.VERB_CODES.favorites_add,
-                          target=task)
+        Notification.send(
+            sender=user,
+            actor=user,
+            recipient=CustomUser.objects.filter(is_superuser=True),
+            verb_code=Notification.VERB_CODES.favorites_add,
+            target=task,
+        )
     else:
         task.users_favorited.remove(user)
         is_favorite = False
@@ -263,6 +290,7 @@ class CommentListAPI(ListAPIView):
     GET parameters:
         taskId - get comments for task width ID equal to taskId
     """
+
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
 
@@ -282,8 +310,10 @@ class CommentListAPI(ListAPIView):
         comment_list = comment_list.annotate(
             user_acquainted=Subquery(
                 CustomUser.objects.filter(
-                    Q(comments_acquainted__in=OuterRef("pk")) &
-                    Q(comments_acquainted__users_acquainted__exact=self.request.user.pk)
+                    Q(comments_acquainted__in=OuterRef("pk"))
+                    & Q(
+                        comments_acquainted__users_acquainted__exact=self.request.user.pk
+                    )
                 ).values("username")
             )
         )
@@ -292,41 +322,42 @@ class CommentListAPI(ListAPIView):
         comment_list = comment_list.annotate(
             is_acquainted=Case(
                 When(
-                    Q(user_acquainted=None), then=Value(False)  # User is not aquainted if there's None.
+                    Q(user_acquainted=None),
+                    then=Value(False),  # User is not aquainted if there's None.
                 ),
-                default=Value(True)
+                default=Value(True),
             )
         )
 
         # Add author info directly to comments:
         comment_list = comment_list.annotate(
             author_last_name=Subquery(
-                CustomUser.objects.filter(
-                    Q(pk=OuterRef("author_id"))
-                ).values("last_name")
+                CustomUser.objects.filter(Q(pk=OuterRef("author_id"))).values(
+                    "last_name"
+                )
             )
         )
         comment_list = comment_list.annotate(
             author_first_name=Subquery(
-                CustomUser.objects.filter(
-                    Q(pk=OuterRef("author_id"))
-                ).values("first_name")
+                CustomUser.objects.filter(Q(pk=OuterRef("author_id"))).values(
+                    "first_name"
+                )
             )
         )
         comment_list = comment_list.annotate(
             author_second_name=Subquery(
-                CustomUser.objects.filter(
-                    Q(pk=OuterRef("author_id"))
-                ).values("second_name")
+                CustomUser.objects.filter(Q(pk=OuterRef("author_id"))).values(
+                    "second_name"
+                )
             )
         )
 
         # Add author's avatar URL like: "images/v.skutin_profile_pic.jpg"
         comment_list = comment_list.annotate(
             author_avatar_url=Subquery(
-                CustomUser.objects.filter(
-                    Q(pk=OuterRef("author_id"))
-                ).values("avatar_img")
+                CustomUser.objects.filter(Q(pk=OuterRef("author_id"))).values(
+                    "avatar_img"
+                )
             )
         )
 
@@ -367,13 +398,24 @@ def comment_create_api(request: Request) -> Response:
         recipient = task.author if task.is_private else CustomUser.objects.all()
 
         # Notify about new comment
-        Notification.send(sender=request.user, actor=request.user, recipient=recipient,
-                          verb_code=Notification.VERB_CODES.comment_add, action_object=comment, target=task)
+        Notification.send(
+            sender=request.user,
+            actor=request.user,
+            recipient=recipient,
+            verb_code=Notification.VERB_CODES.comment_add,
+            action_object=comment,
+            target=task,
+        )
 
         # Notify about completed task
         if task.is_completed:
-            Notification.send(sender=request.user, actor=request.user, recipient=recipient,
-                              verb_code=Notification.VERB_CODES.task_completed, target=task)
+            Notification.send(
+                sender=request.user,
+                actor=request.user,
+                recipient=recipient,
+                verb_code=Notification.VERB_CODES.task_completed,
+                target=task,
+            )
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -398,7 +440,11 @@ def comment_edit_api(request: Request, pk: int) -> Response:
         updated_comment_text = serializer.data["body"]
         updated_comment_text = updated_comment_text.lstrip().rstrip()
 
-        can_edit = True if (user.is_superuser or comment.author == user) and not task.is_completed else False
+        can_edit = (
+            True
+            if (user.is_superuser or comment.author == user) and not task.is_completed
+            else False
+        )
 
         if comment.body != updated_comment_text and can_edit:
             previous_body = comment.body
@@ -409,9 +455,15 @@ def comment_edit_api(request: Request, pk: int) -> Response:
             recipient = task.author if task.is_private else CustomUser.objects.all()
 
             # Notify about comment edit
-            Notification.send(sender=user, actor=user, recipient=recipient,
-                              verb_code=Notification.VERB_CODES.comment_edit, target=comment,
-                              previous_body=previous_body, new_body=comment.body)
+            Notification.send(
+                sender=user,
+                actor=user,
+                recipient=recipient,
+                verb_code=Notification.VERB_CODES.comment_edit,
+                target=comment,
+                previous_body=previous_body,
+                new_body=comment.body,
+            )
 
             return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -434,9 +486,13 @@ def task_acquaint_api(request: Request, pk: int) -> Response:
             comment.users_acquainted.add(user)
 
     # Notify admins
-    Notification.send(sender=request.user, actor=request.user,
-                      recipient=CustomUser.objects.filter(is_superuser=True),
-                      verb_code=Notification.VERB_CODES.acquainted, target=task)
+    Notification.send(
+        sender=request.user,
+        actor=request.user,
+        recipient=CustomUser.objects.filter(is_superuser=True),
+        verb_code=Notification.VERB_CODES.acquainted,
+        target=task,
+    )
 
     response = {
         "username": user.username,
@@ -444,6 +500,6 @@ def task_acquaint_api(request: Request, pk: int) -> Response:
         "status": "User '{username}' acquainted with task '{task_title}'.".format(
             username=user.username,
             task_title=task.title,
-        )
+        ),
     }
     return Response(response)

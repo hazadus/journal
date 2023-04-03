@@ -6,6 +6,7 @@ class NotificationConsumer(WebsocketConsumer):
     """
     Consumer dedicated to sending Notifications via WebSockets.
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(args, kwargs)
         self.room_group_name = None

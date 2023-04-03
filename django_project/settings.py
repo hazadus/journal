@@ -2,7 +2,6 @@ from pathlib import Path
 
 from environs import Env
 
-
 env = Env()
 env.read_env()
 
@@ -29,8 +28,12 @@ ALLOWED_HOSTS = [
 if DEBUG:
     # Config internal ips for DjDT with Docker Compose
     import socket
+
     hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
-    INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1", "10.0.2.2"]
+    INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + [
+        "127.0.0.1",
+        "10.0.2.2",
+    ]
 
 HOST_NAME = env.str("HOST_NAME", "http://127.0.0.1")
 
@@ -176,18 +179,53 @@ NOTIFICATIONS_NOTIFICATION_MODEL = "core.Notification"
 # Django Bleach stuff
 # Which HTML tags are allowed
 BLEACH_ALLOWED_TAGS = [
-    "p", "b", "i", "u", "em", "strong", "a", "code", "img", "s", "ol", "ul", "li", "br", "h1", "h2", "h3", "h4", "h5",
-    "h6", "table", "tr", "td", "thead", "tbody", "th", "blockquote", "pre", "code", "hr"
+    "p",
+    "b",
+    "i",
+    "u",
+    "em",
+    "strong",
+    "a",
+    "code",
+    "img",
+    "s",
+    "ol",
+    "ul",
+    "li",
+    "br",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "table",
+    "tr",
+    "td",
+    "thead",
+    "tbody",
+    "th",
+    "blockquote",
+    "pre",
+    "code",
+    "hr",
 ]
 
 # Which HTML attributes are allowed
 BLEACH_ALLOWED_ATTRIBUTES = [
-    "href", "title", "style", "alt", "src",
+    "href",
+    "title",
+    "style",
+    "alt",
+    "src",
 ]
 
 # Which CSS properties are allowed in 'style' attributes (assuming tyle is an allowed attribute)
 BLEACH_ALLOWED_STYLES = [
-    "font-family", "font-weight", "text-decoration", "font-variant"
+    "font-family",
+    "font-weight",
+    "text-decoration",
+    "font-variant",
 ]
 
 # Strip unknown tags if True, replace with HTML escaped characters if False
@@ -211,9 +249,9 @@ TELEGRAM_ADMIN_ID = env.str("TELEGRAM_ADMIN_ID", None)
 
 # Django REST Framework
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
+    "DEFAULT_PERMISSION_CLASSES": [
         # Allow only authenticated users to get
-        'rest_framework.permissions.IsAuthenticated',
+        "rest_framework.permissions.IsAuthenticated",
     ]
 }
 

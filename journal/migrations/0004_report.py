@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("journal", "0003_alter_comment_options_task_users_favorited"),
     ]

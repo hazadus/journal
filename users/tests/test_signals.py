@@ -1,14 +1,15 @@
-from django.urls import reverse
 from django.test import TestCase
+from django.urls import reverse
 
-from users.models import CustomUser
 from core.models import Notification
+from users.models import CustomUser
 
 
 class UsersSignalsTest(TestCase):
     """
     Test signals sent when user logs in and out.
     """
+
     username = "testuser"
     password = "password"
     admin_username = "admin"
@@ -16,11 +17,11 @@ class UsersSignalsTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        new_user = CustomUser.objects.create_user(
-            cls.username, password=cls.password
-        )
+        new_user = CustomUser.objects.create_user(cls.username, password=cls.password)
         new_admin = CustomUser.objects.create_user(
-            cls.admin_username, password=cls.admin_password, is_superuser=True,
+            cls.admin_username,
+            password=cls.admin_password,
+            is_superuser=True,
         )
 
     def test_user_login_logout_signals(self):
@@ -29,15 +30,12 @@ class UsersSignalsTest(TestCase):
         """
         # Login
         url = reverse("login")
-        response = self.client.post(url, {"username": self.username, "password": self.password},
-                                    follow=True)
-        # We have one superuser, so one notification should be created:
-        self.assertEqual(
-            Notification.objects.count(), 1
+        response = self.client.post(
+            url, {"username": self.username, "password": self.password}, follow=True
         )
+        # We have one superuser, so one notification should be created:
+        self.assertEqual(Notification.objects.count(), 1)
         url = reverse("logout")
         response = self.client.get(url)
         # Second notification should be created after logout;
-        self.assertEqual(
-            Notification.objects.count(), 2
-        )
+        self.assertEqual(Notification.objects.count(), 2)

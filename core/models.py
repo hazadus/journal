@@ -1,29 +1,30 @@
 import json
 from typing import Any
 
-from django.db import models
-from django.conf import settings
-
-from model_utils import Choices
 from asgiref.sync import async_to_sync
-from rest_framework import serializers
-from notifications.signals import notify
 from channels.layers import get_channel_layer
+from django.conf import settings
+from django.db import models
+from model_utils import Choices
 from notifications.base.models import AbstractNotification
+from notifications.signals import notify
+from rest_framework import serializers
+
+from users.serializers import CustomUserMinimalSerializer
 
 from .tasks import telegram_inform_admin
-from users.serializers import CustomUserMinimalSerializer
 
 
 class File(models.Model):
     """
     Model representing arbitrary file stored online.
     """
+
     author = models.ForeignKey(
         verbose_name="Автор",
         to=settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="files_created"
+        related_name="files_created",
     )
     title = models.CharField(verbose_name="Название", max_length=256)
     file = models.FileField(verbose_name="Файл", upload_to="files/%Y/%m/%d")
@@ -57,22 +58,47 @@ class Notification(AbstractNotification):
     Must be used in `settings.py`:
     NOTIFICATIONS_NOTIFICATION_MODEL = "core.Notification"
     """
-    VERB_CODES = Choices("favorites_add", "task_add", "task_edit", "task_completed", "comment_add", "comment_edit",
-                         "acquainted", "report_add", "user_logged_in", "user_logged_out")
 
-    verb_code = models.CharField(verbose_name="Verb code", max_length=32, null=True, blank=True)
-    previous_title = models.CharField(verbose_name="Previous title", max_length=256, null=True, blank=True)
-    new_title = models.CharField(verbose_name="New title", max_length=256, null=True, blank=True)
-    previous_body = models.TextField(verbose_name="Previous body", null=True, blank=True)
+    VERB_CODES = Choices(
+        "favorites_add",
+        "task_add",
+        "task_edit",
+        "task_completed",
+        "comment_add",
+        "comment_edit",
+        "acquainted",
+        "report_add",
+        "user_logged_in",
+        "user_logged_out",
+    )
+
+    verb_code = models.CharField(
+        verbose_name="Verb code", max_length=32, null=True, blank=True
+    )
+    previous_title = models.CharField(
+        verbose_name="Previous title", max_length=256, null=True, blank=True
+    )
+    new_title = models.CharField(
+        verbose_name="New title", max_length=256, null=True, blank=True
+    )
+    previous_body = models.TextField(
+        verbose_name="Previous body", null=True, blank=True
+    )
     new_body = models.TextField(verbose_name="New body", null=True, blank=True)
 
     class Meta(AbstractNotification.Meta):
         abstract = False
 
     @classmethod
-    def add_custom_fields(cls, send_result:  list | list[tuple[Any | None, Any]],
-                          verb_code: str, previous_title: str = None, previous_body: str = None,
-                          new_title: str = None, new_body: str = None) -> None:
+    def add_custom_fields(
+        cls,
+        send_result: list | list[tuple[Any | None, Any]],
+        verb_code: str,
+        previous_title: str = None,
+        previous_body: str = None,
+        new_title: str = None,
+        new_body: str = None,
+    ) -> None:
         """
         Add values to our custom model fields.
 
@@ -93,8 +119,19 @@ class Notification(AbstractNotification):
             i_notify.save()
 
     @classmethod
-    def send(cls, sender, actor, recipient, verb_code, action_object=None, target=None, previous_title=None,
-             previous_body=None, new_title: str = None, new_body: str = None) -> None:
+    def send(
+        cls,
+        sender,
+        actor,
+        recipient,
+        verb_code,
+        action_object=None,
+        target=None,
+        previous_title=None,
+        previous_body=None,
+        new_title: str = None,
+        new_body: str = None,
+    ) -> None:
         """
         Custom wrapper for notify.send() and telegram_inform_admin() Celery task.
         Create notification(s) for an event: in DB (with additional fields), via Telegram (for admin).
@@ -113,32 +150,38 @@ class Notification(AbstractNotification):
             Notification.VERB_CODES.user_logged_out: "выходит из программного комплекса",
         }
 
-        result = notify.send(sender=sender,
-                             actor=actor,
-                             recipient=recipient,
-                             verb=verbs[verb_code],
-                             action_object=action_object,
-                             target=target)
-        Notification.add_custom_fields(send_result=result,
-                                       verb_code=verb_code,
-                                       previous_title=previous_title,
-                                       previous_body=previous_body,
-                                       new_title=new_title,
-                                       new_body=new_body)
+        result = notify.send(
+            sender=sender,
+            actor=actor,
+            recipient=recipient,
+            verb=verbs[verb_code],
+            action_object=action_object,
+            target=target,
+        )
+        Notification.add_custom_fields(
+            send_result=result,
+            verb_code=verb_code,
+            previous_title=previous_title,
+            previous_body=previous_body,
+            new_title=new_title,
+            new_body=new_body,
+        )
 
         # Compose telegram message depending on verb and content type
         host = settings.HOST_NAME
         match verb_code:
             case "comment_add":
-                message = '{user} {verb} к ' \
-                          '<a href="{host}{url}">{target}</a>:\n"{comment}"'.format(
-                            host=host,
-                            user=actor.short_name,
-                            verb=verbs[verb_code],
-                            url=target.get_absolute_url(),
-                            target=str(target),
-                            comment=action_object.body,
-                            )
+                message = (
+                    "{user} {verb} к "
+                    '<a href="{host}{url}">{target}</a>:\n"{comment}"'.format(
+                        host=host,
+                        user=actor.short_name,
+                        verb=verbs[verb_code],
+                        url=target.get_absolute_url(),
+                        target=str(target),
+                        comment=action_object.body,
+                    )
+                )
             case "task_add":
                 message = '{user} {verb} <a href="{host}{url}">{target}</a>:\n"{task}"'.format(
                     host=host,
@@ -154,7 +197,7 @@ class Notification(AbstractNotification):
                     user=actor.short_name,
                     verb=verbs[verb_code],
                     target=str(target),
-                    url=target.get_absolute_url() if target else None
+                    url=target.get_absolute_url() if target else None,
                 )
             case "report_add":
                 message = '{user} {verb} <a href="{host}{url}">{target}</a>'.format(
@@ -162,10 +205,10 @@ class Notification(AbstractNotification):
                     user=actor.short_name,
                     verb=verbs[verb_code],
                     target=str(target),
-                    url=target.attachment.url
+                    url=target.attachment.url,
                 )
             case "user_logged_in" | "user_logged_out":
-                message = '{user} {verb}'.format(
+                message = "{user} {verb}".format(
                     user=actor.short_name,
                     verb=verbs[verb_code],
                 )
@@ -175,7 +218,7 @@ class Notification(AbstractNotification):
                     user=actor.short_name,
                     verb=verbs[verb_code],
                     target=str(target),
-                    url=target.get_absolute_url() if target else None
+                    url=target.get_absolute_url() if target else None,
                 )
 
         # Create Celery task to send Telegram message to admin
@@ -205,6 +248,7 @@ class NotificationSerializer(serializers.ModelSerializer):
     Serializer for Notification model.
     Used to send notification data to users via WebSockets.
     """
+
     actor = CustomUserMinimalSerializer(many=False, read_only=True)
     recipient = CustomUserMinimalSerializer(many=False, read_only=True)
     action_obj_id = serializers.IntegerField(source="action_object_object_id")

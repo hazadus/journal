@@ -1,7 +1,7 @@
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 @login_required
@@ -29,10 +29,18 @@ def dashboard(request: HttpRequest) -> HttpResponse:
             return HttpResponse("")
         notifications = paginator.page(paginator.num_pages)
 
-    template = "snippets/dashboard_timeline_items.html" if notifications_only else "dashboard.html"
+    template = (
+        "snippets/dashboard_timeline_items.html"
+        if notifications_only
+        else "dashboard.html"
+    )
 
-    return render(request, template, {
-        "notifications": notifications,
-        "paginator": paginator,
-        "page_obj": notifications,
-    })
+    return render(
+        request,
+        template,
+        {
+            "notifications": notifications,
+            "paginator": paginator,
+            "page_obj": notifications,
+        },
+    )

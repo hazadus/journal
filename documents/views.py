@@ -1,22 +1,24 @@
-from django.db.models import Count, Q
-from django.http import HttpRequest, HttpResponse
-from django.views.decorators.http import require_POST
-from django.views.generic import ListView, DetailView
-from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Count, Q
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import get_object_or_404, render
+from django.views.decorators.http import require_POST
+from django.views.generic import DetailView, ListView
 
-from django_project.spawn_redis import redis
-from .models import Document, DocumentCategory
-from users.models import CustomUser
 from core.models import Notification
+from django_project.spawn_redis import redis
+from users.models import CustomUser
+
+from .models import Document, DocumentCategory
 
 
 class DocumentListView(LoginRequiredMixin, ListView):
     """
     Document list view with all active (i.e. not completed, not archived) documents.
     """
+
     model = Document
     queryset = Document.objects.filter(is_completed=False, is_archived=False)
     template_name = "document_list.html"
@@ -29,9 +31,17 @@ class DocumentListView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         category_id = self.request.GET.get("category_id")
 
-        categories = DocumentCategory.objects.all().annotate(
-            document_qty=Count("documents", filter=Q(documents__is_archived=False) & Q(documents__is_completed=False))
-        ).order_by("-document_qty")
+        categories = (
+            DocumentCategory.objects.all()
+            .annotate(
+                document_qty=Count(
+                    "documents",
+                    filter=Q(documents__is_archived=False)
+                    & Q(documents__is_completed=False),
+                )
+            )
+            .order_by("-document_qty")
+        )
 
         document_list = Document.objects.filter(is_archived=False, is_completed=False)
         total_count = document_list.count()
@@ -50,6 +60,7 @@ class DocumentDetailView(LoginRequiredMixin, DetailView):
     """
     Document detail view.
     """
+
     model = Document
     template_name = "document_detail.html"
     context_object_name = "document"
@@ -64,7 +75,7 @@ class DocumentDetailView(LoginRequiredMixin, DetailView):
         # Get all notifications for this document
         document_notifications = Notification.objects.filter(
             target_object_id=document.pk,
-            target_content_type_id=ContentType.objects.get_for_model(document)
+            target_content_type_id=ContentType.objects.get_for_model(document),
         ).order_by("-timestamp")
         context["document_notifications"] = document_notifications
 
@@ -89,9 +100,18 @@ def document_acquaint(request: HttpRequest, pk: int) -> HttpResponse:
         document.users_acquainted.add(user)
 
     # Notify admins
-    Notification.send(sender=request.user, actor=request.user, recipient=CustomUser.objects.filter(is_superuser=True),
-                      verb_code=Notification.VERB_CODES.acquainted, target=document)
+    Notification.send(
+        sender=request.user,
+        actor=request.user,
+        recipient=CustomUser.objects.filter(is_superuser=True),
+        verb_code=Notification.VERB_CODES.acquainted,
+        target=document,
+    )
 
-    return render(request, "snippets/document_detail_item.html", {
-        "document": document,
-    })
+    return render(
+        request,
+        "snippets/document_detail_item.html",
+        {
+            "document": document,
+        },
+    )

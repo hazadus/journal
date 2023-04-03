@@ -7,6 +7,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     """
     Serializer for CustomUser model - full version.
     """
+
     class Meta:
         model = CustomUser
         fields = [
@@ -26,6 +27,7 @@ class CustomUserMinimalSerializer(serializers.ModelSerializer):
     """
     Serializer for CustomUser model - minimal version.
     """
+
     class Meta:
         model = CustomUser
         fields = [
