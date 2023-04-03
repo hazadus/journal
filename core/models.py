@@ -15,6 +15,40 @@ from .tasks import telegram_inform_admin
 from users.serializers import CustomUserMinimalSerializer
 
 
+class File(models.Model):
+    """
+    Model representing arbitrary file stored online.
+    """
+    author = models.ForeignKey(
+        verbose_name="Автор",
+        to=settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="files_created"
+    )
+    title = models.CharField(verbose_name="Название", max_length=256)
+    file = models.FileField(verbose_name="Файл", upload_to="files/%Y/%m/%d")
+    created = models.DateTimeField(verbose_name="Создан", auto_now_add=True)
+    updated = models.DateTimeField(verbose_name="Обновлён", auto_now=True)
+
+    class Meta:
+        verbose_name = "Файл"
+        verbose_name_plural = "Файлы"
+        ordering = ["-created"]
+
+    def __str__(self):
+        return self.title
+
+    @property
+    def markdown_link(self):
+        """
+        Return link to the file in Markdown format.
+        """
+        return "[{title}]({url})".format(
+            title=self.title,
+            url=self.file.url,
+        )
+
+
 class Notification(AbstractNotification):
     """
     Custom Notification model for `django-notifications-hq` app.
