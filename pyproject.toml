@@ -3,7 +3,7 @@ ignore-init-module = true
 ignore-module = true
 exclude = [
     "manage.py",
-    "core/migrations", "core/apps.py",
+    "core/migrations", "core/admin.py", "core/apps.py",
     "django_project/celery.py",
     "documents/migrations", "documents/admin.py", "documents/apps.py",
     "journal/migrations", "journal/admin.py", "journal/apps.py",
