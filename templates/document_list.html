@@ -11,7 +11,7 @@
 {% block content %}
   {% if document_list %}
     <div class="row">
-      <div class="col-3">
+      <div class="col-12 col-md-3">
         <nav class="nav flex-column">
           <li class="nav-item {% if not category_id %}nav-item-active{% endif %}">
             <a class="nav-link" href="{% url 'documents:document_list' %}">
@@ -19,15 +19,17 @@
             </a>
           </li>
           {% for category in categories %}
-            <li class="nav-item {% if category_id == category.id %}nav-item-active{% endif %}">
-              <a class="nav-link" href="{% url 'documents:document_list' %}?category_id={{ category.id }}">
-                {{ category.title }} ({{ category.document_qty }})
-              </a>
-            </li>
+            {% if category.document_qty %}
+              <li class="nav-item {% if category_id == category.id %}nav-item-active{% endif %}">
+                <a class="nav-link" href="{% url 'documents:document_list' %}?category_id={{ category.id }}">
+                  {{ category.title }} ({{ category.document_qty }})
+                </a>
+              </li>
+            {% endif %}
           {% endfor %}
         </nav>
       </div>
-      <div class="col-9">
+      <div class="col-12 col-md-9">
         {# List `green` documents on top of the list #}
         {% for document in document_list %}
           {% if not user in document.users_acquainted.all %}
