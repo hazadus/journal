@@ -15,7 +15,7 @@ class TaskCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ["body", "task", "author", "created", "is_archived"]
+    list_display = ["short_body", "task", "author", "created", "is_archived"]
     list_filter = ["is_archived"]
     ordering = ["-created"]
     # Which fields to show when editing comment via admin panel:

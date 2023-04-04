@@ -150,12 +150,20 @@ class Comment(models.Model):
         ordering = ["created"]
 
     def __str__(self):
-        return self.body
+        return self.body[:64]
 
     def get_absolute_url(self):
         return "{task_detail_link}#comment-{pk}".format(
             task_detail_link=self.task.get_absolute_url(), pk=self.pk
         )
+
+    @property
+    def short_body(self):
+        """
+        Trimmed body to display in admin panel.
+        """
+        _ellipsis = "..." if len(str(self.body)) > 128 else ""
+        return self.body[:128] + _ellipsis
 
 
 class Report(models.Model):
